@@ -1,0 +1,22 @@
+body.login {
+	background: #333;
+	color: #fff;
+	margin: 100px;
+}
+
+.loginWrap {
+	background: transparent url(/djangocms2000/media/images/overlay.png);
+	color: #fff;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
+input {
+
+}
+
+input.go {
+
+}

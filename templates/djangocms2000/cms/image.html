@@ -1,0 +1,34 @@
+{% load thumbnail %}
+
+
+
+{% if editable %}
+<div class='djangocms2000-image {% if not image.file %}placeholder{% endif %}' blocktype="image" label='{{ label }}' image_id='{{ image.id }}'>
+{% endif %}
+
+
+
+{% if image.file %}
+<img src="{% if crop %}{% thumbnail image.file constraint crop %}{% else %}{% thumbnail image.file constraint %}{% endif %}" alt="{{ image.description }}">
+{% else %}
+{% if defaultimage %}
+<img src="{% if crop %}{% thumbnail defaultimage constraint crop %}{% else %}{% thumbnail defaultimage constraint %}{% endif %}" alt="Default image">
+{% else %}
+{% if editable %}
+Click to add image {{ label }}
+{% endif %}
+{% endif %}
+{% endif %}
+
+
+
+{% if editable %}
+</div>
+{% endif %}
+
+
+
+
+
+
+
