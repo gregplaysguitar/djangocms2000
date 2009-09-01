@@ -24,7 +24,7 @@ if (id_list.length) {
         "content_css": "",
         "language": "en",
         //"spellchecker_languages": "Arabic=ar,Bengali=bn,Bulgarian=bg,Catalan=ca,Czech=cs,Welsh=cy,Danish=da,German=de,Greek=el,+English=en,Spanish / Argentinean Spanish=es,Estonian=et,Basque=eu,Persian=fa,Finnish=fi,French=fr,Irish=ga,Galician=gl,Hungarian=hu,Hebrew=he,Hindi=hi,Croatian=hr,Icelandic=is,Italian=it,Japanese=ja,Georgian=ka,Korean=ko,Khmer=km,Kannada=kn,Latvian=lv,Lithuanian=lt,Macedonian=mk,Dutch=nl,Norwegian=no,Polish=pl,Portuguese / Brazilian Portuguese=pt,Romanian=ro,Russian=ru,Slovak=sk,Slovenian=sl,Serbian=sr,Swedish=sv,Tamil=ta,Telugu=te,Thai=th,Turkish=tr,Ukrainian=uk,Simplified Chinese / Traditional Chinese=zh",
-        "theme_advanced_buttons1": "h3,h4,|,bold,italic,|,undo,redo,|,link,image,|,bullist,numlist,|,code,pastetext",
+        "theme_advanced_buttons1": "h3,h4,|,bold,italic,|,undo,redo,|,link,image,|,blockquote,bullist,numlist,|,code,pastetext",
         "directionality": "ltr",
         //"height": "200px",
         //"width": "620px",
