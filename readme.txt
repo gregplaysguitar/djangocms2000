@@ -1,9 +1,19 @@
-INSTALLATION:
+BASIC INSTALLATION:
+==================
 
-/djangocms2000/ -> djangocms2000.urls
-base.html: add cmsextra tag
-TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
+1) /djangocms2000/ -> djangocms2000.urls
+2) base.html: add cmsextra tag at bottom of page (or on individual templates if preferred)
+3) TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
+4) add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes
+5) Use ala flatpages
 
+
+
+
+
+
+MIGRATION SQL FOR OLDER VERSIONS
+================================
 
 BEGIN;
 alter table djangocms2000_block rename to _;
