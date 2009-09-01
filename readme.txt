@@ -2,10 +2,13 @@ BASIC INSTALLATION:
 ==================
 
 1) /djangocms2000/ -> djangocms2000.urls
-2) base.html: add cmsextra tag at bottom of page (or on individual templates if preferred)
+2) (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load djangocms2000_tags %} at the top)
 3) TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
-4) add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes
-5) Use ala flatpages
+4) Add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes
+5) Use {% cmsblock 'blockname' 'plain|html|markdown' %} to create editable blocks in templates
+6) Use {% cmsimage 'imagename' '400x300' %} to create editable images 
+6) Use ala flatpages
+7) Created pages can be edited in place if 2) was followed
 
 
 
