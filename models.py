@@ -48,6 +48,8 @@ class Block(models.Model):
 
     history = AuditTrail(show_in_admin=True)
     
+    def label_display(self):
+        return self.label.replace('-', ' ').replace('_', ' ').capitalize()
     
     def __unicode__(self):
         return self.label
@@ -70,6 +72,10 @@ class Image(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     history = AuditTrail(show_in_admin=True)
+
+    def label_display(self):
+        return self.label.replace('-', ' ').replace('_', ' ').title()
+    
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255, editable=False)

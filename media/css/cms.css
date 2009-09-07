@@ -143,14 +143,15 @@
 	color: inherit;
 	background: none;
 }
-#djangocms2000-textform input.save {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-}
+#djangocms2000-textform input.save,
 #djangocms2000-textform input.cancel {
 	position: absolute;
-	bottom: 0;
+	bottom: -50%;
+	right: 0;
+	font-size: 12px;
+	width: auto;
+}
+#djangocms2000-textform input.cancel {
 	right: 50px;
 }
 
@@ -174,7 +175,9 @@
 #djangocms2000-menu > div span.status a {
 	color: #aaa;
 }
-
+#djangocms2000-menu input {
+	width: auto;
+}
 
 
 #getarealbrowser {

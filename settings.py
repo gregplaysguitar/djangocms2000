@@ -13,6 +13,7 @@ ADMIN_JS = getattr(settings, 'DJANGOCMS2000_ADMIN_JS', (
     '/djangocms2000/media/tiny_mce/tiny_mce.js',
     '/djangocms2000/media/lib/jquery-1.3.2.min.js',
     '/djangocms2000/media/js/page_admin.js',
+    '/djangocms2000/page_admin_init.js',
 ))
 
 
@@ -21,3 +22,10 @@ ADMIN_CSS = getattr(settings, 'DJANGOCMS2000_ADMIN_CSS', {
 })
 
 ADMIN_CAN_DELETE_BLOCKS = getattr(settings, 'DJANGOCMS2000_ADMIN_CAN_DELETE_BLOCKS', settings.DEBUG)
+
+
+FILEBROWSER_URL_ADMIN = getattr(
+    settings,
+    'DJANGOCMS2000_FILEBROWSER_URL_ADMIN',
+    getattr(settings, 'FILEBROWSER_URL_ADMIN', '')
+)

@@ -1,9 +1,6 @@
-{# load md2 #}
+{% load djangocms2000_tags %}
 
-{% comment %}
-<a name="djangocms2000-anchor-{{ label }}"></a>
-{% endcomment %}
-
+{% zealousspaceless %}
 <span class='djangocms2000-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if sitewide %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}">
 	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
 	
@@ -21,7 +18,8 @@
 		{% endifequal %}
 		
 		{% else %}
-		Click to add {{ label }}
+    	Click to add text
 		{% endif %}
 	</span>
 </span>
+{% endzealousspaceless %}

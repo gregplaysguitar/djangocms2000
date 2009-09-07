@@ -8,6 +8,10 @@ from django.template import RequestContext
 from django.conf import settings
 import re, os
 from django.contrib.contenttypes.models import ContentType
+from djangocms2000 import settings as djangocms2000_settings
+
+
+
 
 def logout(request):
 	logout_request(request)
@@ -63,10 +67,22 @@ def saveimage(request):
 
 def render_page(request, uri):
     page = get_object_or_404(Page, uri=uri)
-    #print page.template, "/%s" % settings.TEMPLATE_DIRS[0]
     return render_to_response(
         page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
-        {'page': page},
+        {
+            'page': page,
+        },
         context_instance=RequestContext(request)
     )
 	
+	
+	
+# used to initialise django admin tinymce
+def page_admin_init(request):
+    return render_to_response(
+        'djangocms2000/cms/page_admin_init.js',
+        {
+            'djangocms2000_settings': djangocms2000_settings,
+        },
+        context_instance=RequestContext(request)
+    )

@@ -1,11 +1,11 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object) {
+var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url) {
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false;
 	
+	
 	if (!tinymce_init_object) {
 	    tinymce_init_object = {
-			/*
 			setup: function(ed) {
        
 				// Force Paste-as-Plain-Text
@@ -15,7 +15,6 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				});
 			   
 			},
-			*/
 			"elements": "id_raw_content",
 			"language": "en",
 			"directionality": "ltr",
@@ -27,15 +26,39 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			"content_css" : "/djangocms2000/media/css/tinymce_content.css",
 			"theme_advanced_toolbar_location" : "top",
 			"theme_advanced_toolbar_align" : "left",
-			"theme_advanced_buttons1" : "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,|,bullist,numlist,|,pastetext,code",
+			"theme_advanced_buttons1" : "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,|,bullist,numlist,image,|,pastetext,code",
 			"theme_advanced_buttons2" : "",
 			"theme_advanced_buttons3" : "",
 			"plugins" : "heading,paste",
 			"relative_urls" : false
 		}
 	}
+
 	
+	// filebrowser callback - only used if filebrowser_url is specified
+	function djangoFileBrowser(field_name, url, type, win) {
+        var url = filebrowser_url + "?pop=2&type=" + type;
+    
+        tinyMCE.activeEditor.windowManager.open(
+            {
+                'file': url,
+                'width': 820,
+                'height': 500,
+                'resizable': "yes",
+                'scrollbars': "yes",
+                'inline': "no",
+                'close_previous': "no"
+            },
+            {
+                'window': win,
+                'input': field_name,
+                'editor_id': tinyMCE.selectedInstance.editorId
+            }
+        );
+        return false;
+    };
 	
+	tinymce_init_object['file_browser_callback'] = djangoFileBrowser;
 	
 	
 	/*
@@ -91,7 +114,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 					var raw_content = $.trim(data.raw_content),
 						compiled_content = $.trim(data.compiled_content);
 					$(block).find('input').val(raw_content);
-					$(block).find("span.inner").html(compiled_content || "Click to add " + $(block).attr('label'));
+					$(block).find("span.inner").html(compiled_content || "Click to add text");
 					
 					if (!compiled_content) {
 						$(block).addClass("placeholder");
@@ -136,7 +159,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			editFormContainer.find('form').ajaxForm({
 				'success': function(data) {
 					var raw_content = $.trim($('<div>').text(data.raw_content).html());
-					$(block).find("span.inner").html(raw_content || "Click to add " + $(block).attr('label'));
+					$(block).find("span.inner").html(raw_content || "Click to add text");
 					if (!raw_content) {
 						$(block).addClass("placeholder");
 					}

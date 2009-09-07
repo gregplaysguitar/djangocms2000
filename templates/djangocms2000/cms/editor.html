@@ -11,7 +11,9 @@
 <script type="text/javascript" src="/djangocms2000/media/js/cms.js"></script>
 <script type="text/javascript">
 if (!$.browser.msie) {
-	djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}");
+	$(function() {
+	    djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}", null, "{{ djangocms2000_settings.FILEBROWSER_URL_ADMIN }}");
+    });
 }
 else {
 	$('#getarealbrowser').css({'display':'block'});
