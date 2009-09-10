@@ -7,6 +7,7 @@ urlpatterns = patterns('djangocms2000.views',
 	(r'^actions/saveimage/$', 'saveimage'),
 	(r'^logout/$', 'logout'),
 	(r'^page_admin_init.js$', 'page_admin_init'),
+    (r'^linklist.js$', 'linklist'),
 )
 
 

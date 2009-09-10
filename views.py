@@ -86,3 +86,18 @@ def page_admin_init(request):
         },
         context_instance=RequestContext(request)
     )
+
+# populate the tinymce link list popup
+def linklist(request):
+    return render_to_response(
+        'djangocms2000/cms/linklist.js',
+        {
+            'page_list': Page.objects.all(),
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+
+
+
