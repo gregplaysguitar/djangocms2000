@@ -245,32 +245,36 @@ def cmsgetcrumbtrail(_tag, _as, varname):
 class CMSExtraNode(template.Node):
         
     def render(self, context):
-        #print context,'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-        #print context['request']
-        try:
-            page = Page.objects.get(uri=context['request'].path_info)
-        except Page.DoesNotExist:
-            page = False
+        if djangocms2000_settings.EDIT_IN_PLACE:
         
-        
-        data = {
-            'request': context['request'],
-            'page': page,
-            'djangocms2000_settings': djangocms2000_settings,
-        }
-        
-        if context['request'].user.has_module_perms("djangocms2000"):
-            data['editor_form'] = BlockForm()
-            data['image_form'] = ImageForm()
-            return template.loader.render_to_string("djangocms2000/cms/editor.html", data)
-        elif 'edit' in context['request'].GET:
-            data['login_form'] = AuthenticationForm()
-            return template.loader.render_to_string("djangocms2000/cms/login_top.html", data)
-        elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
-            return template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
+            #print context,'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+            #print context['request']
+            try:
+                page = Page.objects.get(uri=context['request'].path_info)
+            except Page.DoesNotExist:
+                page = False
+            
+            
+            data = {
+                'request': context['request'],
+                'page': page,
+                'djangocms2000_settings': djangocms2000_settings,
+            }
+            
+            if context['request'].user.has_module_perms("djangocms2000"):
+                data['editor_form'] = BlockForm()
+                data['image_form'] = ImageForm()
+                return template.loader.render_to_string("djangocms2000/cms/editor.html", data)
+            elif 'edit' in context['request'].GET:
+                data['login_form'] = AuthenticationForm()
+                return template.loader.render_to_string("djangocms2000/cms/login_top.html", data)
+            elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
+                return template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
+            else:
+                return ""
         else:
-            return ""
-
+            return ''
+            
 @easy_tag
 def cmsextra(_tag):
     return CMSExtraNode()
