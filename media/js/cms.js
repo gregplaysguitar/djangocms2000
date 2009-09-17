@@ -203,9 +203,11 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			}
 		}).mouseout(function() {
 			$(this).removeClass('hovered').find('span.editMarker').css({'display': 'none'});
-		}).click(function(){
-			edit(this);
-			return false;
+		}).click(function(e){
+		    if (!e.originalTarget || e.originalTarget.tagName.toLowerCase() != 'a') {
+    			edit(this);
+	    		return false;
+		    }
 		}).find('span.editMarker').click(function(){
 			edit(this.parentNode);
 			return false;

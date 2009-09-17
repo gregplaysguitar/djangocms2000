@@ -29,3 +29,5 @@ FILEBROWSER_URL_ADMIN = getattr(
     'DJANGOCMS2000_FILEBROWSER_URL_ADMIN',
     getattr(settings, 'FILEBROWSER_URL_ADMIN', '')
 )
+
+MEDIA_URL = getattr(settings, 'DJANGOCMS2000_MEDIA_URL', "/djangocms2000/media/")
