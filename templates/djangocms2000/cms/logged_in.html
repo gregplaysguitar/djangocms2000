@@ -1,0 +1,25 @@
+<script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}lib/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}js/edit-mode-switcher.js"></script>
+<style>
+#djangocms2000-logged_in {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: auto;
+	background: transparent url(/djangocms2000/media/images/overlay.png);
+	color: #fff;
+	padding: 5px 10px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+#djangocms2000-logged_in a {
+    cursor: pointer;
+    display: block;
+}
+</style>
+
+<div id="djangocms2000-logged_in">
+	<a class="edit-switcher on">Edit</a>
+</div>

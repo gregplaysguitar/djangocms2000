@@ -246,28 +246,28 @@ class CMSExtraNode(template.Node):
         
     def render(self, context):
         if djangocms2000_settings.EDIT_IN_PLACE:
-        
-            #print context,'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-            #print context['request']
-            try:
-                page = Page.objects.get(uri=context['request'].path_info)
-            except Page.DoesNotExist:
-                page = False
-            
-            
-            data = {
-                'request': context['request'],
-                'page': page,
-                'djangocms2000_settings': djangocms2000_settings,
-            }
-            
             if context['request'].user.has_module_perms("djangocms2000"):
-                data['editor_form'] = BlockForm()
-                data['image_form'] = ImageForm()
-                return template.loader.render_to_string("djangocms2000/cms/editor.html", data)
+                if 'djangocms2000-edit_mode' in context['request'].COOKIES:
+                    try:
+                        page = Page.objects.get(uri=context['request'].path_info)
+                    except Page.DoesNotExist:
+                        page = False
+
+                    return template.loader.render_to_string("djangocms2000/cms/editor.html", {
+                        'request': context['request'],
+                        'page': page,
+                        'djangocms2000_settings': djangocms2000_settings,
+                        'editor_form': BlockForm(),
+                        'image_form': ImageForm(),
+                    })
+                else:
+                    return template.loader.render_to_string("djangocms2000/cms/logged_in.html", {
+                        'djangocms2000_settings': djangocms2000_settings,
+                    })
             elif 'edit' in context['request'].GET:
-                data['login_form'] = AuthenticationForm()
-                return template.loader.render_to_string("djangocms2000/cms/login_top.html", data)
+                return template.loader.render_to_string("djangocms2000/cms/login_top.html", {
+                    'login_form': AuthenticationForm(),
+                })
             elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
                 return template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
             else:

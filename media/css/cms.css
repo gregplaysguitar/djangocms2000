@@ -155,6 +155,8 @@
 	right: 50px;
 }
 
+
+
 #djangocms2000-menu {
 	position: fixed;
 	top: 0;
@@ -177,6 +179,10 @@
 }
 #djangocms2000-menu input {
 	width: auto;
+}
+#djangocms2000-menu a {
+    cursor: pointer;
+    margin: 0 5px;
 }
 
 

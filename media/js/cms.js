@@ -240,7 +240,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 
 	};
 
-
+    
 
 }; //init done inline so settings can be passed in - see templates/editor.html
 
