@@ -265,11 +265,12 @@ class CMSExtraNode(template.Node):
                         'djangocms2000_settings': djangocms2000_settings,
                     })
             elif 'edit' in context['request'].GET:
+                context['request']set_cookie('djangocms2000-edit_mode', 1)
                 return template.loader.render_to_string("djangocms2000/cms/login_top.html", {
                     'login_form': AuthenticationForm(),
                 })
             elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
-                return template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
+                return "" #template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
             else:
                 return ""
         else:
