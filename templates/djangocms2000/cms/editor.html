@@ -47,9 +47,9 @@ else {
 			You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
 			{% endif %}
 			&nbsp;
-			<a href="/djangocms2000/logout/?from={{ request.path_info }}">Log me out</a>
-			/
 			<a class="edit-switcher off">Stop editing</a>
+			/
+			<a href="/djangocms2000/logout/?from={{ request.path_info }}">Log me out</a>
 		</span>
 		
 		{% if page %}

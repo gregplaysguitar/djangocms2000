@@ -16,10 +16,13 @@
 }
 #djangocms2000-logged_in a {
     cursor: pointer;
-    display: block;
+    padding: 0 5px;
+    color: #aaa;
 }
 </style>
 
 <div id="djangocms2000-logged_in">
 	<a class="edit-switcher on">Edit</a>
+	/
+	<a href="/djangocms2000/logout/?from={{ request.path_info }}">Logout</a>
 </div>
