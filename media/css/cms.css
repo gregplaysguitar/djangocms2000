@@ -166,6 +166,9 @@
 	color: #fff;
 	padding: 5px 0;
 	text-align: left;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
 }
 #djangocms2000-menu > div {
 	width: 960px;

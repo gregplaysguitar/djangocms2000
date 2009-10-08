@@ -70,7 +70,7 @@ class CMSBlockNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
                 
-        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable != "False" and djangocms2000_settings.EDIT_IN_PLACE:
+        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable != "False" and djangocms2000_settings.EDIT_IN_PLACE and 'djangocms2000-edit_mode' in context['request'].COOKIES:
             data['block'] = block
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
@@ -161,7 +161,7 @@ class CMSImageNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
         #print self.editable
-        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False":
+        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False" and 'djangocms2000-edit_mode' in context['request'].COOKIES:
             data['editable'] = True
             
         return template.loader.render_to_string("djangocms2000/cms/image.html", data)
