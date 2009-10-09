@@ -16,7 +16,7 @@ from djangocms2000 import settings as djangocms2000_settings
 def logout(request):
 	logout_request(request)
 	if 'from' in request.GET:
-		return HttpResponseRedirect(request.GET['from'])
+		return HttpResponseRedirect(request.GET['from'] or '/')
 	else:
 		return HttpResponseRedirect('/')
 		

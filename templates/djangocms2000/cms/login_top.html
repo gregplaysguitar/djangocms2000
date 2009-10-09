@@ -22,7 +22,7 @@
 		</p>
 		
 		
-		<input type="hidden" name="next" value="{{ request.path_info }}" />
+		<input type="hidden" name="next" value="{% firstof next request.path_info '/' %}" />
 		</form>
 
 
