@@ -2,6 +2,7 @@ body.login {
 	background: #333;
 	color: #fff;
 	margin: 100px;
+	z-index: 200;
 }
 
 .loginWrap {
