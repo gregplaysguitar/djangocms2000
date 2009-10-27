@@ -117,7 +117,7 @@ class BlockAdmin(admin.ModelAdmin):
 
     form = BlockFormSite
     fields = ['label', 'raw_content',]
-    list_display = ['label_display',]
+    list_display = ['label_display', 'format', 'content_display',]
     search_fields = ['label', ]
 
     class Media:

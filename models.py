@@ -9,7 +9,9 @@ from django.template.loader import get_template
 from django import template
 import markdown2
 from django.utils.encoding import force_unicode
-from django.utils.html import escape
+from django.utils.html import escape, strip_tags
+from django.utils.text import truncate_words
+
 #from custom_fields import TemplateChoiceField
 from django.db.models.signals import class_prepared
 from django.utils.functional import curry
@@ -51,6 +53,9 @@ class Block(models.Model):
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').capitalize()
     
+    def content_display(self):
+        return truncate_words(strip_tags(self.compiled_content), 10)
+    
     def __unicode__(self):
         return self.label
         #return "'%s' on %s" % (self.label, self.page.uri)
@@ -62,8 +67,8 @@ class Block(models.Model):
             self.compiled_content = self.raw_content
         super(Block, self).save(*args, **kwargs)    
     
-    #class Meta:
-    #   ordering = ['label']
+    class Meta:
+       ordering = ['label',]
     
 
 class Image(models.Model):
