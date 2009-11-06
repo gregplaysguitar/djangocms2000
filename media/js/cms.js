@@ -28,7 +28,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			"external_link_list_url" : "/djangocms2000/linklist.js",
 			"theme_advanced_toolbar_location" : "top",
 			"theme_advanced_toolbar_align" : "left",
-			"theme_advanced_buttons1" : "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,|,bullist,numlist,image,|,pastetext,code",
+			"theme_advanced_buttons1" : "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,image,|,blockquote,bullist,numlist,|,pastetext,code",
 			"theme_advanced_buttons2" : "",
 			"theme_advanced_buttons3" : "",
 			"plugins" : "heading,paste",

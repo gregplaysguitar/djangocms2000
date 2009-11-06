@@ -102,9 +102,12 @@
 	background-image: url(/djangocms2000/media/images/cancel.png);
 }
 
-#djangocms2000-imageform input:focus,
-#djangocms2000-htmlform input:focus,
-#djangocms2000-textform input:focus {
+#djangocms2000-imageform input.save:focus,
+#djangocms2000-imageform input.cancel:focus,
+#djangocms2000-htmlform input.save:focus,
+#djangocms2000-htmlform input.cancel:focus,
+#djangocms2000-textform input.save:focus,
+#djangocms2000-textform input.cancel:focus {
     text-decoration: underline;
 }
 
@@ -132,6 +135,7 @@
 #djangocms2000-textform {
 	position: relative;
 	display: none;
+	z-index: 200;
 }
 #djangocms2000-textform #id_raw_content {
 	width: 100%;
