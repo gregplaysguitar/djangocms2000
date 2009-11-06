@@ -114,13 +114,14 @@ register.tag(cmssiteblock)
 
 
 class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=False, crop="", defaultimage=False, editable=True):
+    def __init__(self, label, content_object=False, constraint=False, crop="", defaultimage=False, editable=True, format='html', alias=None):
         self.label = label
         self.content_object = content_object
         self.constraint = constraint
         self.defaultimage = defaultimage
         self.crop = crop
         self.editable = editable
+        self.format = format
 
     def render(self, context):
         #return "dsfds"
@@ -138,6 +139,11 @@ class CMSImageNode(template.Node):
             defaultimage = template.Variable(self.defaultimage).resolve(context)
         else:
             defaultimage = False
+        
+        if self.format:
+            format = template.Variable(self.format).resolve(context)
+        else:
+            format = 'html'
         
         label = template.Variable(self.label).resolve(context)
         
@@ -163,29 +169,32 @@ class CMSImageNode(template.Node):
         #print self.editable
         if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False" and 'djangocms2000-edit_mode' in context['request'].COOKIES:
             data['editable'] = True
+         
+        if format == 'url':
+            return template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
+        else:
+            return template.loader.render_to_string("djangocms2000/cms/image.html", data)
             
-        return template.loader.render_to_string("djangocms2000/cms/image.html", data)
-
 
 
 @easy_tag
-def cmsimage(_tag, label, constraint, crop="", defaultimage=False, editable=True):
-    return CMSImageNode(label, False, constraint, crop, defaultimage, editable)
+def cmsimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
+    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmsimage)
 
 
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint, crop="", defaultimage=False, editable=True):
-    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable)
+def cmsgenericimage(_tag, label, content_object_variable, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
+    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmsgenericimage)
 
 
 @easy_tag
-def cmssiteimage(_tag, label, constraint, crop="", defaultimage=False, editable=True):
+def cmssiteimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable)
+    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmssiteimage)
 
