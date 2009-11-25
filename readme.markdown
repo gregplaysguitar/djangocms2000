@@ -73,6 +73,12 @@ TODO
 
 - plain text needs to somehow distinguish between single line stuff and multi line for admin
 - incorporate tim's new designs
-- js should add the "click to add new ..." text, so that it doesn't show if the editor is turned off
+- Markdown editing weirdness
+- The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
 
-DONE - Create blocks on page creation in admin, rather than having to view the page in the site in order to create the blocks (use template nodelist etc to see what needs to be done - or maybe dummy-render the page... ?)
+
+TODO DONE
+---------
+
+ - Create blocks on page creation in admin, rather than having to view the page in the site in order to create the blocks (use template nodelist etc to see what needs to be done - or maybe dummy-render the page... ?)
+- js should add the "click to add new ..." text, so that it doesn't show if the editor is turned off
