@@ -7,7 +7,7 @@ from django.contrib.contenttypes import generic
 #from custom_fields import RelativeFilePathField
 from django.template.loader import get_template
 from django import template
-import markdown2
+import markdown2, gfm
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
@@ -62,7 +62,10 @@ class Block(models.Model):
     
     def save(self, *args, **kwargs):
         if self.format == 'markdown':
-            self.compiled_content = markdown2.markdown(force_unicode(escape(self.raw_content)))
+            if self.raw_content.strip():
+                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content))))
+            else:
+                self.compiled_content = ''
         else:
             self.compiled_content = self.raw_content
         super(Block, self).save(*args, **kwargs)    
@@ -118,18 +121,24 @@ def template_choices():
         ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
     )
     
-    
+
+def get_child_pages(parent_uri):
+    return Page.objects.filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
+
+  
 class Page(models.Model):
     uri = models.CharField(max_length=255, unique=True)
     #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
     template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices()) # help_text=("Example: djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
     
-    
     blocks = generic.GenericRelation(Block)
     
     history = AuditTrail(show_in_admin=True)
-
+    
+    
+    def get_children(self):
+        return get_child_pages(self.uri)
 
     
     def save(self, *args, **kwargs):

@@ -150,7 +150,7 @@
 #djangocms2000-textform input.save,
 #djangocms2000-textform input.cancel {
 	position: absolute;
-	bottom: -50%;
+	bottom: -1em;
 	right: 0;
 	font-size: 12px;
 	width: auto;

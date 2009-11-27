@@ -84,8 +84,8 @@ class PageForm(forms.ModelForm):
         return uri
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['uri', 'page_title', 'template', 'site']
-    list_display_links=['uri', 'page_title']
+    list_display=['page_title', 'uri', 'template', 'site']
+    list_display_links=['page_title', 'uri', ]
 
     list_filter=['site', 'template']
 

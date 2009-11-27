@@ -1,11 +1,11 @@
 from django import template
-from djangocms2000.models import Block, Page, Image, MenuItem
+from djangocms2000.models import Block, Page, Image, MenuItem, get_child_pages
 from djangocms2000.forms import BlockForm, ImageForm
 from django.contrib.auth.forms import AuthenticationForm
 from django import template
 from djangocms2000 import settings as djangocms2000_settings
 from django.conf import settings
-from culturethree.util.decorators import easy_tag
+from djangocms2000.decorators import easy_tag
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.utils.functional import allow_lazy
@@ -220,6 +220,41 @@ def get_page_menu(_tag, _as, varname):
 
 
 
+# generates a nested html list of the site structure (relies on sane url scheme)
+class CmsSiteMapNode(template.Node):
+    def render(self, context):
+        
+        def _render(page):
+            html = [
+                '<li>',
+                '<a href="%s">%s</a>' % (page.uri, page.page_title()),
+            ]
+            
+            children = page.get_children().order_by('uri')
+            if len(children):
+                html.append('<ul>')
+                for child in children:
+                    html.append(_render(child))
+                html.append('</ul>')
+            
+            html.append('</li>')
+            return "\n".join(html)
+        
+        try:
+            return '<ul>' + _render(Page.objects.get(uri="/")) + '</ul>'
+        except Page.DoesNotExist:
+            return ''
+        
+
+@register.tag
+@easy_tag
+def generate_sitemap(_tag):
+    return CmsSiteMapNode()
+
+
+
+
+
 
 
 
@@ -231,13 +266,14 @@ class CMSCrumbtrailNode(template.Node):
         #varname = template.Variable(self.varname).resolve(context)
         crumbtrail = []
         
-        url_parts = context['request'].META['PATH_INFO'].strip('/').split('/')
-        current_url = '/'
-        for url_part in url_parts:
-            current_url += url_part + '/'
-            name = url_part.replace('-', ' ').replace(':', ': ').title()
-            crumbtrail.append({'uri': current_url, 'name': name})
-        
+        if context['request'].META['PATH_INFO'].strip('/'):
+            url_parts = context['request'].META['PATH_INFO'].strip('/').split('/')
+            current_url = '/'
+            for url_part in url_parts:
+                current_url += url_part + '/'
+                name = url_part.replace('-', ' ').replace(':', ': ').title()
+                crumbtrail.append({'uri': current_url, 'name': name})
+            
         context[self.varname] = crumbtrail
         return ''
 
