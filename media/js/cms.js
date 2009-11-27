@@ -135,7 +135,8 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			$('#djangocms2000-htmloverlay').css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300);
 		}
 		else {
-			$('#djangocms2000-textform #id_raw_content').val(raw_content).html(raw_content);
+		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
+			$('#djangocms2000-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
 			$('#djangocms2000-textform #id_block_id').val($(block).attr('block_id'));
 			$('#djangocms2000-textform #id_format').val($(block).attr('format'));
 			
