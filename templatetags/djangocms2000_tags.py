@@ -229,7 +229,6 @@ class CmsSiteMapNode(template.Node):
         
     def render(self, context):
         try:
-            print self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
             base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
             page = Page.objects.get(uri=base_uri)
         except Page.DoesNotExist:
