@@ -35,7 +35,7 @@ more than one place, ie the window title and page title). Example template code:
 
 Basic image block - use as with `cmsblock`. By default, will fit an image within the constraint, but won't crop. Format can be "html" (generates an <img> tag) or "url" (outputs the url to the resized image). Examples:
 
-    {% cmsimage "portrait" "960x120" %}
+    {% cmsimage "portrait" "300x400" %}
 
     {# crop to an exact size #}
     {% cmsimage "banner" "960x120" True %}
@@ -70,7 +70,7 @@ Should correspond to whatever url base you've got pointing to djangocms2000.urls
 in your root url conf. Defaults to `'/djangocms2000/'`
 
 
-#### `DJANGOCMS2000_MEDIA_URL`
+#### DJANGOCMS2000_MEDIA_URL
 
 Where the djangocms2000/media directory can be found. Defaults to
 
