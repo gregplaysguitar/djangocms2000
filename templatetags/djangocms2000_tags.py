@@ -222,34 +222,59 @@ def get_page_menu(_tag, _as, varname):
 
 # generates a nested html list of the site structure (relies on sane url scheme)
 class CmsSiteMapNode(template.Node):
-    def render(self, context):
+    def __init__(self, base_uri, include_base, depth):
+        self.base_uri = base_uri
+        self.include_base = include_base
+        self.depth = depth
         
-        def _render(page):
-            html = [
-                '<li>',
-                '<a href="%s">%s</a>' % (page.uri, page.page_title()),
-            ]
+    def render(self, context):
+        try:
+            print self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
+            base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
+            page = Page.objects.get(uri=base_uri)
+        except Page.DoesNotExist:
+            return ''
+
+            
+        include_base = (self.include_base and self.include_base != 'False')
+        depth = int(self.depth or 0)
+        
+        
+        def _render(page, currentdepth = 1):
+            html = []
             
             children = page.get_children().order_by('uri')
             if len(children):
                 html.append('<ul>')
-                for child in children:
-                    html.append(_render(child))
+                for childpage in children:
+                    html.append('<li>\n<a href="%s">%s</a>' % (childpage.uri, childpage.page_title()))
+                    if (not depth) or currentdepth < depth:
+                        html.append(_render(childpage, currentdepth + 1))
+                    html.append('</li>')
                 html.append('</ul>')
             
-            html.append('</li>')
             return "\n".join(html)
         
-        try:
-            return '<ul>' + _render(Page.objects.get(uri="/")) + '</ul>'
-        except Page.DoesNotExist:
-            return ''
+        
+    
+        if include_base:
+            return "\n".join([
+                '<ul>',
+                '<li>',
+                '<a href="%s">%s</a>' % (page.uri, page.page_title()),
+                _render(page),
+                '</li>',
+                '</ul>',
+            ])
+        else:
+            return _render(page)
+        
         
 
 @register.tag
 @easy_tag
-def generate_sitemap(_tag):
-    return CmsSiteMapNode()
+def generate_sitemap(_tag, base_uri=None, include_base=True, depth=None):
+    return CmsSiteMapNode(base_uri, include_base, depth)
 
 
 

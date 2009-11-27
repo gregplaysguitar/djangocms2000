@@ -6,7 +6,7 @@
 
 Use `{% load djangocms2000_tags %}` to enable.
 
-#### {% cmsblock _label_ _format_ [_enable-edit-in-place=True_ _as=""_ _varname=None_] %}
+#### {% cmsblock _label format [editable=True as="" varname=None]_ %}
 
 Basic cms content block. Place as many of these as you need in your template, 
 with unique labels (labels can be repeated if you want the same content in 

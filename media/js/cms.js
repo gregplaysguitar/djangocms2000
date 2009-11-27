@@ -160,14 +160,13 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 
 			editFormContainer.find('form').ajaxForm({
 				'success': function(data) {
-					var raw_content = $.trim($('<div>').text(data.raw_content).html());
-					$(block).find("span.inner").html(raw_content || "Click to add text");
-					if (!raw_content) {
+					$(block).find("span.inner").html($.trim(data.compiled_content) || "Click to add text");
+					if (!$.trim(data.compiled_content)) {
 						$(block).addClass("placeholder");
 					}
 					highlightBlock(block);
 					currently_editing = false;
-					$(block).find('input').val(raw_content);
+					$(block).find('input').val($.trim(data.raw_content));
 				},
 				'beforeSubmit': function() {
 					$(block).removeClass("placeholder");

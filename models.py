@@ -71,7 +71,7 @@ class Block(models.Model):
         super(Block, self).save(*args, **kwargs)    
     
     class Meta:
-       ordering = ['label',]
+       ordering = ['id',]
     
 
 class Image(models.Model):
