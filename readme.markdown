@@ -6,9 +6,10 @@ BASIC INSTALLATION:
 3. TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
 4. Add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes
 5. Use {% cmsblock 'blockname' 'plain|html|markdown' %} to create editable blocks in templates
-6. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
-7. Use ala flatpages
-8. Created pages can be edited in place if 2) was followed
+6. To use images, download [sorl.thumbnail](http://code.google.com/p/sorl-thumbnail/) and add it to your INSTALLED_APPS
+7. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
+8. Use ala flatpages
+9. Created pages can be edited in place if 2) was followed
 
 
 
