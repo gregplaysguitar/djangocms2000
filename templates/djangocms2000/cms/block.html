@@ -5,21 +5,7 @@
 	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
 	
 	<span class="inner">
-		{% if block.compiled_content %}
-		
-		{% ifequal format "html" %}
-		{{ block.compiled_content|safe }}
-		{% else %}
-		{% ifequal format "markdown" %}
-		{{ block.compiled_content|safe }}
-		{% else %}
-		{{ block.compiled_content }}
-		{% endifequal %}
-		{% endifequal %}
-		
-		{% else %}
-    	Click to add text
-		{% endif %}
+{% endzealousspaceless %}{% if block.compiled_content %}{% ifequal format "html" %}{{ block.compiled_content|safe }}{% else %}{% ifequal format "markdown" %}{{ block.compiled_content|safe }}{% else %}{{ block.compiled_content }}{% endifequal %}{% endifequal %}{% else %}Click to add text{% endif %}{% zealousspaceless %}
 	</span>
 </span>
 {% endzealousspaceless %}
