@@ -183,7 +183,8 @@ class Page(models.Model):
         return self.uri
 
     def page_title(self):
-        return self.blocks.get(label="title").compiled_content
+        return self.get_title()
+
 
 
 
@@ -269,8 +270,10 @@ class CMSBaseModel(models.Model):
         try:
             return self.blocks.get(label="title").compiled_content
         except Block.DoesNotExist:
-            return self.blocks.get(label="name").compiled_content
-    
+            try:
+                return self.blocks.get(label="name").compiled_content
+            except Block.DoesNotExist:
+                return self
     
     
     

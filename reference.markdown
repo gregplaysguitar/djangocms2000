@@ -74,7 +74,7 @@ in your root url conf. Defaults to `'/djangocms2000/'`
 
 Where the djangocms2000/media directory can be found. Defaults to
 
-    `DJANGOCMS2000_ROOT_URL + 'media/'`, 
+    DJANGOCMS2000_ROOT_URL + 'media/', 
 
 which is (by default) served by django's built in static view. For better performance, set
     
