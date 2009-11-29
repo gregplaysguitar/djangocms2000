@@ -125,14 +125,30 @@ def template_choices():
 def get_child_pages(parent_uri):
     return Page.objects.filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
 
-  
-class Page(models.Model):
+
+class _CMSAbstractBaseModel(models.Model):
+    class Meta:
+        abstract = True
+
+    blocks = generic.GenericRelation(Block)
+
+        
+    def get_title(self):
+        try:
+            return self.blocks.get(label="title").compiled_content
+        except Block.DoesNotExist:
+            try:
+                return self.blocks.get(label="name").compiled_content
+            except Block.DoesNotExist:
+                return self
+
+
+class Page(_CMSAbstractBaseModel):
     uri = models.CharField(max_length=255, unique=True)
     #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
     template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices()) # help_text=("Example: djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
     
-    blocks = generic.GenericRelation(Block)
     
     history = AuditTrail(show_in_admin=True)
     
@@ -234,9 +250,8 @@ drop table __;
 """
 Abstract model for other apps that want to have related Blocks and Images
 """
-class CMSBaseModel(models.Model):
+class CMSBaseModel(_CMSAbstractBaseModel):
 
-    blocks = generic.GenericRelation(Block)
     
     BLOCK_LABELS = [] # should be a tuple of the form ('name', 'format',), but will fall back if it's just a string
     IMAGE_LABELS = []
@@ -263,19 +278,9 @@ class CMSBaseModel(models.Model):
                 object_id=self.id
             )
 
+    
     def __unicode__(self):
         return self.get_title()
-        
-    def get_title(self):
-        try:
-            return self.blocks.get(label="title").compiled_content
-        except Block.DoesNotExist:
-            try:
-                return self.blocks.get(label="name").compiled_content
-            except Block.DoesNotExist:
-                return self
-    
-    
     
     def _block_LABEL(self, label):
         return self.blocks.get(label=label).compiled_content
