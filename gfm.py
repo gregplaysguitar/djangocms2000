@@ -22,17 +22,18 @@ def gfm(text):
         sha1 = hashlib.sha1(matchobj.group(0)).hexdigest()
         extractions[sha1] = matchobj.group(0)
         return "{gfm-extraction-%s}" % sha1
-    text = re.sub(re.compile(r'<pre>.*?</pre>', re.MULTILINE | re.DOTALL), pre_extraction_callback, text)
+    pre_extraction_regex = re.compile(r'<pre>.*?</pre>', re.MULTILINE | re.DOTALL)
+    text = re.sub(pre_extraction_regex, pre_extraction_callback, text)
      
-     
+    
     # prevent foo_bar_baz from ending up with an italic word in the middle
     def italic_callback(matchobj):
-        if len(re.sub(r'[^_]', '', matchobj.group(0))) > 1:
-            return matchobj.group(0).replace('_', '\_')
+        if len(re.sub(r'[^_]', '', matchobj.group(1))) > 1:
+            return matchobj.group(1).replace('_', '\_')
         else:
-            return matchobj.group(0)
-    text = re.sub(r'(?! {4}|\t)\w+_\w+_\w[\w_]*', italic_callback, text)
-        
+            return matchobj.group(1)
+    text = re.sub(r'(^(?! {4}|\t)\w+_\w+_\w[\w_]*)', italic_callback, text)
+    
     
     # in very clear cases, let newlines become <br /> tags
     def newline_callback(matchobj):

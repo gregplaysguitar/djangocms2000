@@ -64,13 +64,13 @@ Returns a list of links representing the "crumbtrail" - example template code:
 ## Settings
 
 
-#### DJANGOCMS2000_ROOT_URL
+#### DJANGOCMS2000\_ROOT\_URL
 
 Should correspond to whatever url base you've got pointing to djangocms2000.urls
 in your root url conf. Defaults to `'/djangocms2000/'`
 
 
-#### DJANGOCMS2000_MEDIA_URL
+#### DJANGOCMS2000\_MEDIA\_URL
 
 Where the djangocms2000/media directory can be found. Defaults to
 
@@ -83,26 +83,26 @@ which is (by default) served by django's built in static view. For better perfor
 and symlink to the directory from within your `MEDIA_ROOT`
 
 
-#### DJANGOCMS2000_EDIT_IN_PLACE
+#### DJANGOCMS2000\_EDIT\_IN\_PLACE
 
 Turns the edit-in-place function on and off – default is true.
 
 
-#### DJANGOCMS2000_CUSTOM_STYLESHEET
+#### DJANGOCMS2000\_CUSTOM\_STYLESHEET
 
 Location of custom styles for the editor, if needed. Defaults to `None`.
 
 
-#### DJANGOCMS2000_HIGHLIGHT_START_COLOR
+#### DJANGOCMS2000\_HIGHLIGHT\_START\_COLOR
 
 Used to highlight changes made via the edit-in-place system on save. Default is `'#ff0'`.
 
-#### DJANGOCMS2000_HIGHLIGHT_END_COLOR', "#fff")
+#### DJANGOCMS2000\_HIGHLIGHT\_END_COLOR
 
 Should equal (as closely as possible) your site's background colour. Default is `'#fff'`.
 
 
-#### DJANGOCMS2000_ADMIN_JS
+#### DJANGOCMS2000\_ADMIN\_JS
 
 A tuple of javascript files to include when using the built in admin. Defaults to
 
@@ -114,7 +114,7 @@ A tuple of javascript files to include when using the built in admin. Defaults t
     )
 
 
-#### DJANGOCMS2000_ADMIN_CSS
+#### DJANGOCMS2000\_ADMIN\_CSS
 
 A dict of css files to include when using in the built-in admin. Defaults to
 
@@ -123,7 +123,7 @@ A dict of css files to include when using in the built-in admin. Defaults to
     }
 
 
-#### DJANGOCMS2000_ADMIN_CAN_DELETE_BLOCKS
+#### DJANGOCMS2000\_ADMIN\_CAN\_DELETE\_BLOCKS
 
 Whether or not blocks can be deleted when editing in the built-in admin. Defaults to `settings.DEBUG`
 
