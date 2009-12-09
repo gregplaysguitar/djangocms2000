@@ -168,27 +168,6 @@ class Page(_CMSAbstractBaseModel):
         c = Client()
         response = c.get(str(self.uri), {}, HTTP_COOKIE='') 
         
-        
-        """
-        # can't import this at the top due to circular import issues
-        from django.templatetags.djangocms2000_tags import CMSBlockNode
-        if self.template:
-            t = get_template(self.template)
-            blocks = t.nodelist.get_nodes_by_type(CMSBlockNode)
-            for block in blocks:
-                try:
-                    label = template.Variable(block.label).resolve({})
-                    if isinstance(block.format, str):
-                        format = block.format
-                    else:
-                        format = template.Variable(block.format).resolve({})
-                except template.VariableDoesNotExist:
-                    # dynamic labels can't be generated here - will be created on page render
-                    pass
-                
-                if format and label and not self.blocks.filter(label=label):
-                        Block.objects.create(content_object=self,label=label,format=format)
-        """
         return returnval
         
 
@@ -220,29 +199,7 @@ class MenuItem(models.Model):
         return self.get_text()
     
 
-"""
-class Test(models.Model):
-    site = models.ForeignKey(Site, related_name="page_set", default=1)
-    history = AuditTrail(show_in_admin=True)
-"""
 
-
-"""
-Generic changeover migration:
-NOTE: 15 is the "page" content type id
-
-alter table djangocms2000_block rename to '_';
-alter table djangocms2000_image rename to '__';
-
->> syncdb
-
-insert into djangocms2000_block select id,15,page_id,label,content from _;
-insert into djangocms2000_image select id,15,page_id,label,file,description from __;
-
-drop table _;
-drop table __;
-
-"""
 
 
 
@@ -285,12 +242,7 @@ class CMSBaseModel(_CMSAbstractBaseModel):
     def _block_LABEL(self, label):
         return self.blocks.get(label=label).compiled_content
     
-    """
-    def add_accessor_methods(self, *args, **kwargs):
-        for label_tuple in self.BLOCK_LABELS:
-            setattr(self, 'get_block_%s' % label_tuple[0],
-                curry(self._get_block_LABEL, label=label_tuple[0]))
-    """    
+    
     
     class Meta:
         abstract = True
