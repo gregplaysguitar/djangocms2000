@@ -110,7 +110,8 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			tinyMCE.get("id_raw_content").setContent(raw_content);
 			$('#djangocms2000-htmlform #id_block_id').val($(block).attr('block_id'));
 			$('#djangocms2000-htmlform #id_format').val($(block).attr('format'));
-
+            
+            
 			$('#djangocms2000-htmlform form').ajaxForm({
 				'success': function(data) {
 					var raw_content = $.trim(data.raw_content),

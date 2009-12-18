@@ -379,3 +379,38 @@ def zealousspaceless(parser, token):
     return ZealousSpacelessNode(nodelist)
 
 
+
+
+## Tags for working with Pages
+
+class PageNamedBlockNode(template.Node):
+    def __init__(self, page, blockname):
+        self.page = template.Variable(page)
+        self.blockname = template.Variable(blockname)
+
+    def render(self, context):
+        page = self.page.resolve(context)
+        blockname = self.blockname.resolve(context)
+        return page.blocks.get(label=blockname).compiled_content
+
+@register.tag('get_page_block')
+@easy_tag
+def get_page_block(_tag, page, block):
+    return PageNamedBlockNode(page, block)
+
+
+class PagesForTemplateNode(template.Node):
+    def __init__(self, varname, template_name="default.html"):
+        self.varname = varname
+        self.template_name = template.Variable(template_name)
+        super(PagesForTemplateNode, self).__init__()
+
+    def render(self, context):
+        context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('uri')
+        return ''
+
+@register.tag('pages_for_template')
+@easy_tag
+def pages_for_template(_tagname, template, _as, varname):
+    return PagesForTemplateNode(varname, template)
+
