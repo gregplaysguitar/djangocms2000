@@ -65,11 +65,15 @@ Returns a list of links representing the "crumbtrail" - example template code:
 
 Returns the current Page object based on request.path_info. This can be used in
 conjunction with http://github.com/jacobian/django-shorturls in django 
-template code:
+template code, to generate a canonical link ie:
     
     {% load djangocms2000_tags shorturl %}
     {% get_current_page as current_page %}
     {% revcanonical current_page %}
+    
+produces something like
+
+    <link rev="canonical" href="http://gregbrown.co.nz/s/E">
 
 
 #### {% generate\_sitemap _base\_uri=None include\_base=True depth=None_ %}
