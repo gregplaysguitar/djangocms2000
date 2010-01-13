@@ -59,4 +59,18 @@ var djangocms2000Admin = function(filebrowser_url) {
             "elements": id_list.join(',')
         });
     }
+    
+    
+    // hack at the form for usability, if creating a page (not editing)
+    if (('' + window.location).match(/\/add\/$/)) {
+        $('div.inline-group').hide();
+        $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
+        $('input[type=submit][name!=_continue]').hide();
+    }
+    /*
+    <input class="default" type="submit" name="_save" value="Save"/>
+<input type="submit" name="_addanother" value="Save and add another"/>
+<input type="submit" name="_continue" value="Save and continue editing"/>
+    */
+    
 };

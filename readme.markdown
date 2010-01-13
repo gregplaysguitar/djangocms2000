@@ -48,7 +48,8 @@ TODO
 - incorporate tim's new designs
 - Markdown editing weirdness
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
-
+- For CMSBaseModel-based generic objects, render the objects get\_absolute\_url instead
+  of requiring BLOCK\_LABELS and IMAGE\_LABELS constants
 
 TODONE
 ---------

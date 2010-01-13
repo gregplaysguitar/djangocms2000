@@ -71,7 +71,7 @@ class CMSBaseAdmin(admin.ModelAdmin):
         abstract=True
 
 
-URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/]')
+URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
 URL_DASH_REGEX = re.compile('--+')
 class PageForm(forms.ModelForm):
     class Meta:
@@ -91,6 +91,11 @@ class PageAdmin(CMSBaseAdmin):
 
     search_fields = ['uri', 'blocks__compiled_content', 'template',]
     form = PageForm
+    exclude = []
+    
+    
+if not djangocms2000_settings.USE_SITES_FRAMEWORK:
+    PageAdmin.exclude.append('site')
         
 admin.site.register(Page, PageAdmin)
 
