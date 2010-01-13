@@ -13,9 +13,9 @@ filter itself.)
 
 import re
 try: 
-   from hashlib import md5
+   from hashlib import md5 as md5_func
 except ImportError:
-   import md5
+   from md5 import new as md5_func
 
 def gfm(text):
 
@@ -23,7 +23,7 @@ def gfm(text):
     # Extract pre blocks
     extractions = {}
     def pre_extraction_callback(matchobj):
-        hash = md5.new(matchobj.group(0)).hexdigest()
+        hash = md5_func(matchobj.group(0)).hexdigest()
         extractions[hash] = matchobj.group(0)
         return "{gfm-extraction-%s}" % hash
     pre_extraction_regex = re.compile(r'<pre>.*?</pre>', re.MULTILINE | re.DOTALL)
