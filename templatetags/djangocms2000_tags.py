@@ -17,6 +17,15 @@ from django.utils.encoding import force_unicode
 register = template.Library()
 
 
+# special implementation for Page.get_or_create - sets the template to 
+# blank for created pages otherwise it can be misleading in the admin
+def get_or_create_page(request):
+    try:
+        return Page.objects.get(uri=request.path_info)
+    except Page.DoesNotExist:
+        return Page.objects.create(uri=request.path_info, template='')
+    
+
 
 
 class CMSBlockNode(template.Node):
@@ -46,12 +55,8 @@ class CMSBlockNode(template.Node):
         
         
         if not content_object:
-            try:
-                content_object = Page.objects.get(uri=context['request'].path_info)
-            except Page.DoesNotExist:
-                # set the template to blank for created pages otherwise it can be misleading in the admin
-                content_object = Page.objects.create(uri=context['request'].path_info, template='')
-
+            content_object = get_or_create_page(context['request'])
+           
                 
         block, created = Block.objects.get_or_create(
             label=label,
@@ -149,8 +154,9 @@ class CMSImageNode(template.Node):
         
         
         if not content_object:
-            content_object, created = Page.objects.get_or_create(uri=context['request'].path_info)
-        
+            content_object = get_or_create_page(context['request'])
+            
+
         image, created = Image.objects.get_or_create(
             label=label,
             content_type=ContentType.objects.get_for_model(content_object),
@@ -215,6 +221,27 @@ class CmsPageMenuNode(template.Node):
 @easy_tag
 def get_page_menu(_tag, _as, varname):
     return CmsPageMenuNode(varname)
+
+
+
+
+# gets a list of menu items from models.MenuItem
+class CmsGetPageNode(template.Node):
+    def __init__(self, varname):
+        self.varname = varname
+        
+    def render(self, context):
+        context[self.varname] = get_or_create_page(context['request'])
+        return ''
+
+@register.tag
+@easy_tag
+def get_current_page(_tag, _as, varname):
+    return CmsGetPageNode(varname)
+
+
+
+
 
 
 
