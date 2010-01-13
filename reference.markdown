@@ -61,6 +61,27 @@ Returns a list of links representing the "crumbtrail" - example template code:
     {% endfor %}
 
 
+#### {% get\_current\_page _as varname_ %}
+
+Returns the current Page object based on request.path_info. This can be used in
+conjunction with http://github.com/jacobian/django-shorturls in django 
+template code:
+    
+    {% load djangocms2000_tags shorturl %}
+    {% get_current_page as current_page %}
+    {% revcanonical current_page %}
+
+
+#### {% generate\_sitemap _base\_uri=None include\_base=True depth=None_ %}
+
+Generates sitemap as a nested html list (relies on a sane url scheme).
+
+
+#### {% get\_page\_menu _as varname_):
+
+Returns a list of MenuItem objects for constructing a navigation menu.
+
+
 ## Settings
 
 
@@ -126,6 +147,5 @@ A dict of css files to include when using in the built-in admin. Defaults to
 #### DJANGOCMS2000\_ADMIN\_CAN\_DELETE\_BLOCKS
 
 Whether or not blocks can be deleted when editing in the built-in admin. Defaults to `settings.DEBUG`
-
 
 

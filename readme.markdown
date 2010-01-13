@@ -10,40 +10,12 @@ BASIC INSTALLATION:
 7. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
 8. Use ala flatpages
 9. Created pages can be edited in place if 2) was followed
+10. See reference.markdown for more info
 
 
 
 
 
-
-MIGRATION SQL FOR OLDER VERSIONS
-================================
-
-    BEGIN;
-    alter table djangocms2000_block rename to _;
-    CREATE TABLE "djangocms2000_block" (
-        "id" integer NOT NULL PRIMARY KEY,
-        "content_type_id" integer NOT NULL REFERENCES "django_content_type" ("id"),
-        "object_id" integer unsigned NOT NULL,
-        "label" varchar(255) NOT NULL,
-        "raw_content" text NOT NULL,
-        "compiled_content" text NOT NULL
-    );
-    insert into djangocms2000_block select *,content from _;
-    drop table _;
-    COMMIT;
-
-
-
-----------------------------------
-
-    alter table djangocms2000_block add
-    "compiled_content" text NOT NULL DEFAULT "";
-    
-    alter table djangocms2000_block rename
-    "content" "raw_content";
-    
-    update djangocms2000_block set compiled_content=raw_content;
 
 
 
@@ -78,8 +50,11 @@ TODO
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
 
 
-DONE
+TODONE
 ---------
 
- - Create blocks on page creation in admin, rather than having to view the page in the site in order to create the blocks (use template nodelist etc to see what needs to be done - or maybe dummy-render the page... ?)
-- js should add the "click to add new ..." text, so that it doesn't show if the editor is turned off
+- Create blocks on page creation in admin, rather than having to view the page in 
+   the site in order to create the blocks (use template nodelist etc to see what 
+   needs to be done - or maybe dummy-render the page... ?)
+- js should add the "click to add new ..." text, so that it doesn't show if the 
+  editor is turned off
