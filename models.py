@@ -13,7 +13,7 @@ from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
 
 #from custom_fields import TemplateChoiceField
-from django.db.models.signals import class_prepared
+from django.db.models.signals import class_prepared, post_save
 from django.utils.functional import curry
 from django.test.client import Client
 
@@ -131,7 +131,6 @@ class _CMSAbstractBaseModel(models.Model):
         abstract = True
 
     blocks = generic.GenericRelation(Block)
-
         
     def get_title(self):
         try:
@@ -142,6 +141,15 @@ class _CMSAbstractBaseModel(models.Model):
             except Block.DoesNotExist:
                 return self
 
+# add blocks on save via dummy render
+def dummy_render(sender, **kwargs):
+    if isinstance(kwargs['instance'], _CMSAbstractBaseModel):
+        # dummy-render the object's absolute url to generate blocks
+        c = Client()
+        response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='')   
+post_save.connect(dummy_render)
+
+
 
 class Page(_CMSAbstractBaseModel):
     uri = models.CharField(max_length=255, unique=True)
@@ -149,6 +157,8 @@ class Page(_CMSAbstractBaseModel):
     template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices()) # help_text=("Example: djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
     
+    class Meta:
+        ordering = ('uri',)
     
     history = AuditTrail(show_in_admin=True)
     
@@ -156,7 +166,7 @@ class Page(_CMSAbstractBaseModel):
     def get_children(self):
         return get_child_pages(self.uri)
 
-    
+    """
     def save(self, *args, **kwargs):
         self.uri = ("/%s/" % self.uri.strip('/')).replace('//', '/')
         
@@ -165,11 +175,11 @@ class Page(_CMSAbstractBaseModel):
         # dummy-render the page rather than inspect the template for blocks
         # default SimpleCookie object causes problems with cache, see
         # http://code.djangoproject.com/ticket/5176
-        c = Client()
-        response = c.get(str(self.uri), {}, HTTP_COOKIE='') 
+        #c = Client()
+        #response = c.get(str(self.uri), {}, HTTP_COOKIE='') 
         
         return returnval
-        
+    """   
 
     def __unicode__(self):
         return self.uri
@@ -213,28 +223,6 @@ class CMSBaseModel(_CMSAbstractBaseModel):
     BLOCK_LABELS = [] # should be a tuple of the form ('name', 'format',), but will fall back if it's just a string
     IMAGE_LABELS = []
     
-    def save(self, *args, **kwargs):
-        super(CMSBaseModel, self).save(*args, **kwargs)
-        for label_tuple in self.BLOCK_LABELS:
-            if isinstance(label_tuple, str):
-                label_tuple = (label_tuple, None,)
-            block, created = Block.objects.get_or_create(
-                label=label_tuple[0],
-                content_type=ContentType.objects.get_for_model(self),
-                object_id=self.id
-            )
-            # only set the format if the block was just created, or
-            if (not block.format or created) and label_tuple[1]:
-                block.format = label_tuple[1]
-                block.save()
-            
-        for label in self.IMAGE_LABELS:
-            Image.objects.get_or_create(
-                label=label,
-                content_type=ContentType.objects.get_for_model(self),
-                object_id=self.id
-            )
-
     
     def __unicode__(self):
         return self.get_title()
@@ -246,6 +234,35 @@ class CMSBaseModel(_CMSAbstractBaseModel):
     
     class Meta:
         abstract = True
+
+# add extra blocks on save
+def add_blocks(sender, **kwargs):
+    if isinstance(kwargs['instance'], CMSBaseModel):
+        # dummy-render the object's absolute url to generate blocks
+        c = Client()
+        #print kwargs['instance'].get_absolute_url()
+        response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='') 
+        
+        for label_tuple in kwargs['instance'].BLOCK_LABELS:
+            if isinstance(label_tuple, str):
+                label_tuple = (label_tuple, None,)
+            block, created = Block.objects.get_or_create(
+                label=label_tuple[0],
+                content_type=ContentType.objects.get_for_model(kwargs['instance']),
+                object_id=kwargs['instance'].id
+            )
+            # only set the format if the block was just created, or
+            if (not block.format or created) and label_tuple[1]:
+                block.format = label_tuple[1]
+                block.save()
+            
+        for label in kwargs['instance'].IMAGE_LABELS:
+            Image.objects.get_or_create(
+                label=label,
+                content_type=ContentType.objects.get_for_model(kwargs['instance']),
+                object_id=kwargs['instance'].id
+            )
+post_save.connect(add_blocks)
 
 
 """

@@ -67,10 +67,10 @@ var djangocms2000Admin = function(filebrowser_url) {
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').hide();
     }
-    /*
-    <input class="default" type="submit" name="_save" value="Save"/>
-<input type="submit" name="_addanother" value="Save and add another"/>
-<input type="submit" name="_continue" value="Save and continue editing"/>
-    */
+    $('div.inline-group').each(function() {
+        if ($(this).find('table tr').length <= 1) {
+            $(this).hide();
+        }
+    });
     
 };

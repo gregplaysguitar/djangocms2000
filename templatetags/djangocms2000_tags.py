@@ -127,6 +127,7 @@ class CMSImageNode(template.Node):
         self.crop = crop
         self.editable = editable
         self.format = format
+        self.alias = alias
 
     def render(self, context):
         #return "dsfds"
@@ -177,10 +178,18 @@ class CMSImageNode(template.Node):
             data['editable'] = True
          
         if format == 'url':
-            return template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
+            returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
         else:
-            return template.loader.render_to_string("djangocms2000/cms/image.html", data)
-            
+            returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
+        
+        if self.alias:
+            if returnval.strip():
+                context[self.alias] = returnval
+            else:
+                context[self.alias] = ''
+            return ""
+        else:
+            return returnval
 
 
 @easy_tag
