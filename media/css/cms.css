@@ -182,7 +182,7 @@
 #djangocms2000-menu > div span.status {
 	float: right;
 }
-#djangocms2000-menu > div span.status a {
+#djangocms2000-menu a {
 	color: #aaa;
 }
 #djangocms2000-menu input {

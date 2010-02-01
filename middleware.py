@@ -6,12 +6,9 @@ from models import Page
 
 class Djangocms2000FallbackMiddleware(object):
     def process_response(self, request, response):
-	#print request.path_info
         if response.status_code != 404:
-            return response # No need to check for a flatpage for non-404 responses.
+            return response # No need to check for a page for non-404 responses.
         else:
-            #print request.path_info, re.match(r'/$', request.path_info), "%s/" % request.path_info,Page.objects.filter(uri="%s/" % request.path_info).count()
-            
             # append slash if required (only if the slash-appended uri is valid)
             if settings.APPEND_SLASH and not re.match(r'/$', request.path_info) and Page.objects.filter(uri="%s/" % request.path_info).count():
                 return HttpResponseRedirect("%s/" % request.path_info)

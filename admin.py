@@ -84,10 +84,10 @@ class PageForm(forms.ModelForm):
         return uri
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['page_title', 'uri', 'template', 'site']
+    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date',]
     list_display_links=['page_title', 'uri', ]
 
-    list_filter=['site', 'template']
+    list_filter=['site', 'template', 'is_live', 'creation_date',]
 
     search_fields = ['uri', 'blocks__compiled_content', 'template',]
     form = PageForm

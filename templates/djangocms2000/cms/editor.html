@@ -51,12 +51,18 @@ else {
 			/
 			<a href="/djangocms2000/logout/?from={{ request.path_info }}">Log me out</a>
 		</span>
-		
+
+		{% if page and not page.is_live %}
+        This page is a draft - <a href="/admin/djangocms2000/page/{{ page.pk }}/">click here</a> to make it live.
+        {% endif %}
+        
+		{% comment %}
 		{% if page %}
-		This page is editable.
+		This page is editable. 
 		{% else %}
 		This page has no editable regions.
 		{% endif %}
+		{% endcomment %}
 	</div>
 	<div id="getarealbrowser">
 		Sorry, Microsoft Internet Explorer is not supported. Please download <a href="http://getfirefox.com">Firefox</a> in order to use the editor. Alternately, you can edit this page in the <a href="/admin/">Admin site.</a> 

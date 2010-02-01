@@ -3,4 +3,4 @@ from models import Page
 
 class PageSitemap(Sitemap):
     def items(self):
-        return Page.objects.all()
+        return Page.live.all()

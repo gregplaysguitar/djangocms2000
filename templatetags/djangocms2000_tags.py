@@ -11,7 +11,7 @@ from django.contrib.sites.models import Site
 from django.utils.functional import allow_lazy
 import re
 from django.utils.encoding import force_unicode
-
+from djangocms2000.utils import is_editing
 
 
 register = template.Library()
@@ -75,7 +75,7 @@ class CMSBlockNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
                 
-        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable != "False" and djangocms2000_settings.EDIT_IN_PLACE and 'djangocms2000-edit_mode' in context['request'].COOKIES:
+        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable != "False" and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
             data['block'] = block
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
@@ -174,7 +174,7 @@ class CMSImageNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
         #print self.editable
-        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False" and 'djangocms2000-edit_mode' in context['request'].COOKIES:
+        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False" and is_editing(context['request']):
             data['editable'] = True
          
         if format == 'url':
@@ -224,6 +224,8 @@ class CmsPageMenuNode(template.Node):
     def render(self, context):
         #print MenuItem.objects.all()
         context[self.varname] = MenuItem.objects.all()
+        if not context['request'].user.has_module_perms("djangocms2000"):
+            context[self.varname] = context[self.varname].filter(page__is_live=True)
         return ''
 
 @register.tag
@@ -234,7 +236,7 @@ def get_page_menu(_tag, _as, varname):
 
 
 
-# gets a list of menu items from models.MenuItem
+# gets a page
 class CmsGetPageNode(template.Node):
     def __init__(self, varname):
         self.varname = varname
@@ -266,7 +268,10 @@ class CmsSiteMapNode(template.Node):
     def render(self, context):
         try:
             base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
-            page = Page.objects.get(uri=base_uri)
+            if context['request'].user.has_module_perms("djangocms2000"):
+                page = Page.objects.get(uri=base_uri)
+            else:
+                page = Page.live.get(uri=base_uri)
         except Page.DoesNotExist:
             return ''
 
@@ -352,7 +357,7 @@ class CMSExtraNode(template.Node):
     def render(self, context):
         if djangocms2000_settings.EDIT_IN_PLACE:
             if context['request'].user.has_module_perms("djangocms2000"):
-                if 'djangocms2000-edit_mode' in context['request'].COOKIES:
+                if is_editing(context['request']):
                     try:
                         page = Page.objects.get(uri=context['request'].path_info)
                     except Page.DoesNotExist:

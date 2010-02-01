@@ -7,13 +7,13 @@ from django.contrib.contenttypes import generic
 #from custom_fields import RelativeFilePathField
 from django.template.loader import get_template
 from django import template
-import markdown2, gfm
+import markdown2, gfm, datetime
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
 
 #from custom_fields import TemplateChoiceField
-from django.db.models.signals import class_prepared, post_save
+from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
 
@@ -123,7 +123,7 @@ def template_choices():
     
 
 def get_child_pages(parent_uri):
-    return Page.objects.filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
+    return Page.live.filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
 
 
 class _CMSAbstractBaseModel(models.Model):
@@ -151,11 +151,23 @@ post_save.connect(dummy_render)
 
 
 
+
+class LivePageManager(models.Manager):
+    def get_query_set(self):
+        return super(LivePageManager, self).get_query_set().filter(is_live=True)
+
+
+
 class Page(_CMSAbstractBaseModel):
     uri = models.CharField(max_length=255, unique=True)
     #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
     template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices()) # help_text=("Example: djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    is_live = models.BooleanField(default=True)
+    
+    objects = models.Manager()
+    live = LivePageManager()
     
     class Meta:
         ordering = ('uri',)
@@ -166,20 +178,6 @@ class Page(_CMSAbstractBaseModel):
     def get_children(self):
         return get_child_pages(self.uri)
 
-    """
-    def save(self, *args, **kwargs):
-        self.uri = ("/%s/" % self.uri.strip('/')).replace('//', '/')
-        
-        returnval = super(Page, self).save(*args, **kwargs)
-        
-        # dummy-render the page rather than inspect the template for blocks
-        # default SimpleCookie object causes problems with cache, see
-        # http://code.djangoproject.com/ticket/5176
-        #c = Client()
-        #response = c.get(str(self.uri), {}, HTTP_COOKIE='') 
-        
-        return returnval
-    """   
 
     def __unicode__(self):
         return self.uri
@@ -190,6 +188,11 @@ class Page(_CMSAbstractBaseModel):
     def page_title(self):
         return self.get_title()
 
+# if no creation date exists, set one or the db will throw an error
+def site_check(sender, **kwargs):
+    if not kwargs['instance'].site:
+        kwargs['instance'].site = Site.objects.all()[0]
+pre_save.connect(site_check, sender=Page)
 
 
 

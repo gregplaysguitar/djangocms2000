@@ -9,6 +9,7 @@ from django.conf import settings
 import re, os
 from django.contrib.contenttypes.models import ContentType
 from djangocms2000 import settings as djangocms2000_settings
+from djangocms2000.utils import is_editing
 
 
 
@@ -66,7 +67,12 @@ def saveimage(request):
 
 
 def render_page(request, uri):
-    page = get_object_or_404(Page, uri=uri)
+    if request.user.has_module_perms("djangocms2000"):
+        qs = Page.objects
+    else:
+        qs = Page.live
+        
+    page = get_object_or_404(qs, uri=uri)
     return render_to_response(
         page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
         {
