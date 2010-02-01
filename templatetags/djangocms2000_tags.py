@@ -283,7 +283,12 @@ class CmsSiteMapNode(template.Node):
         def _render(page, currentdepth = 1):
             html = []
             
-            children = page.get_children().order_by('uri')
+            if context['request'].user.has_module_perms("djangocms2000"):
+                qs = Page.objects
+            else:
+                qs = Page.live
+                
+            children = page.get_children(qs).order_by('uri')
             if len(children):
                 html.append('<ul>')
                 for childpage in children:

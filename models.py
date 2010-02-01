@@ -122,8 +122,8 @@ def template_choices():
     )
     
 
-def get_child_pages(parent_uri):
-    return Page.live.filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
+def get_child_pages(parent_uri, qs=None):
+    return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
 
 
 class _CMSAbstractBaseModel(models.Model):
@@ -175,8 +175,8 @@ class Page(_CMSAbstractBaseModel):
     history = AuditTrail(show_in_admin=True)
     
     
-    def get_children(self):
-        return get_child_pages(self.uri)
+    def get_children(self, qs=None):
+        return get_child_pages(self.uri, qs)
 
 
     def __unicode__(self):
