@@ -56,7 +56,6 @@ class CMSBlockNode(template.Node):
         
         if not content_object:
             content_object = get_or_create_page(context['request'])
-           
                 
         block, created = Block.objects.get_or_create(
             label=label,

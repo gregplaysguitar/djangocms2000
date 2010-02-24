@@ -35,3 +35,8 @@ FILEBROWSER_URL_ADMIN = getattr(
 )
 
 USE_SITES_FRAMEWORK = getattr(settings, 'DJANGOCMS2000_USE_SITES_FRAMEWORK', False)
+
+
+
+
+
