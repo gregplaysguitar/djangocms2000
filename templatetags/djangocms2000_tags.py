@@ -116,7 +116,7 @@ try:
 except ImportError:
     @register.tag
     def csrf_token(parser, token):
-        return ''
+        return template.Node()
 
 
 
