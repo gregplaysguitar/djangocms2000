@@ -167,12 +167,17 @@ class CMSImageNode(template.Node):
             object_id=content_object.id
         )
         #print image.file
+        try:
+            crop = template.Variable(self.crop).resolve(context)
+        except template.VariableDoesNotExist:
+            crop = self.crop
+            
         data = {
             'label': label,
             'request': context['request'],
             'image': image,
             'constraint': constraint,
-            'crop': template.Variable(self.crop).resolve(context),
+            'crop': crop,
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
         }
