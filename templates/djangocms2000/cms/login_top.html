@@ -1,3 +1,5 @@
+{% load djangocms2000_tags %}
+
 <link rel="stylesheet" type="text/css" href="{{ djangocms2000_settings.MEDIA_URL }}css/cms.css">
 {% include "djangocms2000/cms/jquery-include.html" %}
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
@@ -11,6 +13,7 @@
 	<div>
 		
 		<form method="post" action="/djangocms2000/login/">
+		{% csrf_token %}
 		
 		<p>
 			Login to edit {{ site_name }}

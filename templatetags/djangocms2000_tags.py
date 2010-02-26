@@ -12,6 +12,8 @@ from django.utils.functional import allow_lazy
 import re
 from django.utils.encoding import force_unicode
 from djangocms2000.utils import is_editing
+from django.template import RequestContext
+
 
 
 register = template.Library()
@@ -25,6 +27,7 @@ def get_or_create_page(request):
     except Page.DoesNotExist:
         return Page.objects.create(uri=request.path_info, template='')
     
+
 
 
 
@@ -108,11 +111,12 @@ def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None):
 
 register.tag(cmssiteblock)
 
-
-
-
-
-
+try:
+    from django.template.defaulttags import csrf_token
+except ImportError:
+    @register.tag
+    def csrf_token(parser, token):
+        return ''
 
 
 
@@ -367,23 +371,21 @@ class CMSExtraNode(template.Node):
                     except Page.DoesNotExist:
                         page = False
 
-                    return template.loader.render_to_string("djangocms2000/cms/editor.html", {
-                        'request': context['request'],
+                    return template.loader.render_to_string("djangocms2000/cms/editor.html", RequestContext(context['request'], {
                         'page': page,
                         'djangocms2000_settings': djangocms2000_settings,
                         'editor_form': BlockForm(),
                         'image_form': ImageForm(),
-                    })
+                    }))
                 else:
-                    return template.loader.render_to_string("djangocms2000/cms/logged_in.html", {
+                    return template.loader.render_to_string("djangocms2000/cms/logged_in.html", RequestContext(context['request'], {
                         'djangocms2000_settings': djangocms2000_settings,
-                    })
+                    }))
             elif 'edit' in context['request'].GET:
-                return template.loader.render_to_string("djangocms2000/cms/login_top.html", {
+                return template.loader.render_to_string("djangocms2000/cms/login_top.html", RequestContext(context['request'], {
                     'login_form': AuthenticationForm(),
                     'djangocms2000_settings': djangocms2000_settings,
-                    'request': context['request'],
-                })
+                }))
             elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
                 return "" #template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
             else:

@@ -10,7 +10,11 @@ import re, os
 from django.contrib.contenttypes.models import ContentType
 from djangocms2000 import settings as djangocms2000_settings
 from djangocms2000.utils import is_editing
-
+try:
+    from django.views.decorators.csrf import csrf_protect
+except ImportError:
+    def csrf_protect(func):
+        return func
 
 
 
@@ -65,7 +69,7 @@ def saveimage(request):
 	
 	
 
-
+@csrf_protect
 def render_page(request, uri):
     if request.user.has_module_perms("djangocms2000"):
         qs = Page.objects

@@ -14,7 +14,7 @@
 {% endif %}
 
 <form method="post" action=".">
-
+{% csrf_token %}
 <p>
 	Login to edit {{ sitename }}
 </p>
@@ -25,7 +25,7 @@
 </p>
 
 
-<input type="hidden" name="next" value="{{ next }}" />
+<input type="hidden" name="next" value="{% firstof next '/' %}" />
 </form>
 
 

@@ -131,6 +131,7 @@ class _CMSAbstractBaseModel(models.Model):
         abstract = True
 
     blocks = generic.GenericRelation(Block)
+    images = generic.GenericRelation(Image)
         
     def get_title(self):
         try:
