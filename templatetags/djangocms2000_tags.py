@@ -172,7 +172,7 @@ class CMSImageNode(template.Node):
             'request': context['request'],
             'image': image,
             'constraint': constraint,
-            'crop': self.crop,
+            'crop': template.Variable(self.crop).resolve(context),
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
         }

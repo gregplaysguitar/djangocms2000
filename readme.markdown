@@ -50,6 +50,7 @@ TODO
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
 - For CMSBaseModel-based generic objects, render the objects get\_absolute\_url instead
   of requiring BLOCK\_LABELS and IMAGE\_LABELS constants
+- refactor template tags to use dynamic number of arguments so "as varname" just has to go at the end
 
 TODONE
 ---------
