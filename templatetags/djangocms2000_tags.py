@@ -169,7 +169,7 @@ class CMSImageNode(template.Node):
         #print image.file
         try:
             crop = template.Variable(self.crop).resolve(context)
-        except template.VariableDoesNotExist:
+        except:
             crop = self.crop
             
         data = {
