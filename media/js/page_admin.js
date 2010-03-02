@@ -1,4 +1,4 @@
-var djangocms2000Admin = function(filebrowser_url) {
+var djangocms2000Admin = function(filebrowser_url, buttons) {
 
     id_list = [];
     $('textarea.djangocms2000.html').each(function(i, item) {
@@ -46,7 +46,7 @@ var djangocms2000Admin = function(filebrowser_url) {
             "theme_advanced_toolbar_align": "left",
             "content_css": "",
             "language": "en",
-			"theme_advanced_buttons1" : "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,image,|,blockquote,bullist,numlist,|,pastetext,code",
+			"theme_advanced_buttons1" : buttons,
 			"external_link_list_url" : "/djangocms2000/linklist.js",
             "directionality": "ltr",
             "theme": "advanced",
