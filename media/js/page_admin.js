@@ -73,4 +73,12 @@ var djangocms2000Admin = function(filebrowser_url, buttons) {
         }
     });
     
+    $(function() {
+        setTimeout(function() {
+            // get rid of django's infernal "Add another ..." link that we don't want when the user is not allowed to add more inlines but the number of inlines varies per object argh
+            console.log($('#djangocms2000-block-content_type-object_id-group.inline-group .add-row'));
+            $('#djangocms2000-block-content_type-object_id-group.inline-group .add-row').remove();
+            $('#djangocms2000-image-content_type-object_id-group.inline-group .add-row').remove();
+        }, 100);
+    });
 };
