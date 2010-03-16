@@ -45,8 +45,10 @@ class CMSBlockNode(template.Node):
             content_object = template.Variable(self.content_object).resolve(context)
         else:
             content_object = self.content_object
+        
+        # note the `label = kwargs['parser'].compile_filter(label)` below
+        label = self.label.resolve(context)
 
-        label = template.Variable(self.label).resolve(context)
         if isinstance(self.format, str):
             format = self.format
         else:
@@ -91,25 +93,32 @@ class CMSBlockNode(template.Node):
             return returnval
         
 @easy_tag
-def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None):
+def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, None, alias)
 
 register.tag(cmsblock)
 
-
+@register.tag
 @easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None):
+def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, content_object_variable, alias)
 
-register.tag(cmsgenericblock)
 
 
 @easy_tag
-def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None):
+def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSBlockNode(label, format, editable, content_object, alias)
 
 register.tag(cmssiteblock)
+
+
+
+
+
 
 try:
     from django.template.defaulttags import csrf_token
