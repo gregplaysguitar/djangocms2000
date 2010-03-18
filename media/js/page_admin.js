@@ -65,9 +65,9 @@ var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
     
     // hack at the form for usability, if creating a page (not editing)
     if (('' + window.location).match(/\/add\/$/)) {
-        $('div.inline-group').hide();
+        $('div.inline-group').remove();
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
-        $('input[type=submit][name!=_continue]').hide();
+        $('input[type=submit][name!=_continue]').remove();
     }
     else {
         $('div.inline-group').each(function() {
