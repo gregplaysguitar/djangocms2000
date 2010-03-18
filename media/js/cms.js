@@ -1,4 +1,4 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons) {
+var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, is_superuser) {
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false;
@@ -6,7 +6,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 	if (!tinymce_init_object) {
 	    tinymce_init_object = {
-			setup: function(ed) {
+			setup: is_superuser ? function(){} : function(ed) {
        
 				// Force Paste-as-Plain-Text
 				ed.onPaste.add( function(ed, e, o) {

@@ -13,7 +13,7 @@
 <script type="text/javascript">
 if (!$.browser.msie) {
 	$(function() {
-	    djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}", null, "{{ djangocms2000_settings.FILEBROWSER_URL_ADMIN }}", "{{ djangocms2000_settings.TINYMCE_BUTTONS }}");
+	    djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}", null, "{{ djangocms2000_settings.FILEBROWSER_URL_ADMIN }}", "{{ djangocms2000_settings.TINYMCE_BUTTONS }}", {% if request.user.is_superuser %}1{% else %}0{%endif %});
     });
 }
 else {

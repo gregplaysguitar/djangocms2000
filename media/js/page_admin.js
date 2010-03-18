@@ -1,4 +1,4 @@
-var djangocms2000Admin = function(filebrowser_url, buttons) {
+var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
 
     id_list = [];
     $('textarea.djangocms2000.html').each(function(i, item) {
@@ -33,13 +33,15 @@ var djangocms2000Admin = function(filebrowser_url, buttons) {
     if (id_list.length) {
         
         tinyMCE.init({
-            setup: function(ed) {
-                // Force Paste-as-Plain-Text
-                ed.onPaste.add( function(ed, e, o) {
-                    ed.execCommand('mcePasteText', true);
-                    return tinymce.dom.Event.cancel(e);
-                });
-            },
+            setup: is_superuser ? function(){} : function(ed) {
+       
+				// Force Paste-as-Plain-Text
+				ed.onPaste.add( function(ed, e, o) {
+					ed.execCommand('mcePasteText', true);
+					return tinymce.dom.Event.cancel(e);
+				});
+			   
+			},
             "paste_auto_cleanup_on_paste" : true,
 			"relative_urls" : false,
             "theme_advanced_toolbar_location": "top",
@@ -67,11 +69,14 @@ var djangocms2000Admin = function(filebrowser_url, buttons) {
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').hide();
     }
-    $('div.inline-group').each(function() {
-        if ($(this).find('table tr').length <= 1) {
-            $(this).hide();
-        }
-    });
+    else {
+        $('div.inline-group').each(function() {
+            if ($(this).find('table tr').length <= 1) {
+                $(this).hide();
+            }
+        });
+    }
+    
     
     $(function() {
         setTimeout(function() {
