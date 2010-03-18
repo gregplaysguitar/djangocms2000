@@ -8,12 +8,14 @@ def easy_tag(func):
         #print token
         try:
             # try passing parser as a kwarg for tags that support it
-            return func(*token.split_contents(), parser=parser)
+            args = token.split_contents()
+            kwargs = {'parser': parser}
+            return func(*args, **kwargs)
         except TypeError:
             try:
-                return func(*token.split_contents())
+                return func(*args)
             except TypeError:
-                raise template.TemplateSyntaxError('Bad arguments for tag "%s"' % token.split_contents()[0])
+                raise template.TemplateSyntaxError('Bad arguments for tag "%s"' % args[0])
     inner.__name__ = func.__name__
     inner.__doc__ = inner.__doc__
     return inner
