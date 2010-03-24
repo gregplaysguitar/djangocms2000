@@ -48,7 +48,7 @@ class Block(models.Model):
     compiled_content = models.TextField(blank=True, editable=False)
     
 
-    history = AuditTrail(show_in_admin=True)
+    history = AuditTrail(show_in_admin=False)
     
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').capitalize()
@@ -79,7 +79,7 @@ class Image(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    history = AuditTrail(show_in_admin=True)
+    history = AuditTrail(show_in_admin=False)
 
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').title()
@@ -173,7 +173,7 @@ class Page(_CMSAbstractBaseModel):
     class Meta:
         ordering = ('uri',)
     
-    history = AuditTrail(show_in_admin=True)
+    history = AuditTrail(show_in_admin=False)
     
     
     def get_children(self, qs=None):
