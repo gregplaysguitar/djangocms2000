@@ -65,7 +65,7 @@ var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
     
     // hack at the form for usability, if creating a page (not editing)
     if (('' + window.location).match(/\/add\/$/)) {
-        $('div.inline-group').remove();
+        $('div.inline-group').hide();
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').remove();
     }
@@ -81,8 +81,8 @@ var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
     $(function() {
         setTimeout(function() {
             // get rid of django's infernal "Add another ..." link that we don't want when the user is not allowed to add more inlines but the number of inlines varies per object argh
-            $('#djangocms2000-block-content_type-object_id-group.inline-group .add-row').remove();
-            $('#djangocms2000-image-content_type-object_id-group.inline-group .add-row').remove();
+            $('#djangocms2000-block-content_type-object_id-group.inline-group .add-row').hide();
+            $('#djangocms2000-image-content_type-object_id-group.inline-group .add-row').hide();
         }, 100);
     });
 };
