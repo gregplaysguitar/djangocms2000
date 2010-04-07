@@ -13,7 +13,7 @@ import re
 from django.utils.encoding import force_unicode
 from djangocms2000.utils import is_editing
 from django.template import RequestContext
-
+from django.utils.safestring import mark_safe
 
 
 register = template.Library()
@@ -87,7 +87,7 @@ class CMSBlockNode(template.Node):
             returnval = block.compiled_content
         
         if self.alias:
-            context[self.alias] = returnval
+            context[self.alias] = mark_safe(returnval)
             return ""
         else:
             return returnval
@@ -201,7 +201,7 @@ class CMSImageNode(template.Node):
         
         if self.alias:
             if returnval.strip():
-                context[self.alias] = returnval
+                context[self.alias] = mark_safe(returnval)
             else:
                 context[self.alias] = ''
             return ""
