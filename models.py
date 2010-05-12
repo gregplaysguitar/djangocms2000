@@ -195,7 +195,18 @@ def site_check(sender, **kwargs):
         kwargs['instance'].site = Site.objects.all()[0]
 pre_save.connect(site_check, sender=Page)
 
+"""
+from django.test.utils import instrumented_test_render
+from django.template import Template
+if Template.render != instrumented_test_render:
+    Template.original_render = Template.render
+    Template.render = instrumented_test_render
 
+from django.test.signals import template_rendered
+def test(sender, *args, **kwargs):
+    print kwargs['template'].name
+template_rendered.connect(test)
+"""
 
 class MenuItem(models.Model):
     page = models.OneToOneField(Page)

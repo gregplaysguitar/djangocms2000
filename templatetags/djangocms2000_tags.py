@@ -22,6 +22,9 @@ register = template.Library()
 # special implementation for Page.get_or_create - sets the template to 
 # blank for created pages otherwise it can be misleading in the admin
 def get_or_create_page(request):
+    #from django.dispatch import dispatcher
+
+    #print dir(request)
     try:
         return Page.objects.get(uri=request.path_info)
     except Page.DoesNotExist:
@@ -35,7 +38,7 @@ class CMSBlockNode(template.Node):
     def __init__(self, label, format, editable, content_object=None, alias=None):
         self.label = label
         self.format = format
-        self.editable = editable
+        self.editable = (editable and editable != 'False' and editable != '0')
         self.content_object = content_object
         self.alias = alias
         
@@ -79,7 +82,7 @@ class CMSBlockNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
                 
-        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable != "False" and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
             data['block'] = block
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
@@ -87,6 +90,7 @@ class CMSBlockNode(template.Node):
             returnval = block.compiled_content
         
         if self.alias:
+            print self.alias
             context[self.alias] = mark_safe(returnval)
             return ""
         else:
@@ -137,7 +141,7 @@ class CMSImageNode(template.Node):
         self.constraint = constraint
         self.defaultimage = defaultimage
         self.crop = crop
-        self.editable = editable
+        self.editable = (editable and editable != 'False' and editable != '0')
         self.format = format
         self.alias = alias
 
@@ -191,7 +195,7 @@ class CMSImageNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
         #print self.editable
-        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable != "False" and is_editing(context['request']):
+        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable and is_editing(context['request']):
             data['editable'] = True
          
         if format == 'url':

@@ -40,3 +40,4 @@ USE_SITES_FRAMEWORK = getattr(settings, 'DJANGOCMS2000_USE_SITES_FRAMEWORK', Fal
 TINYMCE_BUTTONS = getattr(settings, 'DJANGOCMS2000_TINYMCE_BUTTONS', "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code")
 
 
+#HIDE_PAGE_URL = getattr(settings, 'DJANGOCMS2000_HIDE_PAGE_URL', False)
