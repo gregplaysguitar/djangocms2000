@@ -9,7 +9,7 @@ from djangocms2000.decorators import easy_tag
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.utils.functional import allow_lazy
-import re
+import re, os
 from django.utils.encoding import force_unicode
 from djangocms2000.utils import is_editing
 from django.template import RequestContext
@@ -19,16 +19,21 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
-# special implementation for Page.get_or_create - sets the template to 
-# blank for created pages otherwise it can be misleading in the admin
+# special implementation for Page.get_or_create - sets the template
+# for created pages in an attempt to minimise confusion in the admin
 def get_or_create_page(request):
-    #from django.dispatch import dispatcher
-
-    #print dir(request)
     try:
         return Page.objects.get(uri=request.path_info)
     except Page.DoesNotExist:
-        return Page.objects.create(uri=request.path_info, template='')
+        # attempt to guess template from url
+        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], request.path_info.strip('/') + '.html')):
+            template = os.path.join(request.path_info.strip('/') + '.html')
+        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], request.path_info.strip('/'), 'index.html')):
+            template = os.path.join(request.path_info.strip('/'), 'index.html')
+        else:
+            template = ''
+    
+        return Page.objects.create(uri=request.path_info, template=template)
     
 
 
