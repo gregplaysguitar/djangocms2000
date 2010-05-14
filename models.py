@@ -162,7 +162,8 @@ class LivePageManager(models.Manager):
 class Page(_CMSAbstractBaseModel):
     uri = models.CharField(max_length=255, unique=True)
     #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
-    template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices()) # help_text=("Example: djangocms2000/default.html")
+    #template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices())
+    template = models.CharField(max_length=255, default="djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True)
@@ -190,10 +191,17 @@ class Page(_CMSAbstractBaseModel):
         return self.get_title()
 
 # if no creation date exists, set one or the db will throw an error
-def site_check(sender, **kwargs):
+def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
-pre_save.connect(site_check, sender=Page)
+    
+    choices = []
+    for group in template_choices():
+        choices += [t[0] for t in group[1]]
+        
+    if not kwargs['instance'].template in choices:
+        kwargs['instance'].template = choices[0]
+pre_save.connect(page_pre, sender=Page)
 
 
 
