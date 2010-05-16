@@ -1,3 +1,4 @@
+{% load djangocms2000_tags %}
 
 <link rel="stylesheet" type="text/css" href="{{ djangocms2000_settings.MEDIA_URL }}css/cms.css">
 {% if djangocms2000_settings.CUSTOM_STYLESHEET %}
@@ -25,7 +26,7 @@ else {
 	
 	<div id="djangocms2000-htmlform">
 		<form action="/djangocms2000/actions/saveblock/" method="post">
-
+        {% csrf_token %}
 		<h2>Edit text</h2>
 		{% for el in editor_form %}
 		{{ el }}
@@ -71,6 +72,7 @@ else {
 
 <div id="djangocms2000-textform">
 	<form action="/djangocms2000/actions/saveblock/" method="post">
+	{% csrf_token %}
 	{% for el in editor_form %}
 	{{ el }}
 	{% endfor %}
@@ -85,6 +87,7 @@ else {
 	
 	<div id="djangocms2000-imageform">
 		<form action="/djangocms2000/actions/saveimage/" method="post" enctype="multipart/form-data">
+		{% csrf_token %}
 		<h2>Add image</h2>
 		<hr>
 		<div class="current">

@@ -74,6 +74,15 @@ class CMSBaseAdmin(admin.ModelAdmin):
 URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
 URL_DASH_REGEX = re.compile('--+')
 class PageForm(forms.ModelForm):
+    template = forms.CharField(
+        widget=forms.Select(choices=template_choices()),
+        help_text="Choose from Static Templates unless you're sure of what you're doing."
+    )
+    def __init__(self, *args, **kwargs):
+        super(PageForm, self).__init__(*args, **kwargs)
+        # just in case a template has been added/changed since last server restart
+        self.fields['template'].widget.choices = template_choices()
+     
     class Meta:
         model = Page
     
