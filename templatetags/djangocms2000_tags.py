@@ -95,7 +95,6 @@ class CMSBlockNode(template.Node):
             returnval = block.compiled_content
         
         if self.alias:
-            print self.alias
             context[self.alias] = mark_safe(returnval)
             return ""
         else:
