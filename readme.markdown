@@ -48,9 +48,7 @@ TODO
 - incorporate tim's new designs
 - Markdown editing weirdness
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
-- For CMSBaseModel-based generic objects, render the objects get\_absolute\_url instead
-  of requiring BLOCK\_LABELS and IMAGE\_LABELS constants
-- refactor template tags to use dynamic number of arguments so "as varname" just has to go at the end
+
 
 TODONE
 ---------
@@ -60,3 +58,7 @@ TODONE
    needs to be done - or maybe dummy-render the page... ?)
 - js should add the "click to add new ..." text, so that it doesn't show if the 
   editor is turned off
+- CSRF token needs to be added to image upload/change form
+- refactor template tags to use dynamic number of arguments so "as varname" just has to go at the end
+- For CMSBaseModel-based generic objects, render the objects get\_absolute\_url instead
+  of requiring BLOCK\_LABELS and IMAGE\_LABELS constants
