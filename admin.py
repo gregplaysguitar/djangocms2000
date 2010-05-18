@@ -93,11 +93,17 @@ class PageForm(forms.ModelForm):
         return uri
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date',]
+    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date', 'view_on_site',]
     list_display_links=['page_title', 'uri', ]
 
     list_filter=['site', 'template', 'is_live', 'creation_date',]
-
+    
+    def view_on_site(self, instance):
+        return '<a href="%s" target="_blank">view page</a>' % (instance.get_absolute_url())
+    view_on_site.allow_tags = True
+    view_on_site.short_description = ' '
+    
+    
     search_fields = ['uri', 'blocks__compiled_content', 'template',]
     form = PageForm
     exclude = []
