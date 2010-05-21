@@ -12,7 +12,7 @@
 <div id="djangocms2000-menu">
 	<div>
 		
-		<form method="post" action="/djangocms2000/login/">
+		<form method="post" action="{% url djangocms2000.views.login %}">
 		{% csrf_token %}
 		
 		<p>

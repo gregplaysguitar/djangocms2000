@@ -48,7 +48,7 @@ TODO
 - incorporate tim's new designs
 - Markdown editing weirdness
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
-
+- Remove ROOT_URL setting and use {% url ... %} to work out where things are
 
 TODONE
 ---------

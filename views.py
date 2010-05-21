@@ -15,7 +15,7 @@ try:
 except ImportError:
     def csrf_protect(func):
         return func
-
+from django.contrib.auth.views import login as auth_login
 
 
 def logout(request):
@@ -25,6 +25,13 @@ def logout(request):
 	else:
 		return HttpResponseRedirect('/')
 		
+
+def login(request, *args, **kwargs):
+    kwargs['template_name'] = 'djangocms2000/cms/login.html'
+    return auth_login(request, *args, **kwargs)
+		
+
+	#(r'^login/$', '', {'template_name': 'djangocms2000/cms/login.html',}),
 
 
 

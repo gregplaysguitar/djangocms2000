@@ -1,4 +1,4 @@
-var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
+var djangocms2000Admin = function(filebrowser_url, linklist_url, buttons, is_superuser) {
 
     id_list = [];
     $('textarea.djangocms2000.html').each(function(i, item) {
@@ -49,7 +49,7 @@ var djangocms2000Admin = function(filebrowser_url, buttons, is_superuser) {
             "content_css": "",
             "language": "en",
 			"theme_advanced_buttons1" : buttons,
-			"external_link_list_url" : "/djangocms2000/linklist.js",
+			"external_link_list_url" : linklist_url,
             "directionality": "ltr",
             "theme": "advanced",
             "strict_loading_mode": 1,

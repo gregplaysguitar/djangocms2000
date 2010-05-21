@@ -1,4 +1,4 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, is_superuser) {
+var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, media_url, linklist_url, is_superuser) {
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false;
@@ -24,8 +24,8 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			"mode": "exact",
 			"height": "400px",
 			"width": "760px",
-			"content_css" : "/djangocms2000/media/css/tinymce_content.css",
-			"external_link_list_url" : "/djangocms2000/linklist.js",
+			"content_css" : media_url + "css/tinymce_content.css",
+			"external_link_list_url" : linklist_url,
 			"theme_advanced_toolbar_location" : "top",
 			"theme_advanced_toolbar_align" : "left",
 			"theme_advanced_buttons1" : buttons,

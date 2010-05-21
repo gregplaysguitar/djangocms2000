@@ -14,7 +14,7 @@
 <script type="text/javascript">
 if (!$.browser.msie) {
 	$(function() {
-	    djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}", null, "{{ djangocms2000_settings.FILEBROWSER_URL_ADMIN }}", "{{ djangocms2000_settings.TINYMCE_BUTTONS }}", {% if request.user.is_superuser %}1{% else %}0{%endif %});
+	    djangocms2000($, "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}", "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}", null, "{{ djangocms2000_settings.FILEBROWSER_URL_ADMIN }}", "{{ djangocms2000_settings.TINYMCE_BUTTONS }}", "{{ djangocms2000_settings.MEDIA_URL }}", "{% url djangocms2000.views.linklist %}", {% if request.user.is_superuser %}1{% else %}0{%endif %});
     });
 }
 else {
@@ -25,7 +25,7 @@ else {
 <div id="djangocms2000-htmloverlay">
 	
 	<div id="djangocms2000-htmlform">
-		<form action="/djangocms2000/actions/saveblock/" method="post">
+		<form action="{% url djangocms2000.views.saveblock %}" method="post">
         {% csrf_token %}
 		<h2>Edit text</h2>
 		{% for el in editor_form %}
@@ -50,7 +50,7 @@ else {
 			&nbsp;
 			<a class="edit-switcher off">Stop editing</a>
 			/
-			<a href="/djangocms2000/logout/?from={{ request.path_info }}">Log me out</a>
+			<a href="{% url djangocms2000.views.logout %}?from={{ request.path_info }}">Log me out</a>
 		</span>
 
 		{% if page and not page.is_live %}
@@ -71,7 +71,7 @@ else {
 </div>
 
 <div id="djangocms2000-textform">
-	<form action="/djangocms2000/actions/saveblock/" method="post">
+	<form action="{% url djangocms2000.views.saveblock %}" method="post">
 	{% csrf_token %}
 	{% for el in editor_form %}
 	{{ el }}
@@ -86,7 +86,7 @@ else {
 <div id="djangocms2000-imageoverlay">
 	
 	<div id="djangocms2000-imageform">
-		<form action="/djangocms2000/actions/saveimage/" method="post" enctype="multipart/form-data">
+		<form action="{% url djangocms2000.views.saveimage %}" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
 		<h2>Add image</h2>
 		<hr>
