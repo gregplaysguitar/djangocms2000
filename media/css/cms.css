@@ -38,7 +38,7 @@
 	top: -25px;
 	width: 95px;
 	height: 50px;
-	background: transparent url(/djangocms2000/media/images/edit.png) top left no-repeat;
+	background: transparent url(.../images/edit.png) top left no-repeat;
 	display: none;
 }
 
@@ -64,7 +64,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: transparent url(/djangocms2000/media/images/overlay.png);
+	background: transparent url(../images/overlay.png);
 	opacity: 1;
 	
 }
@@ -87,7 +87,7 @@
 #djangocms2000-imageform input.save,
 #djangocms2000-htmlform input.cancel,
 #djangocms2000-htmlform input.save {
-	background: transparent url(/djangocms2000/media/images/save.png) top left no-repeat;
+	background: transparent url(../images/save.png) top left no-repeat;
 	width: 99px;
 	height: 47px;
 	text-indent: -5000px;
@@ -99,7 +99,7 @@
 }
 #djangocms2000-imageform input.cancel,
 #djangocms2000-htmlform input.cancel {
-	background-image: url(/djangocms2000/media/images/cancel.png);
+	background-image: url(../images/cancel.png);
 }
 
 #djangocms2000-imageform input.save:focus,
@@ -166,7 +166,7 @@
 	top: 0;
 	left: 0;
 	width: 100%;
-	background: transparent url(/djangocms2000/media/images/overlay.png);
+	background: transparent url(../images/overlay.png);
 	color: #fff;
 	padding: 5px 0;
 	text-align: left;

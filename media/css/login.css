@@ -6,7 +6,7 @@ body.login {
 }
 
 .loginWrap {
-	background: transparent url(/djangocms2000/media/images/overlay.png);
+	background: transparent url(../images/overlay.png);
 	color: #fff;
 	position: fixed;
 	top: 0;
