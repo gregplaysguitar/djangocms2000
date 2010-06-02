@@ -2,6 +2,7 @@ BASIC INSTALLATION:
 ==================
 
 1. /djangocms2000/ -> djangocms2000.urls
+2. Requires simplejson ( pypi.python.org/pypi/simplejson/ )
 2. (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load djangocms2000_tags %} at the top)
 3. TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
 4. Add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes
