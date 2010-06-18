@@ -140,7 +140,7 @@ class _CMSAbstractBaseModel(models.Model):
             try:
                 return self.blocks.get(label="name").compiled_content
             except Block.DoesNotExist:
-                return self
+                return self.__unicode__()
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
