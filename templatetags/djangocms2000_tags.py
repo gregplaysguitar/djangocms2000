@@ -43,7 +43,7 @@ class CMSBlockNode(template.Node):
     def __init__(self, label, format, editable, content_object=None, alias=None):
         self.label = label
         self.format = format
-        self.editable = (editable and editable != 'False' and editable != '0')
+        self.editable = editable
         self.content_object = content_object
         self.alias = alias
         
@@ -62,9 +62,10 @@ class CMSBlockNode(template.Node):
         else:
             format = template.Variable(self.format).resolve(context)
         
-        #print format
-        #print context['testimonial']
-        #print content_object
+        
+        print ">>", self.editable
+        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
+        
         
         
         if not content_object:
@@ -145,7 +146,7 @@ class CMSImageNode(template.Node):
         self.constraint = constraint
         self.defaultimage = defaultimage
         self.crop = crop
-        self.editable = (editable and editable != 'False' and editable != '0')
+        self.editable = editable
         self.format = format
         self.alias = alias
 
@@ -155,6 +156,9 @@ class CMSImageNode(template.Node):
             content_object = template.Variable(self.content_object).resolve(context)
         else:
             content_object = self.content_object
+        
+        print ">>", self.editable
+        self.editable = self.editable == True or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
         
         if self.constraint:
             constraint = template.Variable(self.constraint).resolve(context)
