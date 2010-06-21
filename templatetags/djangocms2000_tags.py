@@ -340,10 +340,16 @@ class CmsSiteMapNode(template.Node):
             return _render(page)
         
         
-
+# this is deprecated, use cmssitemap instead
 @register.tag
 @easy_tag
 def generate_sitemap(_tag, base_uri=None, include_base=True, depth=None):
+    return CmsSiteMapNode(base_uri, include_base, depth)
+
+
+@register.tag
+@easy_tag
+def cmssitemap(_tag, base_uri=None, include_base=True, depth=None):
     return CmsSiteMapNode(base_uri, include_base, depth)
 
 
