@@ -123,7 +123,8 @@ def template_choices():
     
 
 def get_child_pages(parent_uri, qs=None):
-    return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
+    #return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '[\w_\-\.]+/$')
+    return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '.+$')
 
 
 class _CMSAbstractBaseModel(models.Model):
