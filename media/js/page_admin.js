@@ -56,6 +56,7 @@ var djangocms2000Admin = function(filebrowser_url, linklist_url, buttons, is_sup
             "file_browser_callback": filebrowser_url ? djangoFileBrowser : null,
             "mode": "exact",
             "plugins": "heading,paste",
+            "heading_clear_tag": "p",
             "theme_advanced_buttons3": "",
             "theme_advanced_buttons2": "",
             "elements": id_list.join(',')

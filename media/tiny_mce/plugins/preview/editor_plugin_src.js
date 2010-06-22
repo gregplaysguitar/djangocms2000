@@ -1,11 +1,8 @@
 /**
- * editor_plugin_src.js
+ * $Id: editor_plugin_src.js 895 2008-07-10 14:34:23Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function() {
@@ -27,7 +24,7 @@
 					height : parseInt(ed.getParam("plugin_preview_height", "600")),
 					resizable : "yes",
 					scrollbars : "yes",
-					popup_css : css ? css.join(',') : ed.baseURI.toAbsolute("themes/" + ed.settings.theme + "/skins/" + ed.settings.skin + "/content.css"),
+					popup_css : css.join(','),
 					inline : ed.getParam("plugin_preview_inline", 1)
 				}, {
 					base : ed.documentBaseURI.getURI()

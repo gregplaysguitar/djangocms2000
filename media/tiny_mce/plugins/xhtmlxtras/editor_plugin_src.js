@@ -1,11 +1,8 @@
 /**
- * editor_plugin_src.js
+ * $Id: editor_plugin_src.js 201 2007-02-12 15:56:56Z spocke $
  *
- * Copyright 2009, Moxiecode Systems AB
- * Released under LGPL License.
- *
- * License: http://tinymce.moxiecode.com/license
- * Contributing: http://tinymce.moxiecode.com/contributing
+ * @author Moxiecode
+ * @copyright Copyright © 2004-2008, Moxiecode Systems AB, All rights reserved.
  */
 
 (function() {
@@ -120,11 +117,6 @@
 						cm.setActive(n.nodeName.toLowerCase(), 1);
 					} while (n = n.parentNode);
 				}
-			});
-
-			ed.onPreInit.add(function() {
-				// Fixed IE issue where it can't handle these elements correctly
-				ed.dom.create('abbr');
 			});
 		},
 
