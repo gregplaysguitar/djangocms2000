@@ -63,8 +63,7 @@ class CMSBlockNode(template.Node):
             format = template.Variable(self.format).resolve(context)
         
         
-        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
-        
+        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0', 0] and template.Variable(self.editable).resolve(context))
         
         
         if not content_object:
@@ -156,7 +155,7 @@ class CMSImageNode(template.Node):
         else:
             content_object = self.content_object
         
-        self.editable = self.editable == True or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
+        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0', 0] and template.Variable(self.editable).resolve(context))
         
         if self.constraint:
             constraint = template.Variable(self.constraint).resolve(context)
