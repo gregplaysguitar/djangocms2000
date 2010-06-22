@@ -63,7 +63,6 @@ class CMSBlockNode(template.Node):
             format = template.Variable(self.format).resolve(context)
         
         
-        print ">>", self.editable
         self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
         
         
@@ -157,7 +156,6 @@ class CMSImageNode(template.Node):
         else:
             content_object = self.content_object
         
-        print ">>", self.editable
         self.editable = self.editable == True or (self.editable not in ['False', '0'] and template.Variable(self.editable).resolve(context))
         
         if self.constraint:
@@ -295,12 +293,14 @@ class CmsSiteMapNode(template.Node):
         self.depth = depth
         
     def render(self, context):
+        if context['request'].user.has_module_perms("djangocms2000"):
+            page_qs = Page.objects
+        else:
+            page_qs = Page.live
+
         try:
             base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
-            if context['request'].user.has_module_perms("djangocms2000"):
-                page = Page.objects.get(uri=base_uri)
-            else:
-                page = Page.live.get(uri=base_uri)
+            page = page_qs.get(uri=base_uri)
         except Page.DoesNotExist:
             return ''
 
@@ -311,13 +311,8 @@ class CmsSiteMapNode(template.Node):
         
         def _render(page, currentdepth = 1):
             html = []
-            
-            if context['request'].user.has_module_perms("djangocms2000"):
-                qs = Page.objects
-            else:
-                qs = Page.live
                 
-            children = page.get_children(qs).order_by('uri')
+            children = page.get_children(page_qs).order_by('uri')
             if len(children):
                 html.append('<ul>')
                 for childpage in children:
@@ -328,7 +323,6 @@ class CmsSiteMapNode(template.Node):
                 html.append('</ul>')
             
             return "\n".join(html)
-        
         
     
         if include_base:
