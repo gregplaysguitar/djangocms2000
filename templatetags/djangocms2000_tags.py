@@ -286,10 +286,11 @@ def get_current_page(_tag, _as, varname):
 
 # generates a nested html list of the site structure (relies on sane url scheme)
 class CmsSiteMapNode(template.Node):
-    def __init__(self, base_uri, include_base, depth):
+    def __init__(self, base_uri, include_base, depth, alias):
         self.base_uri = base_uri
         self.include_base = include_base
         self.depth = depth
+        self.alias = alias
         
     def render(self, context):
         if context['request'].user.has_module_perms("djangocms2000"):
@@ -324,7 +325,7 @@ class CmsSiteMapNode(template.Node):
         
     
         if include_base:
-            return "\n".join([
+            html = "\n".join([
                 '<ul>',
                 '<li>',
                 '<a href="%s">%s</a>' % (page.uri, page.page_title()),
@@ -333,8 +334,14 @@ class CmsSiteMapNode(template.Node):
                 '</ul>',
             ])
         else:
-            return _render(page)
+            html = _render(page)
         
+
+        if self.alias:
+            context[self.alias] = mark_safe(html)
+            return ''
+        else:
+            return html
         
 # this is deprecated, use cmssitemap instead
 @register.tag
@@ -345,8 +352,8 @@ def generate_sitemap(_tag, base_uri=None, include_base=True, depth=None):
 
 @register.tag
 @easy_tag
-def cmssitemap(_tag, base_uri=None, include_base=True, depth=None):
-    return CmsSiteMapNode(base_uri, include_base, depth)
+def cmssitemap(_tag, base_uri=None, include_base=True, depth=None, _as='', alias=None):
+    return CmsSiteMapNode(base_uri, include_base, depth, alias)
 
 
 
