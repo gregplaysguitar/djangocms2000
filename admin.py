@@ -89,7 +89,11 @@ class PageForm(forms.ModelForm):
     def clean_uri(self):
         uri = URL_STRIP_REGEX.sub('', self.cleaned_data['uri'].replace(' ', '-')).lower()
         uri = URL_DASH_REGEX.sub('-', uri).strip('-')
-        uri = ("/%s/" % uri.strip('/')).replace('//', '/')
+        if uri[-5:] == '.html' or uri[-4:] == '.htm':
+            trailing_char = ''
+        else:
+            trailing_char = '/'
+        uri = ("/%s%s" % (uri.strip('/'), trailing_char)).replace('//', '/')
         return uri
     
 class PageAdmin(CMSBaseAdmin):
