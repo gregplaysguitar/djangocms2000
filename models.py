@@ -167,7 +167,7 @@ class Page(_CMSAbstractBaseModel):
     template = models.CharField(max_length=255, default="djangocms2000/default.html")
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
-    is_live = models.BooleanField(default=True)
+    is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
     objects = models.Manager()
     live = LivePageManager()
