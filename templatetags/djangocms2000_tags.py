@@ -21,19 +21,19 @@ register = template.Library()
 
 # special implementation for Page.get_or_create - sets the template
 # for created pages in an attempt to minimise confusion in the admin
-def get_or_create_page(request):
+def get_or_create_page(uri):
     try:
-        return Page.objects.get(uri=request.path_info)
+        return Page.objects.get(uri=uri)
     except Page.DoesNotExist:
         # attempt to guess template from url
-        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], request.path_info.strip('/') + '.html')):
-            template = os.path.join(request.path_info.strip('/') + '.html')
-        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], request.path_info.strip('/'), 'index.html')):
-            template = os.path.join(request.path_info.strip('/'), 'index.html')
+        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], uri.strip('/') + '.html')):
+            template = os.path.join(uri.strip('/') + '.html')
+        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], uri.strip('/'), 'index.html')):
+            template = os.path.join(uri.strip('/'), 'index.html')
         else:
             template = ''
     
-        return Page.objects.create(uri=request.path_info, template=template)
+        return Page.objects.create(uri=uri, template=template)
     
 
 
@@ -67,7 +67,7 @@ class CMSBlockNode(template.Node):
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'])
+            content_object = get_or_create_page(context['request'].path_info)
                 
         block, created = Block.objects.get_or_create(
             label=label,
@@ -176,7 +176,7 @@ class CMSImageNode(template.Node):
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'])
+            content_object = get_or_create_page(context['request'].path_info)
             
 
         image, created = Image.objects.get_or_create(
@@ -263,18 +263,29 @@ def get_page_menu(_tag, _as, varname):
 
 
 # gets a page
-class CmsGetPageNode(template.Node):
-    def __init__(self, varname):
+class CmsPageNode(template.Node):
+    def __init__(self, varname, uri):
         self.varname = varname
+        self.uri = uri
         
     def render(self, context):
-        context[self.varname] = get_or_create_page(context['request'])
+        if self.uri:
+            uri = template.Variable(self.uri).resolve(context)
+        else:
+            uri = context['request'].path_info
+        context[self.varname] = get_or_create_page(uri)
         return ''
 
+# deprecated, use cmspage instead
 @register.tag
 @easy_tag
 def get_current_page(_tag, _as, varname):
-    return CmsGetPageNode(varname)
+    return CmsPageNode(varname, None)
+
+@register.tag
+@easy_tag
+def cmspage(_tag, uri, _as, varname):
+    return CmsPageNode(varname, uri)
 
 
 
@@ -354,6 +365,7 @@ def generate_sitemap(_tag, base_uri=None, include_base=True, depth=None):
 @easy_tag
 def cmssitemap(_tag, base_uri=None, include_base=True, depth=None, _as='', alias=None):
     return CmsSiteMapNode(base_uri, include_base, depth, alias)
+
 
 
 
