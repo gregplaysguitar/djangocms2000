@@ -1,7 +1,7 @@
 {% load djangocms2000_tags %}
 
 {% zealousspaceless %}
-<span class='djangocms2000-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if sitewide %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}">
+<span class='djangocms2000-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if content_object.app_label == 'sites' and content_object.module_name == 'site' %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}">
 	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
 	
 	<span class="inner">

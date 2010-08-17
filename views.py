@@ -96,23 +96,27 @@ def render_page(request, uri):
 	
 # used to initialise django admin tinymce
 def page_admin_init(request):
-    return render_to_response(
+    response = render_to_response(
         'djangocms2000/cms/page_admin_init.js',
         {
             'djangocms2000_settings': djangocms2000_settings,
         },
         context_instance=RequestContext(request)
     )
+    response['Content-Type'] = 'application/javascript'
+    return response
 
 # populate the tinymce link list popup
 def linklist(request):
-    return render_to_response(
+    response = render_to_response(
         'djangocms2000/cms/linklist.js',
         {
             'page_list': Page.objects.all(),
         },
         context_instance=RequestContext(request)
     )
+    response['Content-Type'] = 'application/javascript'
+    return response
 
 
 

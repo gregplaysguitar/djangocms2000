@@ -198,6 +198,7 @@ class CMSImageNode(template.Node):
             'crop': crop,
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
+            'content_object': content_object,
         }
         #print self.editable
         if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable and is_editing(context['request']):

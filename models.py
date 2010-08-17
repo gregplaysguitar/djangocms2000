@@ -141,14 +141,15 @@ class _CMSAbstractBaseModel(models.Model):
             try:
                 return self.blocks.get(label="name").compiled_content
             except Block.DoesNotExist:
-                return self.__unicode__()
+                return self.uri
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
     if isinstance(kwargs['instance'], _CMSAbstractBaseModel):
-        # dummy-render the object's absolute url to generate blocks
-        c = Client()
-        response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='')   
+        if getattr(kwargs['instance'], 'get_absolute_url', False):
+            # dummy-render the object's absolute url to generate blocks
+            c = Client()
+            response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
 
 
@@ -191,7 +192,7 @@ class Page(_CMSAbstractBaseModel):
     def page_title(self):
         return self.get_title()
 
-# if no creation date exists, set one or the db will throw an error
+
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
@@ -233,8 +234,8 @@ Abstract model for other apps that want to have related Blocks and Images
 class CMSBaseModel(_CMSAbstractBaseModel):
 
     
-    BLOCK_LABELS = [] # should be a tuple of the form ('name', 'format',), but will fall back if it's just a string
-    IMAGE_LABELS = []
+    BLOCK_LABELS = [] # list of tuples of the form ('name', 'format',), but will fall back if it's just a list of strings
+    IMAGE_LABELS = [] # list of strings
     
     
     def __unicode__(self):
@@ -248,14 +249,9 @@ class CMSBaseModel(_CMSAbstractBaseModel):
     class Meta:
         abstract = True
 
-# add extra blocks on save
+# add extra blocks on save (dummy rendering happens too since CMSBaseModel extends _CMSAbstractBaseModel)
 def add_blocks(sender, **kwargs):
     if isinstance(kwargs['instance'], CMSBaseModel):
-        # dummy-render the object's absolute url to generate blocks
-        c = Client()
-        #print kwargs['instance'].get_absolute_url()
-        response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='') 
-        
         for label_tuple in kwargs['instance'].BLOCK_LABELS:
             if isinstance(label_tuple, str):
                 label_tuple = (label_tuple, None,)
@@ -264,7 +260,7 @@ def add_blocks(sender, **kwargs):
                 content_type=ContentType.objects.get_for_model(kwargs['instance']),
                 object_id=kwargs['instance'].id
             )
-            # only set the format if the block was just created, or
+            # only set the format if the block was just created, or it's blank, and if a format is defined
             if (not block.format or created) and label_tuple[1]:
                 block.format = label_tuple[1]
                 block.save()
