@@ -1,4 +1,4 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, media_url, linklist_url, is_superuser) {
+var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser) {
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false;
@@ -15,24 +15,26 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				});
 			   
 			},
-            "paste_auto_cleanup_on_paste" : true,
-			"elements": "id_raw_content",
-			"language": "en",
-			"directionality": "ltr",
-			"theme": "advanced",
-			"strict_loading_mode": 1,
-			"mode": "exact",
-			"height": "400px",
-			"width": "760px",
-			"content_css" : media_url + "css/tinymce_content.css",
-			"external_link_list_url" : linklist_url,
-			"theme_advanced_toolbar_location" : "top",
-			"theme_advanced_toolbar_align" : "left",
-			"theme_advanced_buttons1" : buttons,
-			"theme_advanced_buttons2" : "",
-			"theme_advanced_buttons3" : "",
-			"plugins" : "heading,paste",
-			"relative_urls" : false
+            paste_auto_cleanup_on_paste: true,
+			//"elements: "id_raw_content",
+			language: "en",
+			directionality: "ltr",
+			theme: "advanced",
+			strict_loading_mode: 1,
+			mode: "exact",
+			height: "400px",
+			width: "760px",
+			content_css: tinymce_content_css,
+			external_link_list_url: linklist_url,
+			theme_advanced_toolbar_location: "top",
+			theme_advanced_toolbar_align: "left",
+			theme_advanced_buttons1: buttons,
+			theme_advanced_buttons2: "",
+			theme_advanced_buttons3: "",
+            theme_advanced_statusbar_location: "bottom",
+            theme_advanced_resizing: true,
+			plugins: "paste",
+			relative_urls: false
 		};
 	}
 
@@ -187,7 +189,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 	$(function() {
 	
-		tinyMCE.init(tinymce_init_object);
+		$('#id_raw_content').tinymce(tinymce_init_object);
 
 		$('#djangocms2000-htmlform input.cancel').click(function() {
 			hideForm('html');

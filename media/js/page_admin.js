@@ -1,4 +1,4 @@
-var djangocms2000Admin = function(filebrowser_url, linklist_url, buttons, is_superuser) {
+var djangocms2000Admin = function(filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
 
     id_list = [];
     $('textarea.djangocms2000.html').each(function(i, item) {
@@ -32,7 +32,7 @@ var djangocms2000Admin = function(filebrowser_url, linklist_url, buttons, is_sup
     
     if (id_list.length) {
         
-        tinyMCE.init({
+        $('#' + id_list.join(', #')).tinymce({
             setup: is_superuser ? function(){} : function(ed) {
        
 				// Force Paste-as-Plain-Text
@@ -42,24 +42,25 @@ var djangocms2000Admin = function(filebrowser_url, linklist_url, buttons, is_sup
 				});
 			   
 			},
-            "paste_auto_cleanup_on_paste" : true,
-			"relative_urls" : false,
-            "theme_advanced_toolbar_location": "top",
-            "theme_advanced_toolbar_align": "left",
-            "content_css": "",
-            "language": "en",
-			"theme_advanced_buttons1" : buttons,
-			"external_link_list_url" : linklist_url,
-            "directionality": "ltr",
-            "theme": "advanced",
-            "strict_loading_mode": 1,
-            "file_browser_callback": filebrowser_url ? djangoFileBrowser : null,
-            "mode": "exact",
-            "plugins": "heading,paste",
-            "heading_clear_tag": "p",
-            "theme_advanced_buttons3": "",
-            "theme_advanced_buttons2": "",
-            "elements": id_list.join(',')
+            paste_auto_cleanup_on_paste: true,
+			relative_urls: false,
+            theme_advanced_toolbar_location: "top",
+            theme_advanced_toolbar_align: "left",
+            content_css: tinymce_content_css,
+            language: "en",
+			external_link_list_url: linklist_url,
+            directionality: "ltr",
+            theme: "advanced",
+            strict_loading_mode: 1,
+            file_browser_callback: filebrowser_url ? djangoFileBrowser : null,
+            mode: "exact",
+            plugins: "paste",
+            heading_clear_tag: "p",
+			theme_advanced_buttons1: buttons,
+            theme_advanced_buttons2: "",
+            theme_advanced_buttons3: "",
+            theme_advanced_statusbar_location: "bottom",
+            theme_advanced_resizing: true
         });
     }
     

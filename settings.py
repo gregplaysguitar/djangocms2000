@@ -16,6 +16,7 @@ HIGHLIGHT_END_COLOR = getattr(settings, 'DJANGOCMS2000_HIGHLIGHT_END_COLOR', "#f
 ADMIN_JS = getattr(settings, 'DJANGOCMS2000_ADMIN_JS', (
     MEDIA_URL + 'tiny_mce/tiny_mce.js',
     MEDIA_URL + 'lib/jquery-1.4.2.min.js',
+    MEDIA_URL + 'tiny_mce/jquery.tinymce.js',
     MEDIA_URL + 'js/page_admin.js',
     ROOT_URL + 'page_admin_init.js',
 ))
@@ -37,7 +38,7 @@ FILEBROWSER_URL_ADMIN = getattr(
 USE_SITES_FRAMEWORK = getattr(settings, 'DJANGOCMS2000_USE_SITES_FRAMEWORK', False)
 
 
-TINYMCE_BUTTONS = getattr(settings, 'DJANGOCMS2000_TINYMCE_BUTTONS', "h1,h2,h3,h4,|,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code")
-
+TINYMCE_BUTTONS = getattr(settings, 'DJANGOCMS2000_TINYMCE_BUTTONS', "formatselect,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code")
+TINYMCE_CONTENT_CSS = getattr(settings, 'DJANGOCMS2000_TINYMCE_CONTENT_CSS', "")
 
 #HIDE_PAGE_URL = getattr(settings, 'DJANGOCMS2000_HIDE_PAGE_URL', False)
