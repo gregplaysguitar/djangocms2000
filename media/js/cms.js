@@ -108,10 +108,10 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			$('#djangocms2000-imageoverlay').css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300);
 		}
 		else if ($(block).attr('format') === 'html') {
-			$('#djangocms2000-htmlform #id_raw_content').val(raw_content).html(raw_content);
-			tinyMCE.get("id_raw_content").setContent(raw_content);
-			$('#djangocms2000-htmlform #id_block_id').val($(block).attr('block_id'));
-			$('#djangocms2000-htmlform #id_format').val($(block).attr('format'));
+			$('#djangocms2000-htmlform #id_html-raw_content').val(raw_content).html(raw_content);
+			tinyMCE.get("id_html-raw_content").setContent(raw_content);
+			$('#djangocms2000-htmlform #id_html-block_id').val($(block).attr('block_id'));
+			$('#djangocms2000-htmlform #id_html-format').val($(block).attr('format'));
             
             
 			$('#djangocms2000-htmlform form').ajaxForm({
@@ -189,7 +189,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 	$(function() {
 	
-		$('#id_raw_content').tinymce(tinymce_init_object);
+		$('#id_html-raw_content').tinymce(tinymce_init_object);
 
 		$('#djangocms2000-htmlform input.cancel').click(function() {
 			hideForm('html');

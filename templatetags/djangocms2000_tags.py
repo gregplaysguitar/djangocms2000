@@ -419,6 +419,7 @@ class CMSExtraNode(template.Node):
                         'page': page,
                         'djangocms2000_settings': djangocms2000_settings,
                         'editor_form': BlockForm(),
+                        'html_editor_form': BlockForm(prefix="html"),
                         'image_form': ImageForm(),
                     }))
                 else:

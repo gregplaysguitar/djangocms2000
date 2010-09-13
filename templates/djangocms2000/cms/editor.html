@@ -39,7 +39,7 @@ else {
 		<form action="{% url djangocms2000.views.saveblock %}" method="post">
         {% csrf_token %}
 		<h2>Edit text</h2>
-		{% for el in editor_form %}
+		{% for el in html_editor_form %}
 		{{ el }}
 		{% endfor %}
 
