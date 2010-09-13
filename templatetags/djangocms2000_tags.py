@@ -327,7 +327,7 @@ class CmsSiteMapNode(template.Node):
         def _render(page, currentdepth = 1):
             html = []
                 
-            children = page.get_children(page_qs).order_by('uri')
+            children = page.get_children(page_qs)
             if len(children):
                 html.append('<ul>')
                 for childpage in children:

@@ -169,12 +169,13 @@ class Page(_CMSAbstractBaseModel):
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
+    sort_order = models.PositiveIntegerField(default=0)
     
     objects = models.Manager()
     live = LivePageManager()
     
     class Meta:
-        ordering = ('uri',)
+        ordering = ('sort_order', 'uri',)
     
     history = AuditTrail(show_in_admin=False)
     

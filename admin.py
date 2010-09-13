@@ -97,9 +97,9 @@ class PageForm(forms.ModelForm):
         return uri
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date', 'view_on_site',]
+    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date', 'view_on_site', 'sort_order', ]
     list_display_links=['page_title', 'uri', ]
-
+    list_editable = ['sort_order']
     list_filter=['site', 'template', 'is_live', 'creation_date',]
     
     def view_on_site(self, instance):
