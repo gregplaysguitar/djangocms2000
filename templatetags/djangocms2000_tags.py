@@ -172,7 +172,7 @@ class CMSImageNode(template.Node):
         else:
             format = 'html'
         
-        label = template.Variable(self.label).resolve(context)
+        label = self.label.resolve(context)
         
         
         if not content_object:
@@ -220,25 +220,29 @@ class CMSImageNode(template.Node):
 
 
 @easy_tag
-def cmsimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
+def cmsimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmsimage)
 
 
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
+def cmsgenericimage(_tag, label, content_object_variable, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmsgenericimage)
 
 
 @easy_tag
-def cmssiteimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None):
+def cmssiteimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+    label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
 
 register.tag(cmssiteimage)
+
 
 
 
