@@ -3,8 +3,11 @@ import os
 
 
 urlpatterns = patterns('djangocms2000.views',
+	(r'^actions/savepage/$', 'savepage'),
+	(r'^actions/savepage/(\d+)/$', 'savepage'),
 	(r'^actions/saveblock/$', 'saveblock'),
 	(r'^actions/saveimage/$', 'saveimage'),
+	
 	(r'^login/$', 'login'),
 	(r'^logout/$', 'logout'),
 	(r'^page_admin_init.js$', 'page_admin_init'),

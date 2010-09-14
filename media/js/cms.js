@@ -105,7 +105,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				$('#djangocms2000-imageform div.current').css({'display': 'none'});
 			}
 			
-			$('#djangocms2000-imageoverlay').css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300);
+			showForm('image');
 		}
 		else if ($(block).attr('format') === 'html') {
 			$('#djangocms2000-htmlform #id_html-raw_content').val(raw_content).html(raw_content);
@@ -135,7 +135,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				},
 				'dataType': 'json'
 			});
-			$('#djangocms2000-htmloverlay').css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300);
+			showForm('html');
 		}
 		else {
 		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
@@ -191,12 +191,10 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 		$('#id_html-raw_content').tinymce(tinymce_init_object);
 
-		$('#djangocms2000-htmlform input.cancel').click(function() {
-			hideForm('html');
+		$('.djangocms2000-form input.cancel').click(function() {
+			hideForm();
 		});	
-		$('#djangocms2000-imageform input.cancel').click(function() {
-			hideForm('image');
-		});		
+	
 		
 		$('.djangocms2000-block, .djangocms2000-image').each(function() {
 			$(this).append('<span class="editMarker"></span>');
@@ -216,21 +214,59 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			return false;
 		});
 		
+		$('#djangocms2000-menu .page-options').click(function() {
+    		showForm('page');
+	    });	
+		$('#djangocms2000-menu .new-page').click(function() {
+    		showForm('newpage');
+	    });
+	    
+	    $('#djangocms2000-pageform form, #djangocms2000-newpageform form').ajaxForm({
+            'success': function(data, status, form) {
+                var wrap = $(form).find('.wrap').eq(0);
+                wrap.find('.error').remove();
+                wrap.find('p').removeClass('haserrors');
+                
+                if (data.success) {
+                    wrap.append($('<div>').addClass('message').html('Page saved'));
+                    setTimeout(function() {
+                        window.location = data.uri;
+                    }, 1000);
+                }
+                else {
+                    var input;
+                    for (key in data.errors) {
+                        input = wrap.find('*[id$=' + key + ']');
+                        input.parent().addClass('haserrors').prepend($('<span>' + data.errors[key] + '</span>').addClass('error'));
+                    }
+                }
+            },
+            'dataType': 'json'
+        });	
+	    
 		
 	});
 	
 	function highlightBlock(block) {
-		//var bg = $(block).css('backgroundColor');
-		//console.log(highlight_start_color, highlight_end_color);
-		
 		$(block).css({backgroundColor: (highlight_start_color || "#ff0")}).animate({backgroundColor: (highlight_end_color || "#fff")}, 500, function() {
 			$(block).css({backgroundColor: ("")});	
 		});
 	};
 
-	
+	function showForm(which) {
+	     $('#djangocms2000-' + which + 'overlay').stop().css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300)[0].visible = true;
+	};
 	function hideForm(which, animate) {
-		var overlay = $('#djangocms2000-' + which + 'overlay');
+	    if (which) {
+		    var overlay = $('#djangocms2000-' + which + 'overlay');
+		}
+		else {
+		    var overlay = $('.djangocms2000-overlay');
+		}
+		
+		overlay.stop().each(function() {
+		    this.visible = false;
+		});
 		if (animate === false) {
 			overlay.css({display: 'none'});
 		}

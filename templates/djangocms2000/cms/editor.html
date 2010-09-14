@@ -4,8 +4,8 @@
 {% if djangocms2000_settings.CUSTOM_STYLESHEET %}
 <link rel="stylesheet" type="text/css" href="{{ djangocms2000_settings.CUSTOM_STYLESHEET }}">
 {% endif %}
-<script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}tiny_mce/tiny_mce.js"></script>
 {% include "djangocms2000/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}tiny_mce/jquery.tinymce.js"></script>
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}lib/jquery.color.js"></script>
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
@@ -33,11 +33,12 @@ else {
 }
 </script>
 
-<div id="djangocms2000-htmloverlay">
+<div id="djangocms2000-htmloverlay" class="djangocms2000-overlay">
 	
-	<div id="djangocms2000-htmlform">
+	<div id="djangocms2000-htmlform" class="djangocms2000-form">
 		<form action="{% url djangocms2000.views.saveblock %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="prefix" value="{% firstof html_editor_form.prefix '' %}">
 		<h2>Edit text</h2>
 		{% for el in html_editor_form %}
 		{{ el }}
@@ -52,6 +53,43 @@ else {
 
 </div>
 
+<div id="djangocms2000-pageoverlay" class="djangocms2000-overlay">
+    
+    <div id="djangocms2000-pageform" class="djangocms2000-form">
+        <form action="{% url djangocms2000.views.savepage page.pk %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="prefix" value="{% firstof page_form.prefix '' %}">
+        <h2>Edit page {{ page }}</h2>
+
+        <div class="wrap">
+            {{ page_form.as_p }}
+        </div>
+        
+        <input type="submit" name="submit" value="Save" class="save">
+        <input type="button" value="Cancel" class="cancel">
+        </form>
+        <div class="clear"></div>
+    </div>
+</div>
+<div id="djangocms2000-newpageoverlay" class="djangocms2000-overlay">
+    <div id="djangocms2000-newpageform" class="djangocms2000-form">
+        <form action="{% url djangocms2000.views.savepage %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="prefix" value="{% firstof new_page_form.prefix '' %}">
+        <h2>Create a new page</h2>
+
+        <div class="wrap">
+            {{ new_page_form.as_p }}
+        </div>
+        
+        <input type="submit" name="submit" value="Save" class="save">
+        <input type="button" value="Cancel" class="cancel">
+        </form>
+        <div class="clear"></div>
+    </div>
+</div>
+
+
 <div id="djangocms2000-menu">
 	<div>
 		<span class="status">
@@ -59,6 +97,10 @@ else {
 			You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
 			{% endif %}
 			&nbsp;
+			<a class="page-options">Page options</a>
+			/
+			<a class="new-page">New page</a>
+			/
 			<a class="edit-switcher off">Stop editing</a>
 			/
 			<a href="{% url djangocms2000.views.logout %}?from={{ request.path_info }}">Log me out</a>
@@ -81,7 +123,7 @@ else {
 	</div>
 </div>
 
-<div id="djangocms2000-textform">
+<div id="djangocms2000-textform" class="djangocms2000-form">
 	<form action="{% url djangocms2000.views.saveblock %}" method="post">
 	{% csrf_token %}
 	{% for el in editor_form %}
@@ -94,26 +136,28 @@ else {
 </div>
 
 
-<div id="djangocms2000-imageoverlay">
+
+<div id="djangocms2000-imageoverlay" class="djangocms2000-overlay">
 	
-	<div id="djangocms2000-imageform">
+	<div id="djangocms2000-imageform" class="djangocms2000-form">
 		<form action="{% url djangocms2000.views.saveimage %}" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
 		<h2>Add image</h2>
 		<hr>
-		<div class="current">
-			<h4>Currently:</h4>
-			<img src="">
-			<input type="submit" name="delete" value="Delete current" class="delete">
-		</div>
-		
-		<div class="form">
-		    <table>
-                {{ image_form }}
-		    </table>
-		</div>	
-		<div class="clear"></div>
+		<div class="wrap">
+            <div class="current">
+                <h4>Currently:</h4>
+                <img src="">
+                <input type="submit" name="delete" value="Delete current" class="delete">
+            </div>
+            
+            <div class="form">
+                {{ image_form.as_p }}
+            </div>	
 
+    		<div class="clear"></div>
+        </div>
+        
 		<input type="submit" name="submit" value="Save" class="save">
 		<input type="button" value="Cancel" class="cancel">
 		</form>
