@@ -226,12 +226,13 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
                 var wrap = $(form).find('.wrap').eq(0);
                 wrap.find('.error').remove();
                 wrap.find('p').removeClass('haserrors');
+                wrap.find('.message').remove();
                 
                 if (data.success) {
-                    wrap.append($('<div>').addClass('message').html('Page saved'));
+                    wrap.append($('<div>').addClass('message').html(data.message || 'Page saved'));
                     setTimeout(function() {
                         window.location = data.uri;
-                    }, 1000);
+                    }, 300);
                 }
                 else {
                     var input;
@@ -241,8 +242,17 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
                     }
                 }
             },
+            'beforeSubmit': function(data, status, form) {
+                var wrap = $(form).find('.wrap').eq(0);
+                wrap.find('.message').remove();
+                wrap.append($('<div>').addClass('message').html('Page saved'));
+            },
             'dataType': 'json'
-        });	
+        });
+        
+        $('#djangocms2000-imageform form').submit(function() {
+            $(this).find('.wrap').append($('<div>').addClass('message').html('Saving...'));
+        });
 	    
 		
 	});

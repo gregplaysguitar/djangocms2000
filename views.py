@@ -52,10 +52,11 @@ def savepage(request, page_pk=None):
         form = PublicPageForm(request.POST, instance=page, prefix=request.POST.get('prefix', None))
             
         if form.is_valid():
-            page = form.save()
+            saved_page = form.save()
             return HttpResponse(simplejson.dumps({
                 'success': True,
-                'uri': page.get_absolute_url(),
+                'uri': saved_page.get_absolute_url(),
+                'message': 'Page saved' if page else 'Page created... redirecting'
             }), mimetype='application/json')
         else:
             return HttpResponse(simplejson.dumps({
