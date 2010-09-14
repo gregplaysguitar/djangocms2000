@@ -53,6 +53,7 @@ else {
 
 </div>
 
+{% if page_form %}
 <div id="djangocms2000-pageoverlay" class="djangocms2000-overlay">
     
     <div id="djangocms2000-pageform" class="djangocms2000-form">
@@ -71,6 +72,7 @@ else {
         <div class="clear"></div>
     </div>
 </div>
+{% endif %}
 <div id="djangocms2000-newpageoverlay" class="djangocms2000-overlay">
     <div id="djangocms2000-newpageform" class="djangocms2000-form">
         <form action="{% url djangocms2000.views.savepage %}" method="post">
@@ -97,8 +99,10 @@ else {
 			You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
 			{% endif %}
 			&nbsp;
+			{% if page_form %}
 			<a class="page-options">Page options</a>
 			/
+			{% endif %}
 			<a class="new-page">New page</a>
 			/
 			<a class="edit-switcher off">Stop editing</a>

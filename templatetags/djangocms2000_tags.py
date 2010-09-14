@@ -1,6 +1,6 @@
 from django import template
 from djangocms2000.models import Block, Page, Image, MenuItem, get_child_pages
-from djangocms2000.forms import BlockForm, ImageForm
+from djangocms2000.forms import BlockForm, ImageForm, PublicPageForm
 from django.contrib.auth.forms import AuthenticationForm
 from django import template
 from djangocms2000 import settings as djangocms2000_settings
@@ -12,7 +12,6 @@ from django.utils.functional import allow_lazy
 import re, os
 from django.utils.encoding import force_unicode
 from djangocms2000.utils import is_editing
-from djangocms2000.forms import PublicPageForm
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 
@@ -426,7 +425,7 @@ class CMSExtraNode(template.Node):
                         'editor_form': BlockForm(),
                         'html_editor_form': BlockForm(prefix="html"),
                         'image_form': ImageForm(),
-                        'page_form': PublicPageForm(instance=page),
+                        'page_form': PublicPageForm(instance=page) if page else None,
                         'new_page_form': PublicPageForm(prefix='new'),
                     }))
                 else:
