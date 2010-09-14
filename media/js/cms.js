@@ -98,11 +98,11 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			if ($(block).find('img').length) {
 				$('#djangocms2000-imageform h2').html('Change image');
 				$('#djangocms2000-imageform div.current img').attr('src', $(block).find('img').eq(0).attr('src'));
-				$('#djangocms2000-imageform div.current').css({'display': 'block'});
+				$('#djangocms2000-imageform div.current').css({'visibility': 'visible'});
 			}
 			else {
 				$('#djangocms2000-imageform h2').html('Add image');
-				$('#djangocms2000-imageform div.current').css({'display': 'none'});
+				$('#djangocms2000-imageform div.current').css({'visibility': 'hidden'});
 			}
 			
 			showForm('image');
