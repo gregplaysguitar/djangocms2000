@@ -1,7 +1,6 @@
-from models import *
+from models import Page, Block, Image, MenuItem
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-import re
 from django import forms
 from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
@@ -11,7 +10,7 @@ import settings as djangocms2000_settings
 
 from django.forms.widgets import HiddenInput
 from django.utils.safestring import mark_safe
-
+from forms import PageForm
 
 
 class ReadonlyInput(HiddenInput):
@@ -70,31 +69,6 @@ class CMSBaseAdmin(admin.ModelAdmin):
     class Meta:
         abstract=True
 
-
-URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
-URL_DASH_REGEX = re.compile('--+')
-class PageForm(forms.ModelForm):
-    template = forms.CharField(
-        widget=forms.Select(choices=template_choices()),
-        help_text="Choose from Static Templates unless you're sure of what you're doing."
-    )
-    def __init__(self, *args, **kwargs):
-        super(PageForm, self).__init__(*args, **kwargs)
-        # just in case a template has been added/changed since last server restart
-        self.fields['template'].widget.choices = template_choices()
-     
-    class Meta:
-        model = Page
-    
-    def clean_uri(self):
-        uri = URL_STRIP_REGEX.sub('', self.cleaned_data['uri'].replace(' ', '-')).lower()
-        uri = URL_DASH_REGEX.sub('-', uri).strip('-')
-        if uri[-5:] == '.html' or uri[-4:] == '.htm':
-            trailing_char = ''
-        else:
-            trailing_char = '/'
-        uri = ("/%s%s" % (uri.strip('/'), trailing_char)).replace('//', '/')
-        return uri
     
 class PageAdmin(CMSBaseAdmin):
     list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date', 'view_on_site', 'sort_order', ]

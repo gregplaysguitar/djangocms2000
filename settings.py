@@ -14,8 +14,8 @@ HIGHLIGHT_END_COLOR = getattr(settings, 'DJANGOCMS2000_HIGHLIGHT_END_COLOR', "#f
 
 
 ADMIN_JS = getattr(settings, 'DJANGOCMS2000_ADMIN_JS', (
-    MEDIA_URL + 'tiny_mce/tiny_mce.js',
     MEDIA_URL + 'lib/jquery-1.4.2.min.js',
+    MEDIA_URL + 'tiny_mce/tiny_mce.js',
     MEDIA_URL + 'tiny_mce/jquery.tinymce.js',
     MEDIA_URL + 'js/page_admin.js',
     ROOT_URL + 'page_admin_init.js',

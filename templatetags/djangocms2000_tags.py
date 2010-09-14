@@ -12,6 +12,7 @@ from django.utils.functional import allow_lazy
 import re, os
 from django.utils.encoding import force_unicode
 from djangocms2000.utils import is_editing
+from djangocms2000.forms import PublicPageForm
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 
@@ -425,6 +426,8 @@ class CMSExtraNode(template.Node):
                         'editor_form': BlockForm(),
                         'html_editor_form': BlockForm(prefix="html"),
                         'image_form': ImageForm(),
+                        'page_form': PublicPageForm(instance=page),
+                        'new_page_form': PublicPageForm(prefix='new'),
                     }))
                 else:
                     return template.loader.render_to_string("djangocms2000/cms/logged_in.html", RequestContext(context['request'], {

@@ -55,8 +55,7 @@
 	opacity: 0.7;
 }
 
-#djangocms2000-imageoverlay,
-#djangocms2000-htmloverlay {
+.djangocms2000-overlay {
 	display: none;
 	position: fixed;
 	z-index: 2000;
@@ -68,13 +67,71 @@
 	opacity: 1;
 	
 }
-#djangocms2000-imageform,
-#djangocms2000-htmlform{
+.djangocms2000-overlay .djangocms2000-form {
 	margin: 100px auto;
 	width: 760px;
 }
-#djangocms2000-imageform h2,
-#djangocms2000-htmlform h2 {
+.djangocms2000-overlay .djangocms2000-form .wrap {
+    background: #fff;
+    margin: 0;
+    padding: 20px;
+    -webkit-box-shadow: black 0 2px 4px;
+    -moz-box-shadow: black 0 2px 4px;
+    box-shadow: black 0 2px 4px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    position: relative;
+
+}
+.djangocms2000-overlay .djangocms2000-form .wrap p {
+    margin-bottom: 20px;
+    font-style: italic;
+    color: #aaa;
+    font-size: 0.9em;
+    padding: 5px;
+    
+}
+.djangocms2000-overlay .djangocms2000-form .wrap label {
+    float: left;
+    width: 80px;
+    margin-right: 10px;
+    display: inline;
+    font-style: normal;
+    color: #222;
+    font-size: 1.11em;
+}
+.djangocms2000-overlay .djangocms2000-form .wrap input {
+    display: inline;
+}
+.djangocms2000-overlay .djangocms2000-form .wrap .haserrors {
+    background: #ffe;
+    border: 1px solid #fdd;
+}
+.djangocms2000-overlay .djangocms2000-form .wrap .error {
+    margin-bottom: 10px;
+    color: red;
+    font-size: 1.11em;
+    font-style: normal;
+    display: block;
+}
+
+.djangocms2000-overlay .djangocms2000-form .wrap .message {
+    position: absolute;
+    font-size: 3em;
+    font-style: italic;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    color: #888;
+    top: 0;
+    left: 0;
+    line-height: 100px;
+}
+
+
+.djangocms2000-overlay .djangocms2000-form h2 {
 	color: #fff;
 	font-size: 30px;
 	display: block;
@@ -82,11 +139,14 @@
 	text-align: left;
 	padding: 0;
 	margin: 0;
+    -webkit-text-shadow: black 0 2px 4px;
+    -moz-text-shadow: black 0 2px 4px;
+    text-shadow: black 0 2px 4px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 6px;
 }
-#djangocms2000-imageform input.cancel,
-#djangocms2000-imageform input.save,
-#djangocms2000-htmlform input.cancel,
-#djangocms2000-htmlform input.save {
+.djangocms2000-overlay .djangocms2000-form input.cancel,
+.djangocms2000-overlay .djangocms2000-form input.save {
 	background: transparent url(../images/save.png) top left no-repeat;
 	width: 99px;
 	height: 47px;
@@ -97,23 +157,19 @@
 	float: right;
     font-size: 12px;
 }
-#djangocms2000-imageform input.cancel,
-#djangocms2000-htmlform input.cancel {
+.djangocms2000-overlay .djangocms2000-form input.cancel {
 	background-image: url(../images/cancel.png);
 }
 
-#djangocms2000-imageform input.save:focus,
-#djangocms2000-imageform input.cancel:focus,
-#djangocms2000-htmlform input.save:focus,
-#djangocms2000-htmlform input.cancel:focus,
-#djangocms2000-textform input.save:focus,
-#djangocms2000-textform input.cancel:focus {
+.djangocms2000-form input.save:focus,
+.djangocms2000-form input.cancel:focus {
     text-decoration: underline;
 }
 
-
-#djangocms2000-imageform input {
-	display: block;
+#djangocms2000-imageform .wrap input,
+#djangocms2000-imageform .wrap label {
+    float: none;
+    display: block;
 }
 
 
@@ -129,7 +185,8 @@
 	width: 49%;
 }
 #djangocms2000-imageform .current img {
-	height: 100px;
+	max-height: 150px;
+	max-width: 300px;
 }
 
 #djangocms2000-textform {
@@ -176,8 +233,8 @@
 	z-index: 200;
 }
 #djangocms2000-menu > div {
-	width: 960px;
-	margin: 0 auto;
+	/*width: 960px;*/
+	margin: 0 10px;
 }
 #djangocms2000-menu > div span.status {
 	float: right;

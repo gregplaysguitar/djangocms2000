@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
 from django.utils import simplejson
 from models import Block, Page, Image
 from django.contrib.auth.decorators import permission_required
@@ -10,6 +10,9 @@ import re, os
 from django.contrib.contenttypes.models import ContentType
 from djangocms2000 import settings as djangocms2000_settings
 from djangocms2000.utils import is_editing
+from forms import PublicPageForm
+
+
 try:
     from django.views.decorators.csrf import csrf_protect
 except ImportError:
@@ -19,62 +22,96 @@ from django.contrib.auth.views import login as auth_login
 
 
 def logout(request):
-	logout_request(request)
-	if 'from' in request.GET:
-		return HttpResponseRedirect(request.GET['from'] or '/')
-	else:
-		return HttpResponseRedirect('/')
-		
+    logout_request(request)
+    if 'from' in request.GET:
+        return HttpResponseRedirect(request.GET['from'] or '/')
+    else:
+        return HttpResponseRedirect('/')
+        
 
 def login(request, *args, **kwargs):
     kwargs['template_name'] = 'djangocms2000/cms/login.html'
     return auth_login(request, *args, **kwargs)
-		
+        
 
-	#(r'^login/$', '', {'template_name': 'djangocms2000/cms/login.html',}),
+    #(r'^login/$', '', {'template_name': 'djangocms2000/cms/login.html',}),
 
+
+
+
+@permission_required("djangocms2000.change_page")
+def savepage(request, page_pk=None):
+    if not request.POST:
+        return HttpResponseNotAllowed('POST required')
+    else:
+        if page_pk:
+            page = get_object_or_404(Page, pk=page_pk)
+        else:
+            page = None
+        
+        form = PublicPageForm(request.POST, instance=page, prefix=request.POST.get('prefix', None))
+            
+        if form.is_valid():
+            saved_page = form.save()
+            return HttpResponse(simplejson.dumps({
+                'success': True,
+                'uri': saved_page.get_absolute_url(),
+                'message': 'Page saved' if page else 'Page created... redirecting'
+            }), mimetype='application/json')
+        else:
+            return HttpResponse(simplejson.dumps({
+                'success': False,
+                'errors': form.errors,
+            }), mimetype='application/json')
+
+    
 
 
 
 @permission_required("djangocms2000.change_page")
 def saveblock(request):
-	block = Block.objects.get(
-		pk=request.POST['block_id']
-	)
-	#print block.save()
-	
-	block.raw_content = request.POST['raw_content']
-	block.format = request.POST['format']
-	block.save()
-	#print block
-	return HttpResponse(simplejson.dumps({'compiled_content': block.compiled_content, 'raw_content': block.raw_content,}), mimetype='application/json')
+    if 'prefix' in request.POST:
+        prefix = '%s-' % request.POST['prefix']
+    else:
+        prefix = ''
+        
+    block = Block.objects.get(
+        pk=request.POST['%sblock_id' % (prefix)]
+    )
+    #print block.save()
+    
+    block.raw_content = request.POST['%sraw_content' % (prefix)]
+    block.format = request.POST['%sformat' % (prefix)]
+    block.save()
+    #print block
+    return HttpResponse(simplejson.dumps({'compiled_content': block.compiled_content, 'raw_content': block.raw_content,}), mimetype='application/json')
 
-	
+    
 
-	
+    
 @permission_required("djangocms2000.change_page")
 def saveimage(request):
-	#print request.POST
-	image = Image.objects.get(
-		pk=request.POST['image_id']
-	)
-	
-	if 'delete' in request.POST:
-		if image.file:
-			image.file.delete()
-		image.description = ""
-	else:
-		if 'file' in request.FILES:
-			if image.file:
-				image.file.delete()
-			image.file.save(request.FILES['file'].name, request.FILES['file'])
-		image.description = request.POST['description']
-	
-	image.save()
+    #print request.POST
+    image = Image.objects.get(
+        pk=request.POST['image_id']
+    )
+    
+    if 'delete' in request.POST:
+        if image.file:
+            image.file.delete()
+        image.description = ""
+    else:
+        if 'file' in request.FILES:
+            if image.file:
+                image.file.delete()
+            image.file.save(request.FILES['file'].name, request.FILES['file'])
+        image.description = request.POST['description']
+    
+    image.save()
 
-	return HttpResponseRedirect(request.POST['redirect_to'])
-	
-	
+    return HttpResponseRedirect(request.POST['redirect_to'])
+    
+    
 
 @csrf_protect
 def render_page(request, uri):
@@ -91,9 +128,9 @@ def render_page(request, uri):
         },
         context_instance=RequestContext(request)
     )
-	
-	
-	
+    
+    
+    
 # used to initialise django admin tinymce
 def page_admin_init(request):
     response = render_to_response(
