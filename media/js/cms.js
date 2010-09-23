@@ -138,6 +138,21 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			showForm('html');
 		}
 		else {
+		    var post_edit_callbacks = [];
+            
+            $(block).parents('a').each(function(e) {
+                var me = $(this),
+                    cancel = function() {
+                        return false;
+                    };
+                me.bind('click', cancel);
+                post_edit_callbacks.push(function() {
+                    setTimeout(function() {
+                        me.unbind('click', cancel);
+                    }, 100);
+                });
+            });
+		    
 		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
 			$('#djangocms2000-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
 			$('#djangocms2000-textform #id_block_id').val($(block).attr('block_id'));
@@ -158,6 +173,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				$(block).css({'display': 'block'});
 				editFormContainer.remove();
 				currently_editing = false;
+				$(post_edit_callbacks).each(function(i, fn) { fn(); });
 			};
 			editFormContainer.find('input.cancel').click(hideTextForm);
 			
@@ -170,6 +186,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 					}
 					highlightBlock(block);
 					currently_editing = false;
+					$(post_edit_callbacks).each(function(i, fn) { fn(); });
 					$(block).find('input').val($.trim(data.raw_content));
 				},
 				'beforeSubmit': function() {
@@ -178,7 +195,14 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 					hideTextForm();
 				},
 				'dataType': 'json'
-			});			
+			});
+			
+			/* manually submit the form because we're killing the click event above if
+			   the parent is an <a> tag */
+    		editFormContainer.find('form input[type=submit]').click(function() {
+    		    $(this).parents('form').submit();
+    		});
+
 		}
 
 		
