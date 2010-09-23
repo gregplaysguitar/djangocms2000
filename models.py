@@ -63,7 +63,7 @@ class Block(models.Model):
     def save(self, *args, **kwargs):
         if self.format == 'markdown':
             if self.raw_content.strip():
-                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content))))
+                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content)))).strip()
             else:
                 self.compiled_content = ''
         else:
