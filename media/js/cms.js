@@ -180,6 +180,8 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 
 			editFormContainer.find('form').ajaxForm({
 				'success': function(data) {
+				    //console.log(arguments);
+					//return true;
 					$(block).find("span.inner").html($.trim(data.compiled_content) || "Click to add text");
 					if (!$.trim(data.compiled_content)) {
 						$(block).addClass("placeholder");
@@ -197,12 +199,15 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 				'dataType': 'json'
 			});
 			
-			/* manually submit the form because we're killing the click event above if
-			   the parent is an <a> tag */
-    		editFormContainer.find('form input[type=submit]').click(function() {
-    		    $(this).parents('form').submit();
-    		});
-
+			/* manually submit the form if we're killing the click event above due to
+			   the parent being an <a> tag */
+    		if ($(block).parents('a').length) {
+        		editFormContainer.find('form input[type=submit]').click(function() {
+        		    $(this).parents('form').eq(0).submit();
+    		    });
+            }
+            
+            
 		}
 
 		
