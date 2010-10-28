@@ -14,7 +14,7 @@
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}js/edit-mode-switcher.js"></script>
 <script type="text/javascript">
 if (!$.browser.msie) {
-	$(function() {
+	function setupDjangocms2000 () {
 	    djangocms2000(
 	        $,
 	        "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}",
@@ -26,7 +26,8 @@ if (!$.browser.msie) {
 	        "{% url djangocms2000.views.linklist %}",
 	        {% if request.user.is_superuser %}1{% else %}0{%endif %}
 	    );
-    });
+	}
+	$(setupDjangocms2000);
 }
 else {
 	$('#getarealbrowser').css({'display':'block'});

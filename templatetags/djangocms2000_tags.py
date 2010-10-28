@@ -425,7 +425,7 @@ class CMSExtraNode(template.Node):
                         'editor_form': BlockForm(),
                         'html_editor_form': BlockForm(prefix="html"),
                         'image_form': ImageForm(),
-                        'page_form': PublicPageForm(instance=page) if page else None,
+                        'page_form': page and PublicPageForm(instance=page) or None,
                         'new_page_form': PublicPageForm(prefix='new'),
                     }))
                 else:
