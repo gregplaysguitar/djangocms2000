@@ -43,8 +43,12 @@ class PageForm(forms.ModelForm):
         if uri[-5:] == '.html' or uri[-4:] == '.htm':
             trailing_char = ''
         else:
-            trailing_char = '/'
+            trailing_char = uri[-1] == '/' and '/' or ''
         uri = ("/%s%s" % (uri.strip('/'), trailing_char)).replace('//', '/')
+        
+        if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(uri__in=[uri.rstrip('/'), "%s/" % uri.rstrip('/')]):
+            raise forms.ValidationError('A page with this uri already exists')
+        
         return uri
 
 
