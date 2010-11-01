@@ -40,11 +40,8 @@ class PageForm(forms.ModelForm):
     def clean_uri(self):
         uri = URL_STRIP_REGEX.sub('', self.cleaned_data['uri'].replace(' ', '-')).lower()
         uri = URL_DASH_REGEX.sub('-', uri).strip('-')
-        if uri[-5:] == '.html' or uri[-4:] == '.htm':
-            trailing_char = ''
-        else:
-            trailing_char = uri[-1] == '/' and '/' or ''
-        uri = ("/%s%s" % (uri.strip('/'), trailing_char)).replace('//', '/')
+        
+        uri = ("/%s" % (uri.lstrip('/'))).replace('//', '/')
         
         if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(uri__in=[uri.rstrip('/'), "%s/" % uri.rstrip('/')]):
             raise forms.ValidationError('A page with this uri already exists')
