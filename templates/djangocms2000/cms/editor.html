@@ -101,10 +101,10 @@ else {
 			{% endif %}
 			&nbsp;
 			{% if page_form %}
-			<a class="page-options">Page options</a>
+			<a class="page-options"href="{% url admin:djangocms2000_page_change page.pk %}">Page options</a>
 			/
 			{% endif %}
-			<a class="new-page">New page</a>
+			<a class="new-page" href="{% url admin:djangocms2000_page_add %}">New page</a>
 			/
 			<a class="edit-switcher off">Stop editing</a>
 			/
@@ -112,7 +112,7 @@ else {
 		</span>
 
 		{% if page and not page.is_live %}
-        This page is a draft - <a href="/admin/djangocms2000/page/{{ page.pk }}/">click here</a> to make it live.
+        This page is a draft - <a href="{% url admin:djangocms2000_page_change page.pk %}" class="page-options">click here</a> to make it live.
         {% endif %}
         
 		{% comment %}

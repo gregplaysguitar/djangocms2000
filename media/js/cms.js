@@ -245,9 +245,11 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 		
 		$('#djangocms2000-menu .page-options').click(function() {
     		showForm('page');
+    		return false;
 	    });	
 		$('#djangocms2000-menu .new-page').click(function() {
     		showForm('newpage');
+	        return false;
 	    });
 	    
 	    $('#djangocms2000-pageform form, #djangocms2000-newpageform form').ajaxForm({
