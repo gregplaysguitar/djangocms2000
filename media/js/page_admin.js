@@ -1,4 +1,4 @@
-var djangocms2000Admin = function(filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
+var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
 
     id_list = [];
     $('textarea.djangocms2000.html').each(function(i, item) {
