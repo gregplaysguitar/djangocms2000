@@ -59,6 +59,7 @@ class BlockInline(generic.GenericTabularInline):
 class ImageInline(generic.GenericTabularInline):
     model = Image
     extra = 0
+    exclude = ('label',)
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
