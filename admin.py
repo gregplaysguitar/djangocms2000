@@ -63,6 +63,7 @@ class ImageInline(generic.GenericTabularInline):
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
     list_display=['get_title',]
+    save_on_top = True
     class Media:
         js = djangocms2000_settings.ADMIN_JS
         css = djangocms2000_settings.ADMIN_CSS
