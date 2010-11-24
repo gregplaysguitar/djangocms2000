@@ -3,6 +3,7 @@ from django import forms
 #from tinymce.widgets import TinyMCE
 from models import Page, template_choices
 import re
+from django.conf import settings
 
 
 class BlockForm(forms.Form):
@@ -42,6 +43,9 @@ class PageForm(forms.ModelForm):
         uri = URL_DASH_REGEX.sub('-', uri).strip('-')
         
         uri = ("/%s" % (uri.lstrip('/'))).replace('//', '/')
+        
+        if settings.APPEND_SLASH and uri[-1] != '/':
+            uri = "%s/" % uri
         
         if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(uri__in=[uri.rstrip('/'), "%s/" % uri.rstrip('/')]):
             raise forms.ValidationError('A page with this uri already exists')
