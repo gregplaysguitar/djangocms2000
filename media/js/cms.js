@@ -1,4 +1,5 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser) {
+var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false;
@@ -126,6 +127,9 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 					}
 					highlightBlock(block);
 					currently_editing = false;
+					if (typeof post_edit_callback === 'function') {
+					    post_edit_callback(block);
+					}
 					
 				},
 				'beforeSubmit': function() {
@@ -190,6 +194,9 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 					currently_editing = false;
 					$(post_edit_callbacks).each(function(i, fn) { fn(); });
 					$(block).find('input').val($.trim(data.raw_content));
+					if (typeof post_edit_callback === 'function') {
+					    post_edit_callback(block);
+					}
 				},
 				'beforeSubmit': function() {
 					$(block).removeClass("placeholder");

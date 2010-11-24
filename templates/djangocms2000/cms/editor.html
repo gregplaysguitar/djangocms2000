@@ -24,7 +24,8 @@ if (!$.browser.msie) {
 	        "{{ djangocms2000_settings.TINYMCE_BUTTONS }}",
 	        "{{ djangocms2000_settings.TINYMCE_CONTENT_CSS }}",
 	        "{% url djangocms2000.views.linklist %}",
-	        {% if request.user.is_superuser %}1{% else %}0{%endif %}
+	        {% if request.user.is_superuser %}1{% else %}0{%endif %},
+	        {{ djangocms2000_settings.POST_EDIT_CALLBACK }}
 	    );
 	}
 	$(setupDjangocms2000);
