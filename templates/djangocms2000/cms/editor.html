@@ -14,9 +14,9 @@
 <script type="text/javascript" src="{{ djangocms2000_settings.MEDIA_URL }}js/edit-mode-switcher.js"></script>
 <script type="text/javascript">
 if (!$.browser.msie) {
-	$(function() {
+	function setupDjangocms2000 () {
 	    djangocms2000(
-	        $,
+	        jQuery,
 	        "{{ djangocms2000_settings.HIGHLIGHT_START_COLOR }}",
 	        "{{ djangocms2000_settings.HIGHLIGHT_END_COLOR }}",
 	        null,
@@ -24,9 +24,11 @@ if (!$.browser.msie) {
 	        "{{ djangocms2000_settings.TINYMCE_BUTTONS }}",
 	        "{{ djangocms2000_settings.TINYMCE_CONTENT_CSS }}",
 	        "{% url djangocms2000.views.linklist %}",
-	        {% if request.user.is_superuser %}1{% else %}0{%endif %}
+	        {% if request.user.is_superuser %}1{% else %}0{%endif %},
+	        {{ djangocms2000_settings.POST_EDIT_CALLBACK|safe }}
 	    );
-    });
+	}
+	$(setupDjangocms2000);
 }
 else {
 	$('#getarealbrowser').css({'display':'block'});
@@ -100,10 +102,10 @@ else {
 			{% endif %}
 			&nbsp;
 			{% if page_form %}
-			<a class="page-options">Page options</a>
+			<a class="page-options"href="{% url admin:djangocms2000_page_change page.pk %}">Page options</a>
 			/
 			{% endif %}
-			<a class="new-page">New page</a>
+			<a class="new-page" href="{% url admin:djangocms2000_page_add %}">New page</a>
 			/
 			<a class="edit-switcher off">Stop editing</a>
 			/
@@ -111,7 +113,7 @@ else {
 		</span>
 
 		{% if page and not page.is_live %}
-        This page is a draft - <a href="/admin/djangocms2000/page/{{ page.pk }}/">click here</a> to make it live.
+        This page is a draft - <a href="{% url admin:djangocms2000_page_change page.pk %}" class="page-options">click here</a> to make it live.
         {% endif %}
         
 		{% comment %}

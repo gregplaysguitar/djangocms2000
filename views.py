@@ -56,7 +56,7 @@ def savepage(request, page_pk=None):
             return HttpResponse(simplejson.dumps({
                 'success': True,
                 'uri': saved_page.get_absolute_url(),
-                'message': 'Page saved' if page else 'Page created... redirecting'
+                'message': page and 'Page saved' or 'Page created... redirecting'
             }), mimetype='application/json')
         else:
             return HttpResponse(simplejson.dumps({

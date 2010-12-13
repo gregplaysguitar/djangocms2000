@@ -63,7 +63,7 @@ class Block(models.Model):
     def save(self, *args, **kwargs):
         if self.format == 'markdown':
             if self.raw_content.strip():
-                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content))))
+                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content)))).strip()
             else:
                 self.compiled_content = ''
         else:
@@ -86,7 +86,7 @@ class Image(models.Model):
     
     
     #page = models.ForeignKey(Page)
-    label = models.CharField(max_length=255, editable=False)
+    label = models.CharField(max_length=255)
     file = models.ImageField(upload_to=settings.UPLOAD_PATH, blank=True)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):

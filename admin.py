@@ -59,10 +59,12 @@ class BlockInline(generic.GenericTabularInline):
 class ImageInline(generic.GenericTabularInline):
     model = Image
     extra = 0
+    exclude = ('label',)
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
     list_display=['get_title',]
+    save_on_top = True
     class Media:
         js = djangocms2000_settings.ADMIN_JS
         css = djangocms2000_settings.ADMIN_CSS
