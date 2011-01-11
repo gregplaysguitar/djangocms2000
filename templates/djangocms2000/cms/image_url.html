@@ -2,22 +2,18 @@
 
 
 {% if image.file %}
-    {% if crop %}
-        {% thumbnail image.file constraint crop %}
-    {% else %}
-        {% thumbnail image.file constraint %}
-    {% endif %}
+    {% thumbnail image.file constraint crop=crop as thumb %}
+        {{ thumb.url }}
+    {% endthumbnail %}
 {% else %}
     {% if defaultimage %}
-        {% if crop %}
-            {% thumbnail defaultimage constraint crop %}
-        {% else %}
-            {% thumbnail defaultimage constraint %}
-        {% endif %}
+        {% thumbnail defaultimage constraint crop=crop as thumb %}
+            {{ thumb.url }}
+        {% endthumbnail %}
     {% endif %}
 {% endif %}
 
 
 
-
+ 
 

@@ -38,7 +38,7 @@ class BlockForm(forms.ModelForm):
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextInputWidget()
             else:
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextareaWidget()
-            self.base_fields['raw_content'].widget.attrs['class'] = "%s %s djangocms2000" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.base_fields['raw_content'].widget.attrs['class'] = "%s djangocms2000 djangocms2000-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
         super(BlockForm, self).__init__(*args, **kwargs)
         
 
