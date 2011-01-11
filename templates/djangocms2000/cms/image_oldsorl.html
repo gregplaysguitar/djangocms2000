@@ -9,25 +9,25 @@
 
 
 {% if image.file %}
-{% if crop %}
-{% thumbnail image.file constraint crop as thumb %}
+    {% if crop %}
+        {% thumbnail image.file constraint crop as thumb %}
+    {% else %}
+        {% thumbnail image.file constraint as thumb %}
+    {% endif %}
+    <img src="{{ thumb }}" alt="{{ image.description }}" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
 {% else %}
-{% thumbnail image.file constraint as thumb %}
-{% endif %}
-<img src="{{ thumb }}" alt="{{ image.description }}" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
-{% else %}
-{% if defaultimage %}
-{% if crop %}
-{% thumbnail defaultimage constraint crop as thumb %}
-{% else %}
-{% thumbnail defaultimage constraint as thumb %}
-{% endif %}
-<img src="{{ thumb }}" alt="Default image" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
-{% else %}
-{% if editable %}
-Click to add image {{ label }} for {{ content_object }}
-{% endif %}
-{% endif %}
+    {% if defaultimage %}
+        {% if crop %}
+            {% thumbnail defaultimage constraint crop as thumb %}
+        {% else %}
+            {% thumbnail defaultimage constraint as thumb %}
+        {% endif %}
+        <img src="{{ thumb }}" alt="Default image" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
+    {% else %}
+        {% if editable %}
+            Click to add image {{ label }} for {{ content_object }}
+        {% endif %}
+    {% endif %}
 {% endif %}
 
 

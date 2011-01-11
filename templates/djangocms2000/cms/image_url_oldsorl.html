@@ -2,11 +2,19 @@
 
 
 {% if image.file %}
-{% if crop %}{% thumbnail image.file constraint crop %}{% else %}{% thumbnail image.file constraint %}{% endif %}
+    {% if crop %}
+        {% thumbnail image.file constraint crop %}
+    {% else %}
+        {% thumbnail image.file constraint %}
+    {% endif %}
 {% else %}
-{% if defaultimage %}
-{% if crop %}{% thumbnail defaultimage constraint crop %}{% else %}{% thumbnail defaultimage constraint %}{% endif %}
-{% endif %}
+    {% if defaultimage %}
+        {% if crop %}
+            {% thumbnail defaultimage constraint crop %}
+        {% else %}
+            {% thumbnail defaultimage constraint %}
+        {% endif %}
+    {% endif %}
 {% endif %}
 
 
