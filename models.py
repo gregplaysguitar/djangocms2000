@@ -17,6 +17,9 @@ from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
 
+from fields import ConstrainedImageField
+from djangocms2000 import settings as djangocms2000_settings
+
 try:
     from audit import AuditTrail
 except ImportError:
@@ -87,7 +90,7 @@ class Image(models.Model):
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
-    file = models.ImageField(upload_to=settings.UPLOAD_PATH, blank=True)
+    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=djangocms2000_settings.MAX_IMAGE_DIMENSIONS)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
