@@ -3,7 +3,7 @@ input.djangocms2000,
 textarea.djangocms2000 {
     width: 700px;
 }
-textarea.djangocms2000.html {
+textarea.djangocms2000-html {
     height: 300px;
 }
 

@@ -15,7 +15,6 @@ from djangocms2000.utils import is_editing
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 
-
 register = template.Library()
 
 
@@ -203,11 +202,18 @@ class CMSImageNode(template.Node):
         #print self.editable
         if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable and is_editing(context['request']):
             data['editable'] = True
-         
-        if format == 'url':
-            returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
-        else:
-            returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
+        
+        try:
+            if format == 'url':
+                returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
+            else:
+                returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
+        except template.TemplateSyntaxError, e:
+            if format == 'url':
+                returnval = template.loader.render_to_string("djangocms2000/cms/image_url_oldsorl.html", data)
+            else:
+                returnval = template.loader.render_to_string("djangocms2000/cms/image_oldsorl.html", data)
+        
         
         if self.alias:
             if returnval.strip():
@@ -454,27 +460,6 @@ register.tag(cmsextra)
 
 
 
-
-
-class ZealousSpacelessNode(template.Node):
-    def __init__(self, nodelist):
-        self.nodelist = nodelist
-
-    def render(self, context):
-        return self.strip_spaces_between_tags(self.nodelist.render(context).strip())
-    
-    def strip_spaces_between_tags(self, value):
-        value = re.sub(r'\s+<', '<', force_unicode(value))
-        value = re.sub(r'>\s+', '>', force_unicode(value))
-        return value
-    strip_spaces_between_tags = allow_lazy(strip_spaces_between_tags, unicode)
-
-@register.tag
-def zealousspaceless(parser, token):
-    """like spaceless, but removes space between text and tags also"""
-    nodelist = parser.parse(('endzealousspaceless',))
-    parser.delete_first_token()
-    return ZealousSpacelessNode(nodelist)
 
 
 
