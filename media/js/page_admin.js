@@ -33,14 +33,9 @@ var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_cont
     if (id_list.length) {
         
         $('#' + id_list.join(', #')).tinymce({
-            setup: is_superuser ? function(){} : function(ed) {
-       
-				// Force Paste-as-Plain-Text
-				ed.onPaste.add( function(ed, e, o) {
-					ed.execCommand('mcePasteText', true);
-					return tinymce.dom.Event.cancel(e);
-				});
-			   
+			setupcontent_callback: function(id) {
+			    // set plain-text paste to be on by default
+			    tinyMCE.get(id).execCommand('mcePasteText', true);
 			},
             paste_auto_cleanup_on_paste: true,
 			relative_urls: false,

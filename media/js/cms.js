@@ -7,14 +7,9 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 	if (!tinymce_init_object) {
 	    tinymce_init_object = {
-			setup: is_superuser ? function(){} : function(ed) {
-       
-				// Force Paste-as-Plain-Text
-				ed.onPaste.add( function(ed, e, o) {
-					ed.execCommand('mcePasteText', true);
-					return tinymce.dom.Event.cancel(e);
-				});
-			   
+			setupcontent_callback: function(id) {
+			    // set plain-text paste to be on by default
+			    tinyMCE.get(id).execCommand('mcePasteText', true);
 			},
             paste_auto_cleanup_on_paste: true,
 			//"elements: "id_raw_content",
