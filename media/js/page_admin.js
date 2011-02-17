@@ -33,6 +33,13 @@ var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_cont
     if (id_list.length) {
         
         $('#' + id_list.join(', #')).tinymce({
+			setup: function() {
+			    // hack to stop tinymce's silly alert (see paste plugin source code)
+			    var cookie = tinymce.util.Cookie;
+			    if (!cookie.get("tinymcePasteText")) {
+    			    cookie.set("tinymcePasteText", "1");
+    			}
+			},
 			setupcontent_callback: function(id) {
 			    // set plain-text paste to be on by default
 			    tinyMCE.get(id).execCommand('mcePasteText', true);

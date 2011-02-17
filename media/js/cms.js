@@ -7,6 +7,13 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 	if (!tinymce_init_object) {
 	    tinymce_init_object = {
+			setup: function() {
+			    // hack to stop tinymce's silly alert (see paste plugin source code)
+			    var cookie = tinymce.util.Cookie;
+			    if (!cookie.get("tinymcePasteText")) {
+    			    cookie.set("tinymcePasteText", "1");
+    			}
+			},
 			setupcontent_callback: function(id) {
 			    // set plain-text paste to be on by default
 			    tinyMCE.get(id).execCommand('mcePasteText', true);
