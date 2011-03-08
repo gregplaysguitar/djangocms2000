@@ -188,7 +188,10 @@ class CMSImageNode(template.Node):
             crop = template.Variable(self.crop).resolve(context)
         except:
             crop = self.crop
-            
+        
+        if crop == 'crop':
+            crop = 'center'
+        
         data = {
             'label': label,
             'request': context['request'],
