@@ -10,12 +10,12 @@
 
 {% if image.file %}
     {% thumbnail image.file constraint crop=crop as thumb %}
-        <img src="{{ thumb.url }}" alt="{{ image.description }}" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
+        <img src="{{ thumb.url }}" alt="{{ image.description }}" width="{{ thumb.width }}" height="{{ thumb.height }}">
     {% endthumbnail %}
 {% else %}
     {% if defaultimage %}
         {% thumbnail defaultimage constraint crop=crop as thumb %}
-            <img src="{{ thumb.url }}" alt="Default image" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
+            <img src="{{ thumb.url }}" alt="Default image" width="{{ thumb.width }}" height="{{ thumb.height }}">
         {% endthumbnail %}
     {% else %}
         {% if editable %}

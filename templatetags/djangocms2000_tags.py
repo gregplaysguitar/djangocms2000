@@ -8,9 +8,7 @@ from django.conf import settings
 from djangocms2000.decorators import easy_tag
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.utils.functional import allow_lazy
-import re, os
-from django.utils.encoding import force_unicode
+import os
 from djangocms2000.utils import is_editing
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
@@ -110,8 +108,6 @@ register.tag(cmsblock)
 def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, content_object_variable, alias)
-
-
 
 @easy_tag
 def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
