@@ -1,4 +1,4 @@
-{% load djangocms2000_tags %}
+{% load djangocms2000_util_tags %}
 
 {% zealousspaceless %}
 <span class='djangocms2000-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if content_object.app_label == 'sites' and content_object.module_name == 'site' %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}">

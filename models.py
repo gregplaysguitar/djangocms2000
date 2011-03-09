@@ -17,6 +17,9 @@ from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
 
+from fields import ConstrainedImageField
+from djangocms2000 import settings as djangocms2000_settings
+
 try:
     from audit import AuditTrail
 except ImportError:
@@ -63,7 +66,7 @@ class Block(models.Model):
     def save(self, *args, **kwargs):
         if self.format == 'markdown':
             if self.raw_content.strip():
-                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content))))
+                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content)))).strip()
             else:
                 self.compiled_content = ''
         else:
@@ -86,8 +89,8 @@ class Image(models.Model):
     
     
     #page = models.ForeignKey(Page)
-    label = models.CharField(max_length=255, editable=False)
-    file = models.ImageField(upload_to=settings.UPLOAD_PATH, blank=True)
+    label = models.CharField(max_length=255)
+    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=djangocms2000_settings.MAX_IMAGE_DIMENSIONS)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
@@ -149,7 +152,7 @@ def dummy_render(sender, **kwargs):
         if getattr(kwargs['instance'], 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
             c = Client()
-            response = c.get(str(kwargs['instance'].get_absolute_url()), {}, HTTP_COOKIE='')   
+            response = c.get(str(kwargs['instance'].get_absolute_url()), {'djangocms2000_dummy_render': True}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
 
 

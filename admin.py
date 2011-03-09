@@ -38,7 +38,7 @@ class BlockForm(forms.ModelForm):
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextInputWidget()
             else:
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextareaWidget()
-            self.base_fields['raw_content'].widget.attrs['class'] = "%s %s djangocms2000" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.base_fields['raw_content'].widget.attrs['class'] = "%s djangocms2000 djangocms2000-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
         super(BlockForm, self).__init__(*args, **kwargs)
         
 
@@ -59,10 +59,12 @@ class BlockInline(generic.GenericTabularInline):
 class ImageInline(generic.GenericTabularInline):
     model = Image
     extra = 0
+    exclude = ('label',)
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
     list_display=['get_title',]
+    save_on_top = True
     class Media:
         js = djangocms2000_settings.ADMIN_JS
         css = djangocms2000_settings.ADMIN_CSS

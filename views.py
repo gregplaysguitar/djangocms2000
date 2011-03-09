@@ -56,7 +56,7 @@ def savepage(request, page_pk=None):
             return HttpResponse(simplejson.dumps({
                 'success': True,
                 'uri': saved_page.get_absolute_url(),
-                'message': 'Page saved' if page else 'Page created... redirecting'
+                'message': page and 'Page saved' or 'Page created... redirecting'
             }), mimetype='application/json')
         else:
             return HttpResponse(simplejson.dumps({
@@ -114,12 +114,15 @@ def saveimage(request):
     
 
 @csrf_protect
-def render_page(request, uri):
+def render_page(request, uri=None):
     if request.user.has_module_perms("djangocms2000"):
         qs = Page.objects
     else:
         qs = Page.live
-        
+    
+    if not uri:
+        uri = request.path_info
+    
     page = get_object_or_404(qs, uri=uri)
     return render_to_response(
         page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),

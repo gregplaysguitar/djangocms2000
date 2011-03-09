@@ -1,7 +1,7 @@
-var djangocms2000Admin = function(filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
+var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
 
     id_list = [];
-    $('textarea.djangocms2000.html').each(function(i, item) {
+    $('textarea.djangocms2000-html').each(function(i, item) {
         id_list.push(item.id);
     });
     
@@ -33,14 +33,16 @@ var djangocms2000Admin = function(filebrowser_url, linklist_url, tinymce_content
     if (id_list.length) {
         
         $('#' + id_list.join(', #')).tinymce({
-            setup: is_superuser ? function(){} : function(ed) {
-       
-				// Force Paste-as-Plain-Text
-				ed.onPaste.add( function(ed, e, o) {
-					ed.execCommand('mcePasteText', true);
-					return tinymce.dom.Event.cancel(e);
-				});
-			   
+			setup: function() {
+			    // hack to stop tinymce's silly alert (see paste plugin source code)
+			    var cookie = tinymce.util.Cookie;
+			    if (!cookie.get("tinymcePasteText")) {
+    			    cookie.set("tinymcePasteText", "1");
+    			}
+			},
+			setupcontent_callback: function(id) {
+			    // set plain-text paste to be on by default
+			    tinyMCE.get(id).execCommand('mcePasteText', true);
 			},
             paste_auto_cleanup_on_paste: true,
 			relative_urls: false,
