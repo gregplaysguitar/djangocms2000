@@ -120,6 +120,58 @@ register.tag(cmssiteblock)
 
 
 
+class CMSModelBlockNode(template.Node):
+    def __init__(self, object, field, format, editable, alias=None):
+        self.content_object = content_object
+        self.field = field
+        self.format = format
+        self.editable = editable
+        self.alias = alias
+        
+    def render(self, context):
+        content_object = template.Variable(self.content_object).resolve(context)
+
+        # note the `label = kwargs['parser'].compile_filter(label)` below
+        field = self.field.resolve(context)
+        
+        format = template.Variable(self.format).resolve(context)
+        editable = template.Variable(self.editable).resolve(context)
+
+        
+        raw_content = getattr(content_object, field)
+        compiled_content = getattr(content_object, 'compiled_%s' % field, raw_content)
+        
+        if context['request'].user.has_perm("%s.change_%s" % (content_object.app_label, content_object.module_name)) and editable and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
+            data = {
+                'format': format,
+                'field': field,
+                'request': context['request'],
+                'sitewide': False,
+                'content_object': content_object,
+                'raw_content': raw_content,
+                'compiled_content': compiled_content,
+            }
+
+            returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
+        else:
+            returnval = compiled_content
+            
+        if self.alias:
+            context[self.alias] = mark_safe(returnval)
+            return ""
+        else:
+            return returnval
+
+
+@register.tag
+@easy_tag
+def cmsmodelblock(_tag, content_object_variable, field, format="html", editable=True, alias=None, **kwargs):
+    field = kwargs['parser'].compile_filter(field)
+    return CMSModelBlockNode(content_object_variable, field, format, editable, alias)
+
+
+
+
 
 
 try:
