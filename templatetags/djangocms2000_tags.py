@@ -8,7 +8,7 @@ from django.conf import settings
 from djangocms2000.decorators import easy_tag
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-import os
+import os, sys
 from djangocms2000.utils import is_editing
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
@@ -89,20 +89,28 @@ class CMSBlockNode(template.Node):
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
         else:
-            returnval = block.compiled_content
+            returnval = self.get_compiled_content(block)
         
         if self.alias:
             context[self.alias] = mark_safe(returnval)
             return ""
         else:
             return returnval
-        
+    
+    def get_compiled_content(self, block):
+        content = block.compiled_content
+        if djangocms2000_settings.GLOBAL_FILTERS:
+            for f in djangocms2000_settings.GLOBAL_FILTERS:
+                module = __import__(f)
+                content = sys.modules[f].filter(content, block)
+        return content
+    
+@register.tag
 @easy_tag
 def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, None, alias)
 
-register.tag(cmsblock)
 
 @register.tag
 @easy_tag
@@ -110,13 +118,13 @@ def cmsgenericblock(_tag, label, content_object_variable, format="html", editabl
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, content_object_variable, alias)
 
+@register.tag
 @easy_tag
 def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSBlockNode(label, format, editable, content_object, alias)
 
-register.tag(cmssiteblock)
 
 
 
@@ -225,29 +233,29 @@ class CMSImageNode(template.Node):
             return returnval
 
 
+@register.tag
 @easy_tag
 def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmsimage)
 
 
+@register.tag
 @easy_tag
 def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmsgenericimage)
 
 
+@register.tag
 @easy_tag
 def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmssiteimage)
 
 
 
@@ -476,7 +484,7 @@ class PageNamedBlockNode(template.Node):
         blockname = self.blockname.resolve(context)
         return page.blocks.get(label=blockname).compiled_content
 
-@register.tag('get_page_block')
+@register.tag
 @easy_tag
 def get_page_block(_tag, page, block):
     return PageNamedBlockNode(page, block)
@@ -492,7 +500,7 @@ class PagesForTemplateNode(template.Node):
         context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('uri')
         return ''
 
-@register.tag('pages_for_template')
+@register.tag
 @easy_tag
 def pages_for_template(_tagname, template, _as, varname):
     return PagesForTemplateNode(varname, template)
