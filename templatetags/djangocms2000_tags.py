@@ -469,6 +469,20 @@ register.tag(cmsextra)
 
 
 
+class CMSEditingNode(template.Node):
+    def __init__(self, varname):
+        self.varname = varname
+
+    def render(self, context):
+        context[self.varname] = is_editing(context['request'])
+        return ''
+
+@register.tag
+@easy_tag
+def cmsediting(_tag, _as, varname):
+    return CMSEditingNode(varname)
+
+
 
 
 
