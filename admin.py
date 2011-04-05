@@ -95,7 +95,14 @@ if not djangocms2000_settings.USE_SITES_FRAMEWORK:
 admin.site.register(Page, PageAdmin)
 
 
-admin.site.register(MenuItem, list_display=['__unicode__','page','sort'])
+
+
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display= ('__unicode__', 'page', 'parent', 'sort', )
+    list_filter = ('parent', )
+    list_editable = ('parent', 'sort', )
+
+admin.site.register(MenuItem, MenuItemAdmin)
 
 
 

@@ -214,18 +214,37 @@ class MenuItem(models.Model):
     page = models.OneToOneField(Page)
     text = models.CharField(max_length=255, blank=True, default="", help_text="If left blank, will use page title")
     title = models.CharField(max_length=255, blank=True, default="")
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', limit_choices_to={'parent__isnull': True})
     sort = models.IntegerField(blank=True, default=0)
     
     class Meta:
-        ordering = ('sort','id',)
+        ordering = ('parent__sort', 'parent__id', 'sort', 'id',)
     
     def get_text(self):
         return self.text or self.page.page_title()
-    
+   
     def __unicode__(self):
-        return self.get_text()
+        return ' > '.join([c.get_text() for c in self.get_hierarchy()])
+    
+    def get_parent_display(self):
+        return unicode(self.parent) or ''
+    get_parent_display.short_description = 'parent'
+    get_parent_display.admin_order_field = 'parent'
+    
+    def get_hierarchy(self, include_self=True):
+        if self.parent:
+            return self.parent.get_hierarchy() + (include_self and [self] or [])
+        else:
+            return include_self and [self] or []
+    
     
 
+def check_tree(sender, instance, **kwargs):
+    # enforce a maximum of two-level hierarchy
+    if instance.pk and instance.children.all().count() or instance.parent == instance:
+        instance.parent = None
+models.signals.pre_save.connect(check_tree, sender=MenuItem)
+    
 
 
 

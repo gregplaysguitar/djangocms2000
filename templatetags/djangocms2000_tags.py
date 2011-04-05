@@ -263,20 +263,26 @@ def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, edit
 
 # gets a list of menu items from models.MenuItem
 class CmsPageMenuNode(template.Node):
-    def __init__(self, varname):
+    def __init__(self, varname, parent):
         self.varname = varname
+        self.parent = parent
         
     def render(self, context):
-        #print MenuItem.objects.all()
-        context[self.varname] = MenuItem.objects.all()
+        if self.parent:
+            parent = template.Variable(self.parent).resolve(context)
+            qs = MenuItem.objects.filter(parent=parent)
+        else:
+            qs = MenuItem.objects.filter(parent__isnull=True)
+
         if not context['request'].user.has_module_perms("djangocms2000"):
-            context[self.varname] = context[self.varname].filter(page__is_live=True)
+            qs = qs.filter(page__is_live=True)
+        context[self.varname] = qs
         return ''
 
 @register.tag
 @easy_tag
-def get_page_menu(_tag, _as, varname):
-    return CmsPageMenuNode(varname)
+def get_page_menu(_tag, _as, varname, _for=None, parent=None):
+    return CmsPageMenuNode(varname, parent)
 
 
 
