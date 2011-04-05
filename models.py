@@ -223,6 +223,9 @@ class MenuItem(models.Model):
     def get_text(self):
         return self.text or self.page.page_title()
    
+    def get_uri(self):
+        return self.page.uri
+    
     def __unicode__(self):
         return ' > '.join([c.get_text() for c in self.get_hierarchy()])
     
