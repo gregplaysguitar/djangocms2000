@@ -65,13 +65,14 @@ var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_cont
             theme_advanced_resizing: true
         });
     }
-    
+
     
     // hack at the form for usability, if creating a page (not editing)
     if (('' + window.location).match(/\/add\/$/)) {
         $('div.inline-group').hide();
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').remove();
+        $('.form-row.is_live').remove();
     }
     else {
         $('div.inline-group').each(function() {

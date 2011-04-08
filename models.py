@@ -165,7 +165,7 @@ class LivePageManager(models.Manager):
 
 
 class Page(_CMSAbstractBaseModel):
-    uri = models.CharField(max_length=255, unique=True)
+    uri = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
     #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
     #template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices())
     template = models.CharField(max_length=255, default="djangocms2000/default.html")
