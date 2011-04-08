@@ -13,6 +13,11 @@ from djangocms2000.utils import is_editing
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 
+try:
+    import sorl
+except ImportError:
+    sorl = None
+
 register = template.Library()
 
 
@@ -211,12 +216,18 @@ class CMSImageNode(template.Node):
         if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
             data['editable'] = True
         
-        try:
+        
+        
+
+
+        if hasattr(sorl, "NullHandler"):
+            # assume up-to-date sorl
             if format == 'url':
                 returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
             else:
                 returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
-        except template.TemplateSyntaxError, e:
+        else:
+            # assume older sorl syntax
             if format == 'url':
                 returnval = template.loader.render_to_string("djangocms2000/cms/image_url_oldsorl.html", data)
             else:
