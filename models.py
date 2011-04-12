@@ -19,8 +19,8 @@ from django.test.client import Client
 
 from fields import ConstrainedImageField
 from djangocms2000 import settings as djangocms2000_settings
+from djangocms2000.decorators import cached
 
-from django.core.cache import cache
 
 try:
     from audit import AuditTrail
@@ -100,7 +100,7 @@ class Image(models.Model):
  
     # these can be expensive for large images so cache 'em
     def dimensions(self):
-        @cached('-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.image.url)), 36000)
+        @cached('-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.file.url)), 36000)
         def _work():
             return {
                 'width': self.file.width,
