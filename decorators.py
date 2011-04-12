@@ -55,7 +55,7 @@ def cached(key, duration=None):
     def decorator(func):
         def inner(*args, **kwargs):
             result = cache.get(key)
-            if settings.DEBUG or not result:
+            if not result:
                 result = func(*args, **kwargs)
                 cache.set(key, result, duration)
             return result

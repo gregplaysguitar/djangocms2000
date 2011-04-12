@@ -100,7 +100,8 @@ class Image(models.Model):
  
     # these can be expensive for large images so cache 'em
     def dimensions(self):
-        @cached('-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.file.url)), 36000)
+        key = '-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.file.url))
+        @cached(key, 3600)
         def _work():
             return {
                 'width': self.file.width,
