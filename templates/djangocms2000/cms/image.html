@@ -14,7 +14,7 @@
             <img src="{{ thumb.url }}" alt="{{ image.description }}" width="{{ thumb.width }}" height="{{ thumb.height }}">
         {% endthumbnail %}
     {% else %}
-        <img src="{{ image.file.url }}" alt="{{ image.description }}" width="{{ image.file.width }}" height="{{ image.file.height }}">
+        <img src="{{ image.file.url }}" alt="{{ image.description }}" width="{{ image.dimensions.width }}" height="{{ image.dimensions.height }}">
     {% endif %}
 {% else %}
     {% if defaultimage %}

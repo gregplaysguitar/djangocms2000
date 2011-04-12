@@ -20,6 +20,8 @@ from django.test.client import Client
 from fields import ConstrainedImageField
 from djangocms2000 import settings as djangocms2000_settings
 
+from django.core.cache import cache
+
 try:
     from audit import AuditTrail
 except ImportError:
@@ -94,11 +96,18 @@ class Image(models.Model):
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
-        #return "'%s' on %s" % (self.label, self.page.uri)
  
-    #class Meta:
-    #   ordering = ['label']
-
+ 
+    # these can be expensive for large images so cache 'em
+    def dimensions(self):
+        @cached('-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.image.url)), 36000)
+        def _work():
+            return {
+                'width': self.file.width,
+                'height': self.file.height,
+            }
+        return _work()
+    
 
 
 
