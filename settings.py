@@ -47,7 +47,10 @@ POST_EDIT_CALLBACK = getattr(settings, 'DJANGOCMS2000_POST_EDIT_CALLBACK', '""')
 
 MAX_IMAGE_DIMENSIONS = getattr(settings, 'DJANGOCMS2000_MAX_IMAGE_DIMENSIONS', (1920, 1200))
 
-GLOBAL_FILTERS = getattr(settings, 'DJANGOCMS2000_GLOBAL_FILTERS', None)
+FILTERS = getattr(settings, 'DJANGOCMS2000_FILTERS', (
+    # tuples of the form (module, shortname, default)
+    ('djangocms2000.filters.typogrify_filter', 'typogrify', False),
+))
 
 BLOCK_REQUIRED_CALLBACK = getattr(settings, 'DJANGOCMS2000_BLOCK_REQUIRED_CALLBACK', None)
 IMAGE_REQUIRED_CALLBACK = getattr(settings, 'DJANGOCMS2000_IMAGE_REQUIRED_CALLBACK', None)

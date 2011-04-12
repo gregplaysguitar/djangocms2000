@@ -44,12 +44,13 @@ def resolve_bool(var, context):
 
 
 class CMSBlockNode(template.Node):
-    def __init__(self, label, format, editable, content_object=None, alias=None):
+    def __init__(self, label, format, editable, content_object=None, alias=None, filters=None):
         self.label = label
         self.format = format
         self.editable = editable
         self.content_object = content_object
         self.alias = alias
+        self.filters = filters
         
     def render(self, context):
         
@@ -94,7 +95,12 @@ class CMSBlockNode(template.Node):
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
         else:
-            returnval = self.get_compiled_content(block)
+            if self.filters:
+                filters = template.Variable(self.filters).resolve(context).split(',')
+                returnval = self.get_compiled_content(block, filters)
+            else:
+                returnval = self.get_compiled_content(block)
+
         
         if self.alias:
             context[self.alias] = mark_safe(returnval)
@@ -102,33 +108,33 @@ class CMSBlockNode(template.Node):
         else:
             return returnval
     
-    def get_compiled_content(self, block):
+    def get_compiled_content(self, block, filters=None):
         content = block.compiled_content
-        if djangocms2000_settings.GLOBAL_FILTERS:
-            for f in djangocms2000_settings.GLOBAL_FILTERS:
+        for f, shortname, default in djangocms2000_settings.FILTERS:
+            if (filters and shortname in filters) or (not filters and default):
                 module = __import__(f)
                 content = sys.modules[f].filter(content, block)
         return content
     
 @register.tag
 @easy_tag
-def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, None, alias)
+    return CMSBlockNode(label, format, editable, None, alias, filters)
 
 
 @register.tag
 @easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, content_object_variable, alias)
+    return CMSBlockNode(label, format, editable, content_object_variable, alias, filters)
 
 @register.tag
 @easy_tag
-def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSBlockNode(label, format, editable, content_object, alias)
+    return CMSBlockNode(label, format, editable, content_object, alias, filters)
 
 
 
