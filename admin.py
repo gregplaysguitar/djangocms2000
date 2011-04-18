@@ -39,6 +39,10 @@ class BlockForm(forms.ModelForm):
             else:
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextareaWidget()
             self.base_fields['raw_content'].widget.attrs['class'] = "%s djangocms2000 djangocms2000-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+        
+        required_cb = djangocms2000_settings.BLOCK_REQUIRED_CALLBACK
+        if callable(required_cb) and 'instance' in kwargs:
+            self.base_fields['raw_content'].required = required_cb(kwargs['instance'])
         super(BlockForm, self).__init__(*args, **kwargs)
         
 
@@ -56,10 +60,24 @@ class BlockInline(generic.GenericTabularInline):
     form = BlockForm
 
 
+
+
+class ImageForm(forms.ModelForm):
+    class Meta:
+        model = Image
+    def __init__(self, *args, **kwargs):
+        required_cb = djangocms2000_settings.IMAGE_REQUIRED_CALLBACK
+        if callable(required_cb) and 'instance' in kwargs:
+            self.base_fields['file'].required = required_cb(kwargs['instance'])
+        super(ImageForm, self).__init__(*args, **kwargs)
+        
+
+
 class ImageInline(generic.GenericTabularInline):
     model = Image
     extra = 0
     exclude = ('label',)
+    form = ImageForm
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]

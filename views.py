@@ -115,7 +115,8 @@ def saveimage(request):
 
 @csrf_protect
 def render_page(request, uri=None):
-    if request.user.has_module_perms("djangocms2000"):
+    if request.user.has_module_perms("djangocms2000") or \
+       request.GET.get('djangocms2000_dummy_render', None) == djangocms2000_settings.SECRET_KEY:
         qs = Page.objects
     else:
         qs = Page.live

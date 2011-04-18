@@ -8,12 +8,15 @@ from django.conf import settings
 from djangocms2000.decorators import easy_tag
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.utils.functional import allow_lazy
-import re, os
-from django.utils.encoding import force_unicode
+import os, sys
 from djangocms2000.utils import is_editing
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
+
+try:
+    import sorl
+except ImportError:
+    sorl = None
 
 register = template.Library()
 
@@ -36,15 +39,18 @@ def get_or_create_page(uri):
     
 
 
+def resolve_bool(var, context):
+    return var in [True, 'True'] or (var not in ['False', '0', 0] and template.Variable(var).resolve(context))
 
 
 class CMSBlockNode(template.Node):
-    def __init__(self, label, format, editable, content_object=None, alias=None):
+    def __init__(self, label, format, editable, content_object=None, alias=None, filters=None):
         self.label = label
         self.format = format
         self.editable = editable
         self.content_object = content_object
         self.alias = alias
+        self.filters = filters
         
     def render(self, context):
         
@@ -61,8 +67,7 @@ class CMSBlockNode(template.Node):
         else:
             format = template.Variable(self.format).resolve(context)
         
-        
-        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0', 0] and template.Variable(self.editable).resolve(context))
+        editable = resolve_bool(self.editable, context)
         
         
         if not content_object:
@@ -85,41 +90,52 @@ class CMSBlockNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
                 
-        if context['request'].user.has_perm("djangocms2000.change_page") and self.editable and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if context['request'].user.has_perm("djangocms2000.change_page") and editable and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
             data['block'] = block
 
             returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
         else:
-            returnval = block.compiled_content
+            if self.filters:
+                filters = template.Variable(self.filters).resolve(context).split(',')
+                returnval = self.get_compiled_content(block, filters)
+            else:
+                returnval = self.get_compiled_content(block)
+
         
         if self.alias:
             context[self.alias] = mark_safe(returnval)
             return ""
         else:
             return returnval
-        
+    
+    def get_compiled_content(self, block, filters=None):
+        content = block.compiled_content
+        for f, shortname, default in djangocms2000_settings.FILTERS:
+            if (filters and shortname in filters) or (not filters and default):
+                module = __import__(f)
+                content = sys.modules[f].filter(content, block)
+        return content
+    
+@register.tag
 @easy_tag
-def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, None, alias)
+    return CMSBlockNode(label, format, editable, None, alias, filters)
 
-register.tag(cmsblock)
 
 @register.tag
 @easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, content_object_variable, alias)
+    return CMSBlockNode(label, format, editable, content_object_variable, alias, filters)
 
-
-
+@register.tag
 @easy_tag
-def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, **kwargs):
+def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSBlockNode(label, format, editable, content_object, alias)
+    return CMSBlockNode(label, format, editable, content_object, alias, filters)
 
-register.tag(cmssiteblock)
 
 
 
@@ -137,7 +153,7 @@ except ImportError:
 
 
 class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=False, crop="", defaultimage=False, editable=True, format='html', alias=None):
+    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='html', alias=None):
         self.label = label
         self.content_object = content_object
         self.constraint = constraint
@@ -154,12 +170,12 @@ class CMSImageNode(template.Node):
         else:
             content_object = self.content_object
         
-        self.editable = self.editable in [True, 'True'] or (self.editable not in ['False', '0', 0] and template.Variable(self.editable).resolve(context))
+        editable = resolve_bool(self.editable, context)
         
         if self.constraint:
             constraint = template.Variable(self.constraint).resolve(context)
         else:
-            constraint = False
+            constraint = None
         
         if self.defaultimage:
             defaultimage = template.Variable(self.defaultimage).resolve(context)
@@ -203,15 +219,21 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and self.editable and is_editing(context['request']):
+        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
             data['editable'] = True
         
-        try:
+        
+        
+
+
+        if hasattr(sorl, "NullHandler"):
+            # assume up-to-date sorl
             if format == 'url':
                 returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
             else:
                 returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
-        except template.TemplateSyntaxError, e:
+        else:
+            # assume older sorl syntax
             if format == 'url':
                 returnval = template.loader.render_to_string("djangocms2000/cms/image_url_oldsorl.html", data)
             else:
@@ -228,29 +250,29 @@ class CMSImageNode(template.Node):
             return returnval
 
 
+@register.tag
 @easy_tag
-def cmsimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmsimage)
 
 
+@register.tag
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmsgenericimage)
 
 
+@register.tag
 @easy_tag
-def cmssiteimage(_tag, label, constraint, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
 
-register.tag(cmssiteimage)
 
 
 
@@ -464,6 +486,20 @@ register.tag(cmsextra)
 
 
 
+class CMSEditingNode(template.Node):
+    def __init__(self, varname):
+        self.varname = varname
+
+    def render(self, context):
+        context[self.varname] = is_editing(context['request'])
+        return ''
+
+@register.tag
+@easy_tag
+def cmsediting(_tag, _as, varname):
+    return CMSEditingNode(varname)
+
+
 
 
 
@@ -479,7 +515,7 @@ class PageNamedBlockNode(template.Node):
         blockname = self.blockname.resolve(context)
         return page.blocks.get(label=blockname).compiled_content
 
-@register.tag('get_page_block')
+@register.tag
 @easy_tag
 def get_page_block(_tag, page, block):
     return PageNamedBlockNode(page, block)
@@ -495,7 +531,7 @@ class PagesForTemplateNode(template.Node):
         context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('uri')
         return ''
 
-@register.tag('pages_for_template')
+@register.tag
 @easy_tag
 def pages_for_template(_tagname, template, _as, varname):
     return PagesForTemplateNode(varname, template)

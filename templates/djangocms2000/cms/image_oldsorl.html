@@ -14,7 +14,7 @@
     {% else %}
         {% thumbnail image.file constraint as thumb %}
     {% endif %}
-    <img src="{{ thumb }}" alt="{{ image.description }}" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
+    <img src="{{ thumb }}" alt="{{ image.description }}" width="{{ thumb.width }}" height="{{ thumb.height }}">
 {% else %}
     {% if defaultimage %}
         {% if crop %}
@@ -22,7 +22,7 @@
         {% else %}
             {% thumbnail defaultimage constraint as thumb %}
         {% endif %}
-        <img src="{{ thumb }}" alt="Default image" width="{{ thumb.width }}px" height="{{ thumb.height }}px">
+        <img src="{{ thumb }}" alt="Default image" width="{{ thumb.width }}" height="{{ thumb.height }}">
     {% else %}
         {% if editable %}
             Click to add image {{ label }} for {{ content_object }}

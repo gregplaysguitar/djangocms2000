@@ -19,6 +19,8 @@ from django.test.client import Client
 
 from fields import ConstrainedImageField
 from djangocms2000 import settings as djangocms2000_settings
+from djangocms2000.decorators import cached
+
 
 try:
     from audit import AuditTrail
@@ -94,11 +96,19 @@ class Image(models.Model):
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
-        #return "'%s' on %s" % (self.label, self.page.uri)
  
-    #class Meta:
-    #   ordering = ['label']
-
+ 
+    # these can be expensive for large images so cache 'em
+    def dimensions(self):
+        key = '-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.file.url))
+        @cached(key, 3600)
+        def _work():
+            return {
+                'width': self.file.width,
+                'height': self.file.height,
+            }
+        return _work()
+    
 
 
 
@@ -152,7 +162,7 @@ def dummy_render(sender, **kwargs):
         if getattr(kwargs['instance'], 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
             c = Client()
-            response = c.get(str(kwargs['instance'].get_absolute_url()), {'djangocms2000_dummy_render': True}, HTTP_COOKIE='')   
+            response = c.get(str(kwargs['instance'].get_absolute_url()), {'djangocms2000_dummy_render': djangocms2000_settings.SECRET_KEY}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
 
 
@@ -165,10 +175,8 @@ class LivePageManager(models.Manager):
 
 
 class Page(_CMSAbstractBaseModel):
-    uri = models.CharField(max_length=255, unique=True)
-    #template = TemplateChoiceField(path="%s/" % settings.TEMPLATE_DIRS[0], match="[^(?:404)(?:500)(?:base)(?:admin/base_site)].*\.html", recursive=True)
-    #template = models.CharField(max_length=255, default="djangocms2000/default.html", help_text="Choose from Static Templates unless you're sure of what you're doing.", choices=template_choices())
-    template = models.CharField(max_length=255, default="djangocms2000/default.html")
+    uri = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
+    template = models.CharField(max_length=255, default='')
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
@@ -200,13 +208,15 @@ class Page(_CMSAbstractBaseModel):
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
-    
-    choices = []
-    for group in template_choices():
-        choices += [t[0] for t in group[1]]
         
-    if not kwargs['instance'].template in choices:
-        kwargs['instance'].template = choices[0]
+    if kwargs['instance'].template:
+        choices = []
+        for group in template_choices():
+            choices += [t[0] for t in group[1]]
+            
+        if not kwargs['instance'].template in choices:
+            kwargs['instance'].template = choices[0]
+    
 pre_save.connect(page_pre, sender=Page)
 
 
