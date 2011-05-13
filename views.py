@@ -9,7 +9,7 @@ from django.conf import settings
 import re, os
 from django.contrib.contenttypes.models import ContentType
 from djangocms2000 import settings as djangocms2000_settings
-from djangocms2000.utils import is_editing
+from djangocms2000.utils import is_editing, page_is_authorised
 from forms import PublicPageForm
 
 
@@ -125,13 +125,17 @@ def render_page(request, uri=None):
         uri = request.path_info
     
     page = get_object_or_404(qs, uri=uri)
-    return render_to_response(
-        page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
-        {
-            'page': page,
-        },
-        context_instance=RequestContext(request)
-    )
+    
+    if not page_is_authorised(request, page):
+        return HttpResponseForbidden('Permission denied')
+    else:
+        return render_to_response(
+            page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
+            {
+                'page': page,
+            },
+            context_instance=RequestContext(request)
+        )
     
     
     

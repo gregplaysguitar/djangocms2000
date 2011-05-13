@@ -172,7 +172,11 @@ class LivePageManager(models.Manager):
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
 
-
+AUTHORISATION_CHOICES = (
+    ('all', 'All visitors'),
+    ('active', 'All logged-in users'),
+    ('staff', 'Staff only'),
+)
 
 class Page(_CMSAbstractBaseModel):
     uri = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
@@ -181,6 +185,7 @@ class Page(_CMSAbstractBaseModel):
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     sort_order = models.PositiveIntegerField(default=0)
+    authorisation = models.CharField(choices=AUTHORISATION_CHOICES, max_length=10)
     
     objects = models.Manager()
     live = LivePageManager()
