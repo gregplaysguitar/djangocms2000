@@ -351,7 +351,7 @@ class CmsSiteMapNode(template.Node):
         except Page.DoesNotExist:
             return ''
 
-        include_base = (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
+        include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
         depth = int(self.depth or 0)
         
         
