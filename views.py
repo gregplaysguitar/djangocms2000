@@ -127,7 +127,7 @@ def render_page(request, uri=None):
     page = get_object_or_404(qs, uri=uri)
     
     if not page_is_authorised(request, page):
-        return HttpResponseForbidden('Permission denied')
+        return HttpResponseRedirect(settings.LOGIN_URL + '?next=' + request.path_info)
     else:
         return render_to_response(
             page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
