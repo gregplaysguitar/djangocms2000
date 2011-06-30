@@ -71,7 +71,7 @@ or "url" (outputs the url to the resized image). Examples:
     {# standard usage #}
     {% cmsimage "portrait" "300x400" %}
 
-    {# Don't crop the image at all #}
+    {# Don't resize the uploaded image at all #}
     {% cmsimage "portrait" %}
 
     {# crop to an exact size #}
@@ -110,7 +110,7 @@ Returns a list of links representing the "crumbtrail" - example template code:
     {% endfor %}
 
 
-#### `{% get_current_page as varname %}`
+#### `{% cmspage as varname %}`
 
 Returns the current Page object based on request.path_info. This can be used in
 conjunction with [django-shorturls](http://github.com/jacobian/django-shorturls)
@@ -125,7 +125,7 @@ produces something like
     <link rev="canonical" href="http://gregbrown.co.nz/s/E">
 
 
-#### `{% generate_sitemap base_uri=None include_base=True depth=None %}`
+#### `{% cmssitemap base_uri=None include_base=True depth=None %}`
 
 Generates sitemap as a nested html list, starting with base_uri as the root
 (relies on a sane url scheme to work).
