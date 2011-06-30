@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden
 from django.utils import simplejson
 from models import Block, Page, Image
 from django.contrib.auth.decorators import permission_required
@@ -42,7 +42,7 @@ def login(request, *args, **kwargs):
 @permission_required("djangocms2000.change_page")
 def savepage(request, page_pk=None):
     if not request.POST:
-        return HttpResponseNotAllowed('POST required')
+        return HttpResponseNotAllowed(['POST'])
     else:
         if page_pk:
             page = get_object_or_404(Page, pk=page_pk)

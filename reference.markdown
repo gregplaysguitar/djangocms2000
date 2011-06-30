@@ -106,7 +106,7 @@ Returns a list of links representing the "crumbtrail" - example template code:
     {% cmsgetcrumbtrail as crumbtrail %}
     <a href="/">Home</a>
     {% for link in crumbtrail %}
-    > <a href="{{ link.uri }}">{{ link.name }}</a>
+    > <a href="{{ link.uri }}">{% firstof link.page.page_title link.name %}</a>
     {% endfor %}
 
 
@@ -117,7 +117,7 @@ conjunction with [django-shorturls](http://github.com/jacobian/django-shorturls)
 in django template code, to generate a canonical link ie:
     
     {% load djangocms2000_tags shorturl %}
-    {% get_current_page as current_page %}
+    {% cmspage as current_page %}
     {% revcanonical current_page %}
     
 produces something like
