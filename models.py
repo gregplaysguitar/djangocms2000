@@ -57,6 +57,8 @@ class Block(models.Model):
     
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').capitalize()
+    label_display.short_description = 'label'
+    label_display.admin_order_field = 'label'
     
     def content_display(self):
         return truncate_words(strip_tags(self.compiled_content), 10)
