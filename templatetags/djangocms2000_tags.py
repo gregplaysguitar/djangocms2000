@@ -351,7 +351,7 @@ class CmsSiteMapNode(template.Node):
         except Page.DoesNotExist:
             return ''
 
-        include_base = (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
+        include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
         depth = int(self.depth or 0)
         
         
@@ -424,7 +424,15 @@ class CMSCrumbtrailNode(template.Node):
             for url_part in url_parts:
                 current_url += url_part + '/'
                 name = url_part.replace('-', ' ').replace(':', ': ').title()
-                crumbtrail.append({'uri': current_url, 'name': name})
+                try:
+                    page = Page.objects.get(uri=current_url)
+                except Page.DoesNotExist:
+                    page = None
+                crumbtrail.append({
+                    'uri': current_url,
+                    'name': name,
+                    'page': page
+                })
             
         context[self.varname] = crumbtrail
         return ''
