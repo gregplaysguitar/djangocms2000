@@ -17,7 +17,8 @@ BASIC INSTALLATION:
 MIGRATION TO "CMS" VERSION:
 ---------------------------
 
-Applies to any descendant of this commit in which the app name was changed from `djangocms2000` to just `cms`.
+Applies to any descendant of commit b40137c51a4fc8d2b2ac2e6826afd05d77ab7a49,
+in which the app name was changed from `djangocms2000` to just `cms`.
 
 - Rename media/djangocms2000 -> media/cms
 - Rename templates/djangocms2000 -> templates/cms
