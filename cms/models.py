@@ -18,8 +18,8 @@ from django.utils.functional import curry
 from django.test.client import Client
 
 from fields import ConstrainedImageField
-from djangocms2000 import settings as djangocms2000_settings
-from djangocms2000.decorators import cached
+import settings as cms_settings
+from decorators import cached
 
 
 try:
@@ -94,7 +94,7 @@ class Image(models.Model):
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
-    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=djangocms2000_settings.MAX_IMAGE_DIMENSIONS)
+    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
@@ -102,7 +102,7 @@ class Image(models.Model):
  
     # these can be expensive for large images so cache 'em
     def dimensions(self):
-        key = '-'.join((djangocms2000_settings.CACHE_PREFIX, 'image_dimensions', self.file.url))
+        key = '-'.join((cms_settings.CACHE_PREFIX, 'image_dimensions', self.file.url))
         @cached(key, 3600)
         def _work():
             return {
@@ -130,9 +130,9 @@ def get_templates_from_dir(dir, exclude=None):
 
 def template_choices():
     CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
-    OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^djangocms2000/|base\.html$)')
+    OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
     return (
-        ('Static Templates', get_templates_from_dir("djangocms2000", CMS_EXCLUDE_REGEX)),
+        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
         ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
     )
     
@@ -164,7 +164,7 @@ def dummy_render(sender, **kwargs):
         if getattr(kwargs['instance'], 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
             c = Client()
-            response = c.get(str(kwargs['instance'].get_absolute_url()), {'djangocms2000_dummy_render': djangocms2000_settings.SECRET_KEY}, HTTP_COOKIE='')   
+            response = c.get(str(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
 
 

@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 
-import settings as djangocms2000_settings
+import settings as cms_settings
 
 from django.forms.widgets import HiddenInput
 from django.utils.safestring import mark_safe
@@ -38,9 +38,9 @@ class BlockForm(forms.ModelForm):
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextInputWidget()
             else:
                 self.base_fields['raw_content'].widget = admin.widgets.AdminTextareaWidget()
-            self.base_fields['raw_content'].widget.attrs['class'] = "%s djangocms2000 djangocms2000-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.base_fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
         
-        required_cb = djangocms2000_settings.BLOCK_REQUIRED_CALLBACK
+        required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.base_fields['raw_content'].required = required_cb(kwargs['instance'])
         super(BlockForm, self).__init__(*args, **kwargs)
@@ -49,7 +49,7 @@ class BlockForm(forms.ModelForm):
 class BlockFormSet(generic.generic_inlineformset_factory(Block)):
     def __init__(self, *args, **kwargs):
         super(BlockFormSet, self).__init__(*args, **kwargs)
-        self.can_delete = djangocms2000_settings.ADMIN_CAN_DELETE_BLOCKS
+        self.can_delete = cms_settings.ADMIN_CAN_DELETE_BLOCKS
 
 
 class BlockInline(generic.GenericTabularInline):
@@ -66,7 +66,7 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
     def __init__(self, *args, **kwargs):
-        required_cb = djangocms2000_settings.IMAGE_REQUIRED_CALLBACK
+        required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.base_fields['file'].required = required_cb(kwargs['instance'])
         super(ImageForm, self).__init__(*args, **kwargs)
@@ -84,8 +84,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
     list_display=['get_title',]
     save_on_top = True
     class Media:
-        js = djangocms2000_settings.ADMIN_JS
-        css = djangocms2000_settings.ADMIN_CSS
+        js = cms_settings.ADMIN_JS
+        css = cms_settings.ADMIN_CSS
     class Meta:
         abstract=True
 
@@ -107,7 +107,7 @@ class PageAdmin(CMSBaseAdmin):
     exclude = []
     
     
-if not djangocms2000_settings.USE_SITES_FRAMEWORK:
+if not cms_settings.USE_SITES_FRAMEWORK:
     PageAdmin.exclude.append('site')
         
 admin.site.register(Page, PageAdmin)
@@ -139,8 +139,8 @@ class BlockAdmin(admin.ModelAdmin):
     search_fields = ['label', ]
 
     class Media:
-        js = djangocms2000_settings.ADMIN_JS
-        css = djangocms2000_settings.ADMIN_CSS
+        js = cms_settings.ADMIN_JS
+        css = cms_settings.ADMIN_CSS
     
 admin.site.register(Block, BlockAdmin)
 

@@ -1,0 +1,33 @@
+{% load cms_tags %}
+
+<link rel="stylesheet" type="text/css" href="{{ cms_settings.MEDIA_URL }}css/cms.css">
+{% include "cms/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
+<script>
+(function ($) {
+	 $.cookie('cms-edit_mode', 1, {path: '/'});
+})(jQuery); 
+</script>
+
+<div id="cms-menu">
+	<div>
+		
+		<form method="post" action="{% url cms.views.login %}">
+		{% csrf_token %}
+		
+		<p>
+			Login to edit {{ site_name }}
+		</p>
+		<p>
+			{{ login_form.username }}
+			{{ login_form.password }}
+			<input type="submit" value="Go" class="go" />
+		</p>
+		
+		
+		<input type="hidden" name="next" value="{% firstof next request.path_info '/' %}" />
+		</form>
+
+
+	</div>
+</div>

@@ -1,7 +1,7 @@
-var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
+var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
 
     id_list = [];
-    $('textarea.djangocms2000-html').each(function(i, item) {
+    $('textarea.cms-html').each(function(i, item) {
         id_list.push(item.id);
     });
     
@@ -86,8 +86,8 @@ var djangocms2000Admin = function($, filebrowser_url, linklist_url, tinymce_cont
     $(function() {
         setTimeout(function() {
             // get rid of django's infernal "Add another ..." link that we don't want when the user is not allowed to add more inlines but the number of inlines varies per object argh
-            $('#djangocms2000-block-content_type-object_id-group.inline-group .add-row').hide();
-            $('#djangocms2000-image-content_type-object_id-group.inline-group .add-row').hide();
+            $('#cms-block-content_type-object_id-group.inline-group .add-row').hide();
+            $('#cms-image-content_type-object_id-group.inline-group .add-row').hide();
         }, 100);
     });
 };

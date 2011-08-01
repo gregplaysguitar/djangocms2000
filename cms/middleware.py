@@ -4,7 +4,7 @@ from django.conf import settings
 import re
 from models import Page
 
-class Djangocms2000FallbackMiddleware(object):
+class CMSFallbackMiddleware(object):
     def process_response(self, request, response):
         if response.status_code != 404:
             return response # No need to check for a page for non-404 responses.

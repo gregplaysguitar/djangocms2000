@@ -14,6 +14,19 @@ BASIC INSTALLATION:
 10. See reference.markdown for more info
 
 
+MIGRATION TO "CMS" VERSION:
+---------------------------
+
+Applies to any descendant of this commit in which the app name was changed from `djangocms2000` to just `cms`.
+
+- Rename media/djangocms2000 -> media/cms
+- Rename templates/djangocms2000 -> templates/cms
+- Rename djangocms2000 db tables
+- Replace cms_page template names
+- Replace djangocms2000 entries in django\_content\_type db table
+- Change DJANGOCMS2000\_ settings prefixes to CMS\_
+
+
 BUGS FOUND BY MATT
 ------------------
 

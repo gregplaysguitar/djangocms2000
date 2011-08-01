@@ -1,24 +1,26 @@
+import re, os
+
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden
 from django.utils import simplejson
-from models import Block, Page, Image
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.conf import settings
-import re, os
 from django.contrib.contenttypes.models import ContentType
-from djangocms2000 import settings as djangocms2000_settings
-from djangocms2000.utils import is_editing
-from forms import PublicPageForm
-
+from django.contrib.auth.views import login as auth_login
 
 try:
     from django.views.decorators.csrf import csrf_protect
 except ImportError:
     def csrf_protect(func):
         return func
-from django.contrib.auth.views import login as auth_login
+
+from forms import PublicPageForm
+import settings as cms_settings
+from utils import is_editing
+from models import Block, Page, Image
+
 
 
 def logout(request):
@@ -30,16 +32,16 @@ def logout(request):
         
 
 def login(request, *args, **kwargs):
-    kwargs['template_name'] = 'djangocms2000/cms/login.html'
+    kwargs['template_name'] = 'cms/cms/login.html'
     return auth_login(request, *args, **kwargs)
         
 
-    #(r'^login/$', '', {'template_name': 'djangocms2000/cms/login.html',}),
+    #(r'^login/$', '', {'template_name': 'cms/cms/login.html',}),
 
 
 
 
-@permission_required("djangocms2000.change_page")
+@permission_required("cms.change_page")
 def savepage(request, page_pk=None):
     if not request.POST:
         return HttpResponseNotAllowed(['POST'])
@@ -68,7 +70,7 @@ def savepage(request, page_pk=None):
 
 
 
-@permission_required("djangocms2000.change_page")
+@permission_required("cms.change_page")
 def saveblock(request):
     if 'prefix' in request.POST:
         prefix = '%s-' % request.POST['prefix']
@@ -89,7 +91,7 @@ def saveblock(request):
     
 
     
-@permission_required("djangocms2000.change_page")
+@permission_required("cms.change_page")
 def saveimage(request):
     #print request.POST
     image = Image.objects.get(
@@ -115,8 +117,8 @@ def saveimage(request):
 
 @csrf_protect
 def render_page(request, uri=None):
-    if request.user.has_module_perms("djangocms2000") or \
-       request.GET.get('djangocms2000_dummy_render', None) == djangocms2000_settings.SECRET_KEY:
+    if request.user.has_module_perms("cms") or \
+       request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
         qs = Page.objects
     else:
         qs = Page.live
@@ -138,9 +140,9 @@ def render_page(request, uri=None):
 # used to initialise django admin tinymce
 def page_admin_init(request):
     response = render_to_response(
-        'djangocms2000/cms/page_admin_init.js',
+        'cms/cms/page_admin_init.js',
         {
-            'djangocms2000_settings': djangocms2000_settings,
+            'cms_settings': cms_settings,
         },
         context_instance=RequestContext(request)
     )
@@ -150,7 +152,7 @@ def page_admin_init(request):
 # populate the tinymce link list popup
 def linklist(request):
     response = render_to_response(
-        'djangocms2000/cms/linklist.js',
+        'cms/cms/linklist.js',
         {
             'page_list': Page.objects.all(),
         },

@@ -1,9 +1,9 @@
 
-input.djangocms2000,
-textarea.djangocms2000 {
+input.cms,
+textarea.cms {
     width: 700px;
 }
-textarea.djangocms2000-html {
+textarea.cms-html {
     height: 300px;
 }
 

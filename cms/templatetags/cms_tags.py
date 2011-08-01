@@ -1,22 +1,25 @@
-from django import template
-from djangocms2000.models import Block, Page, Image, MenuItem, get_child_pages
-from djangocms2000.forms import BlockForm, ImageForm, PublicPageForm
-from django.contrib.auth.forms import AuthenticationForm
-from django import template
-from djangocms2000 import settings as djangocms2000_settings
-from django.conf import settings
-from djangocms2000.decorators import easy_tag
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 import os, sys
-from djangocms2000.utils import is_editing
-from django.template import RequestContext
-from django.utils.safestring import mark_safe
 
 try:
     import sorl
 except ImportError:
     sorl = None
+
+from django import template
+from django.contrib.auth.forms import AuthenticationForm
+from django import template
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.template import RequestContext
+from django.utils.safestring import mark_safe
+
+from cms.utils import is_editing
+from cms.models import Block, Page, Image, MenuItem, get_child_pages
+from cms.forms import BlockForm, ImageForm, PublicPageForm
+from cms import settings as cms_settings
+from cms.decorators import easy_tag
+
 
 register = template.Library()
 
@@ -90,10 +93,10 @@ class CMSBlockNode(template.Node):
             'sitewide': isinstance(content_object, Site),
         }
                 
-        if context['request'].user.has_perm("djangocms2000.change_page") and editable and djangocms2000_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
             data['block'] = block
 
-            returnval = template.loader.render_to_string("djangocms2000/cms/block.html", data)
+            returnval = template.loader.render_to_string("cms/cms/block.html", data)
         else:
             if self.filters:
                 filters = template.Variable(self.filters).resolve(context).split(',')
@@ -110,7 +113,7 @@ class CMSBlockNode(template.Node):
     
     def get_compiled_content(self, block, filters=None):
         content = block.compiled_content
-        for f, shortname, default in djangocms2000_settings.FILTERS:
+        for f, shortname, default in cms_settings.FILTERS:
             if (filters and shortname in filters) or (not filters and default):
                 module = __import__(f)
                 content = sys.modules[f].filter(content, block)
@@ -219,7 +222,7 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if context['request'].user.has_perm("djangocms2000.change_page") and djangocms2000_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
             data['editable'] = True
         
         
@@ -229,15 +232,15 @@ class CMSImageNode(template.Node):
         if hasattr(sorl, "NullHandler"):
             # assume up-to-date sorl
             if format == 'url':
-                returnval = template.loader.render_to_string("djangocms2000/cms/image_url.html", data)
+                returnval = template.loader.render_to_string("cms/cms/image_url.html", data)
             else:
-                returnval = template.loader.render_to_string("djangocms2000/cms/image.html", data)
+                returnval = template.loader.render_to_string("cms/cms/image.html", data)
         else:
             # assume older sorl syntax
             if format == 'url':
-                returnval = template.loader.render_to_string("djangocms2000/cms/image_url_oldsorl.html", data)
+                returnval = template.loader.render_to_string("cms/cms/image_url_oldsorl.html", data)
             else:
-                returnval = template.loader.render_to_string("djangocms2000/cms/image_oldsorl.html", data)
+                returnval = template.loader.render_to_string("cms/cms/image_oldsorl.html", data)
         
         
         if self.alias:
@@ -286,7 +289,7 @@ class CmsPageMenuNode(template.Node):
     def render(self, context):
         #print MenuItem.objects.all()
         context[self.varname] = MenuItem.objects.all()
-        if not context['request'].user.has_module_perms("djangocms2000"):
+        if not context['request'].user.has_module_perms("cms"):
             context[self.varname] = context[self.varname].filter(page__is_live=True)
         return ''
 
@@ -340,7 +343,7 @@ class CmsSiteMapNode(template.Node):
         self.alias = alias
         
     def render(self, context):
-        if context['request'].user.has_module_perms("djangocms2000"):
+        if context['request'].user.has_module_perms("cms"):
             page_qs = Page.objects
         else:
             page_qs = Page.live
@@ -450,17 +453,17 @@ def cmsgetcrumbtrail(_tag, _as, varname):
 class CMSExtraNode(template.Node):
         
     def render(self, context):
-        if djangocms2000_settings.EDIT_IN_PLACE:
-            if context['request'].user.has_module_perms("djangocms2000"):
+        if cms_settings.EDIT_IN_PLACE:
+            if context['request'].user.has_module_perms("cms"):
                 if is_editing(context['request']):
                     try:
                         page = Page.objects.get(uri=context['request'].path_info)
                     except Page.DoesNotExist:
                         page = False
 
-                    return template.loader.render_to_string("djangocms2000/cms/editor.html", RequestContext(context['request'], {
+                    return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
                         'page': page,
-                        'djangocms2000_settings': djangocms2000_settings,
+                        'cms_settings': cms_settings,
                         'editor_form': BlockForm(),
                         'html_editor_form': BlockForm(prefix="html"),
                         'image_form': ImageForm(),
@@ -468,16 +471,16 @@ class CMSExtraNode(template.Node):
                         'new_page_form': PublicPageForm(prefix='new'),
                     }))
                 else:
-                    return template.loader.render_to_string("djangocms2000/cms/logged_in.html", RequestContext(context['request'], {
-                        'djangocms2000_settings': djangocms2000_settings,
+                    return template.loader.render_to_string("cms/cms/logged_in.html", RequestContext(context['request'], {
+                        'cms_settings': cms_settings,
                     }))
             elif 'edit' in context['request'].GET:
-                return template.loader.render_to_string("djangocms2000/cms/login_top.html", RequestContext(context['request'], {
+                return template.loader.render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
                     'login_form': AuthenticationForm(),
-                    'djangocms2000_settings': djangocms2000_settings,
+                    'cms_settings': cms_settings,
                 }))
-            elif 'djangocms2000-has_edited_before' in context['request'].COOKIES:
-                return "" #template.loader.render_to_string("djangocms2000/cms/persistent_link.html")
+            elif 'cms-has_edited_before' in context['request'].COOKIES:
+                return "" #template.loader.render_to_string("cms/cms/persistent_link.html")
             else:
                 return ""
         else:

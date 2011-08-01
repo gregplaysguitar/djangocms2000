@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 import os
 
 
-urlpatterns = patterns('djangocms2000.views',
+urlpatterns = patterns('cms.views',
 	(r'^actions/savepage/$', 'savepage'),
 	(r'^actions/savepage/(\d+)/$', 'savepage'),
 	(r'^actions/saveblock/$', 'saveblock'),
@@ -12,11 +12,6 @@ urlpatterns = patterns('djangocms2000.views',
 	(r'^logout/$', 'logout'),
 	(r'^page_admin_init.js$', 'page_admin_init'),
     (r'^linklist.js$', 'linklist'),
-)
-
-
-urlpatterns += patterns('',
-	#(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'djangocms2000/cms/login.html',}),
 )
 
 

@@ -1,4 +1,4 @@
-var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
@@ -74,9 +74,9 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	});
 	*/
 	
-	//$("#djangocms2000-menu").prependTo('body');
-	//var topMenu = $("#djangocms2000-menu").clone();
-	//$('body').remove("#djangocms2000-menu");
+	//$("#cms-menu").prependTo('body');
+	//var topMenu = $("#cms-menu").clone();
+	//$('body').remove("#cms-menu");
 	//$('body').prepend(topMenu);
 	
 	function edit(block) {
@@ -95,29 +95,29 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 		}
 		
 		if ($(block).attr('blocktype') === 'image') {
-			$('#djangocms2000-imageform #id_image_id').val($(block).attr('image_id'));
-			$('#djangocms2000-imageform #id_redirect_to').val(window.location);
+			$('#cms-imageform #id_image_id').val($(block).attr('image_id'));
+			$('#cms-imageform #id_redirect_to').val(window.location);
 			
 			if ($(block).find('img').length) {
-				$('#djangocms2000-imageform h2').html('Change image');
-				$('#djangocms2000-imageform div.current img').attr('src', $(block).find('img').eq(0).attr('src'));
-				$('#djangocms2000-imageform div.current').css({'visibility': 'visible'});
+				$('#cms-imageform h2').html('Change image');
+				$('#cms-imageform div.current img').attr('src', $(block).find('img').eq(0).attr('src'));
+				$('#cms-imageform div.current').css({'visibility': 'visible'});
 			}
 			else {
-				$('#djangocms2000-imageform h2').html('Add image');
-				$('#djangocms2000-imageform div.current').css({'visibility': 'hidden'});
+				$('#cms-imageform h2').html('Add image');
+				$('#cms-imageform div.current').css({'visibility': 'hidden'});
 			}
 			
 			showForm('image');
 		}
 		else if ($(block).attr('format') === 'html') {
-			$('#djangocms2000-htmlform #id_html-raw_content').val(raw_content).html(raw_content);
+			$('#cms-htmlform #id_html-raw_content').val(raw_content).html(raw_content);
 			tinyMCE.get("id_html-raw_content").setContent(raw_content);
-			$('#djangocms2000-htmlform #id_html-block_id').val($(block).attr('block_id'));
-			$('#djangocms2000-htmlform #id_html-format').val($(block).attr('format'));
+			$('#cms-htmlform #id_html-block_id').val($(block).attr('block_id'));
+			$('#cms-htmlform #id_html-format').val($(block).attr('format'));
             
             
-			$('#djangocms2000-htmlform form').ajaxForm({
+			$('#cms-htmlform form').ajaxForm({
 				'success': function(data) {
 					var raw_content = $.trim(data.raw_content),
 						compiled_content = $.trim(data.compiled_content);
@@ -160,11 +160,11 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
             });
 		    
 		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
-			$('#djangocms2000-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
-			$('#djangocms2000-textform #id_block_id').val($(block).attr('block_id'));
-			$('#djangocms2000-textform #id_format').val($(block).attr('format'));
+			$('#cms-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
+			$('#cms-textform #id_block_id').val($(block).attr('block_id'));
+			$('#cms-textform #id_format').val($(block).attr('format'));
 			
-			var editFormContainer = $('#djangocms2000-textform').clone();
+			var editFormContainer = $('#cms-textform').clone();
 			editFormContainer.find('textarea').css({'height': $(block).height()});
 			editFormContainer.css({'display': 'block'});
 			
@@ -229,12 +229,12 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	
 		$('#id_html-raw_content').tinymce(tinymce_init_object);
 
-		$('.djangocms2000-form input.cancel').click(function() {
+		$('.cms-form input.cancel').click(function() {
 			hideForm();
 		});	
 	
 		
-		$('.djangocms2000-block, .djangocms2000-image').each(function() {
+		$('.cms-block, .cms-image').each(function() {
 			$(this).append('<span class="editMarker"></span>');
 		}).mouseover(function() {
 			if (!currently_editing) {
@@ -252,16 +252,16 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 			return false;
 		});
 		
-		$('#djangocms2000-menu .page-options').click(function() {
+		$('#cms-menu .page-options').click(function() {
     		showForm('page');
     		return false;
 	    });	
-		$('#djangocms2000-menu .new-page').click(function() {
+		$('#cms-menu .new-page').click(function() {
     		showForm('newpage');
 	        return false;
 	    });
 	    
-	    $('#djangocms2000-pageform form, #djangocms2000-newpageform form').ajaxForm({
+	    $('#cms-pageform form, #cms-newpageform form').ajaxForm({
             'success': function(data, status, form) {
                 var wrap = $(form).find('.wrap').eq(0);
                 wrap.find('.error').remove();
@@ -290,7 +290,7 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
             'dataType': 'json'
         });
         
-        $('#djangocms2000-imageform form').submit(function() {
+        $('#cms-imageform form').submit(function() {
             $(this).find('.wrap').append($('<div>').addClass('message').html('Saving...'));
         });
 	    
@@ -304,14 +304,14 @@ var djangocms2000 = function ($, highlight_start_color, highlight_end_color, tin
 	};
 
 	function showForm(which) {
-	     $('#djangocms2000-' + which + 'overlay').stop().css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300)[0].visible = true;
+	     $('#cms-' + which + 'overlay').stop().css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300)[0].visible = true;
 	};
 	function hideForm(which, animate) {
 	    if (which) {
-		    var overlay = $('#djangocms2000-' + which + 'overlay');
+		    var overlay = $('#cms-' + which + 'overlay');
 		}
 		else {
-		    var overlay = $('.djangocms2000-overlay');
+		    var overlay = $('.cms-overlay');
 		}
 		
 		overlay.stop().each(function() {
