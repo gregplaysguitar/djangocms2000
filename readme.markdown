@@ -26,6 +26,7 @@ in which the app name was changed from `djangocms2000` to just `cms`.
 - Replace cms_page template names
 - Replace djangocms2000 entries in django\_content\_type db table
 - Change DJANGOCMS2000\_ settings prefixes to CMS\_
+- Change Djangocms2000FallbackMiddleware to CMSFallbackMiddleware
 
 
 BUGS FOUND BY MATT
