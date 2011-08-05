@@ -100,6 +100,7 @@
     font-style: normal;
     color: #222;
     font-size: 1.11em;
+    position: relative;
 }
 .cms-overlay .cms-form .wrap input {
     display: inline;
