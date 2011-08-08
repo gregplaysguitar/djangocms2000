@@ -91,8 +91,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
 
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['page_title', 'uri', 'template', 'is_live', 'creation_date', 'view_on_site',]
-    list_display_links=['page_title', 'uri', ]
+    list_display=['page_title', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
+    list_display_links=['page_title', 'url', ]
 
     list_filter=['site', 'template', 'is_live', 'creation_date',]
     
@@ -102,7 +102,7 @@ class PageAdmin(CMSBaseAdmin):
     view_on_site.short_description = ' '
     
     
-    search_fields = ['uri', 'blocks__compiled_content', 'template',]
+    search_fields = ['url', 'blocks__compiled_content', 'template',]
     form = PageForm
     exclude = []
     

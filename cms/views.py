@@ -57,7 +57,7 @@ def savepage(request, page_pk=None):
             saved_page = form.save()
             return HttpResponse(simplejson.dumps({
                 'success': True,
-                'uri': saved_page.get_absolute_url(),
+                'url': saved_page.get_absolute_url(),
                 'message': page and 'Page saved' or 'Page created... redirecting'
             }), mimetype='application/json')
         else:
@@ -116,17 +116,17 @@ def saveimage(request):
     
 
 @csrf_protect
-def render_page(request, uri=None):
+def render_page(request, url=None):
     if request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
         qs = Page.objects
     else:
         qs = Page.live
     
-    if not uri:
-        uri = request.path_info
+    if not url:
+        url = request.path_info
     
-    page = get_object_or_404(qs, uri=uri)
+    page = get_object_or_404(qs, url=url)
     return render_to_response(
         page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
         {

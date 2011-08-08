@@ -271,7 +271,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
                 if (data.success) {
                     wrap.append($('<div>').addClass('message').html(data.message || 'Page saved'));
                     setTimeout(function() {
-                        window.location = data.uri;
+                        window.location = data.url;
                     }, 300);
                 }
                 else {

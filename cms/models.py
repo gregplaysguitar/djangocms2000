@@ -65,7 +65,7 @@ class Block(models.Model):
     
     def __unicode__(self):
         return self.label
-        #return "'%s' on %s" % (self.label, self.page.uri)
+        #return "'%s' on %s" % (self.label, self.page.url)
     
     def save(self, *args, **kwargs):
         if self.format == 'markdown':
@@ -137,9 +137,9 @@ def template_choices():
     )
     
 
-def get_child_pages(parent_uri, qs=None):
-    return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '[^/]+/$')
-    #return (qs or Page.objects).filter(uri__iregex=r'^' + parent_uri + '.+$')
+def get_child_pages(parent_url, qs=None):
+    return (qs or Page.objects).filter(url__iregex=r'^' + parent_url + '[^/]+/$')
+    #return (qs or Page.objects).filter(url__iregex=r'^' + parent_url + '.+$')
 
 
 class _CMSAbstractBaseModel(models.Model):
@@ -156,7 +156,7 @@ class _CMSAbstractBaseModel(models.Model):
             try:
                 return self.blocks.get(label="name").compiled_content
             except Block.DoesNotExist:
-                return self.uri
+                return self.url
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
@@ -177,7 +177,7 @@ class LivePageManager(models.Manager):
 
 
 class Page(_CMSAbstractBaseModel):
-    uri = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
+    url = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
     template = models.CharField(max_length=255, default='')
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -187,20 +187,20 @@ class Page(_CMSAbstractBaseModel):
     live = LivePageManager()
     
     class Meta:
-        ordering = ('uri',)
+        ordering = ('url',)
     
     history = AuditTrail(show_in_admin=False)
     
     
     def get_children(self, qs=None):
-        return get_child_pages(self.uri, qs)
+        return get_child_pages(self.url, qs)
 
 
     def __unicode__(self):
-        return self.uri
+        return self.url
 
     def get_absolute_url(self):
-        return self.uri
+        return self.url
 
     def page_title(self):
         return self.get_title()

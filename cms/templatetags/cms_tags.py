@@ -26,19 +26,19 @@ register = template.Library()
 
 # special implementation for Page.get_or_create - sets the template
 # for created pages in an attempt to minimise confusion in the admin
-def get_or_create_page(uri):
+def get_or_create_page(url):
     try:
-        return Page.objects.get(uri=uri)
+        return Page.objects.get(url=url)
     except Page.DoesNotExist:
         # attempt to guess template from url
-        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], uri.strip('/') + '.html')):
-            template = os.path.join(uri.strip('/') + '.html')
-        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], uri.strip('/'), 'index.html')):
-            template = os.path.join(uri.strip('/'), 'index.html')
+        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/') + '.html')):
+            template = os.path.join(url.strip('/') + '.html')
+        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/'), 'index.html')):
+            template = os.path.join(url.strip('/'), 'index.html')
         else:
             template = ''
     
-        return Page.objects.create(uri=uri, template=template)
+        return Page.objects.create(url=url, template=template)
     
 
 
@@ -303,16 +303,16 @@ def get_page_menu(_tag, _as, varname):
 
 # gets a page
 class CmsPageNode(template.Node):
-    def __init__(self, varname, uri):
+    def __init__(self, varname, url):
         self.varname = varname
-        self.uri = uri
+        self.url = url
         
     def render(self, context):
-        if self.uri:
-            uri = template.Variable(self.uri).resolve(context)
+        if self.url:
+            url = template.Variable(self.url).resolve(context)
         else:
-            uri = context['request'].path_info
-        context[self.varname] = get_or_create_page(uri)
+            url = context['request'].path_info
+        context[self.varname] = get_or_create_page(url)
         return ''
 
 # deprecated, use cmspage instead
@@ -323,8 +323,8 @@ def get_current_page(_tag, _as, varname):
 
 @register.tag
 @easy_tag
-def cmspage(_tag, uri, _as, varname):
-    return CmsPageNode(varname, uri)
+def cmspage(_tag, url, _as, varname):
+    return CmsPageNode(varname, url)
 
 
 
@@ -336,8 +336,8 @@ def cmspage(_tag, uri, _as, varname):
 
 # generates a nested html list of the site structure (relies on sane url scheme)
 class CmsSiteMapNode(template.Node):
-    def __init__(self, base_uri, include_base, depth, alias):
-        self.base_uri = base_uri
+    def __init__(self, base_url, include_base, depth, alias):
+        self.base_url = base_url
         self.include_base = include_base
         self.depth = depth
         self.alias = alias
@@ -349,8 +349,8 @@ class CmsSiteMapNode(template.Node):
             page_qs = Page.live
 
         try:
-            base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
-            page = page_qs.get(uri=base_uri)
+            base_url = self.base_url and template.Variable(self.base_url).resolve(context) or '/'
+            page = page_qs.get(url=base_url)
         except Page.DoesNotExist:
             return ''
 
@@ -361,11 +361,11 @@ class CmsSiteMapNode(template.Node):
         def _render(page, currentdepth = 1):
             html = []
                 
-            children = page.get_children(page_qs).order_by('uri')
+            children = page.get_children(page_qs).order_by('url')
             if len(children):
                 html.append('<ul>')
                 for childpage in children:
-                    html.append('<li>\n<a href="%s">%s</a>' % (childpage.uri, childpage.page_title()))
+                    html.append('<li>\n<a href="%s">%s</a>' % (childpage.url, childpage.page_title()))
                     if (not depth) or currentdepth < depth:
                         html.append(_render(childpage, currentdepth + 1))
                     html.append('</li>')
@@ -378,7 +378,7 @@ class CmsSiteMapNode(template.Node):
             html = "\n".join([
                 '<ul>',
                 '<li>',
-                '<a href="%s">%s</a>' % (page.uri, page.page_title()),
+                '<a href="%s">%s</a>' % (page.url, page.page_title()),
                 _render(page),
                 '</li>',
                 '</ul>',
@@ -396,14 +396,14 @@ class CmsSiteMapNode(template.Node):
 # this is deprecated, use cmssitemap instead
 @register.tag
 @easy_tag
-def generate_sitemap(_tag, base_uri=None, include_base=True, depth=None):
-    return CmsSiteMapNode(base_uri, include_base, depth)
+def generate_sitemap(_tag, base_url=None, include_base=True, depth=None):
+    return CmsSiteMapNode(base_url, include_base, depth)
 
 
 @register.tag
 @easy_tag
-def cmssitemap(_tag, base_uri=None, include_base=True, depth=None, _as='', alias=None):
-    return CmsSiteMapNode(base_uri, include_base, depth, alias)
+def cmssitemap(_tag, base_url=None, include_base=True, depth=None, _as='', alias=None):
+    return CmsSiteMapNode(base_url, include_base, depth, alias)
 
 
 
@@ -428,11 +428,11 @@ class CMSCrumbtrailNode(template.Node):
                 current_url += url_part + '/'
                 name = url_part.replace('-', ' ').replace(':', ': ').title()
                 try:
-                    page = Page.objects.get(uri=current_url)
+                    page = Page.objects.get(url=current_url)
                 except Page.DoesNotExist:
                     page = None
                 crumbtrail.append({
-                    'uri': current_url,
+                    'url': current_url,
                     'name': name,
                     'page': page
                 })
@@ -457,7 +457,7 @@ class CMSExtraNode(template.Node):
             if context['request'].user.has_module_perms("cms"):
                 if is_editing(context['request']):
                     try:
-                        page = Page.objects.get(uri=context['request'].path_info)
+                        page = Page.objects.get(url=context['request'].path_info)
                     except Page.DoesNotExist:
                         page = False
 
@@ -539,7 +539,7 @@ class PagesForTemplateNode(template.Node):
         super(PagesForTemplateNode, self).__init__()
 
     def render(self, context):
-        context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('uri')
+        context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('url')
         return ''
 
 @register.tag

@@ -38,19 +38,19 @@ class PageForm(forms.ModelForm):
     class Meta:
         model = Page
     
-    def clean_uri(self):
-        uri = URL_STRIP_REGEX.sub('', self.cleaned_data['uri'].replace(' ', '-')).lower()
-        uri = URL_DASH_REGEX.sub('-', uri).strip('-')
+    def clean_url(self):
+        url = URL_STRIP_REGEX.sub('', self.cleaned_data['url'].replace(' ', '-')).lower()
+        url = URL_DASH_REGEX.sub('-', url).strip('-')
         
-        uri = ("/%s" % (uri.lstrip('/'))).replace('//', '/')
+        url = ("/%s" % (url.lstrip('/'))).replace('//', '/')
         
-        if settings.APPEND_SLASH and uri[-1] != '/':
-            uri = "%s/" % uri
+        if settings.APPEND_SLASH and url[-1] != '/':
+            url = "%s/" % url
         
-        if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(uri__in=[uri.rstrip('/'), "%s/" % uri.rstrip('/')]):
-            raise forms.ValidationError('A page with this uri already exists')
+        if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(url__in=[url.rstrip('/'), "%s/" % url.rstrip('/')]):
+            raise forms.ValidationError('A page with this url already exists')
         
-        return uri
+        return url
 
 
 
