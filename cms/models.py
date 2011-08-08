@@ -138,7 +138,7 @@ def template_choices():
     
 
 def get_child_pages(parent_url, qs=None):
-    return (qs or Page.objects).filter(url__iregex=r'^' + parent_url + '[^/]+/$')
+    return (qs or Page.live).filter(url__iregex=r'^' + parent_url + '[^/]+/$')
     #return (qs or Page.objects).filter(url__iregex=r'^' + parent_url + '.+$')
 
 
@@ -194,6 +194,7 @@ class Page(_CMSAbstractBaseModel):
     
     def get_children(self, qs=None):
         return get_child_pages(self.url, qs)
+        return get_child_pages(self.uri, qs)
 
 
     def __unicode__(self):
