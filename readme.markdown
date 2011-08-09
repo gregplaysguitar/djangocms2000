@@ -24,14 +24,15 @@ You should apply all of these steps at once, without running the site until
 you're finished.
 
 - Place the cms subfolder on your path, instead of the djangocms2000 project folder
-- 'djangocms2000' becomes 'cms' in INSTALLED\_APPS and your root urls.py
-- Change DJANGOCMS2000\_ settings prefixes to CMS\_
-- Change Djangocms2000FallbackMiddleware to CMSFallbackMiddleware
+- `djangocms2000` becomes `cms` in `INSTALLED_APPS` and your root urls.py
+- `{% load djangocms2000_tags %}` becomes `{% load cms_tags %}` in templates.
+- Change `DJANGOCMS2000_` settings prefixes to `CMS_`
+- Change `djangocms2000.middleware.Djangocms2000FallbackMiddleware` to `cms.middleware.CMSFallbackMiddleware`
 - Rename media/djangocms2000 -> media/cms
 - Rename templates/djangocms2000 -> templates/cms
 - Rename djangocms2000 db tables
-- Replace cms_page template names
-- Replace djangocms2000 entries in django\_content\_type db table
+- Replace `cms_page` template names
+- Replace djangocms2000 entries in `django_content_type` db table
 
 
 BUGS FOUND BY MATT
