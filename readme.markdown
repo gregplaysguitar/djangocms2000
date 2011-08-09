@@ -20,13 +20,18 @@ MIGRATION TO "CMS" VERSION:
 Applies to any descendant of commit b40137c51a4fc8d2b2ac2e6826afd05d77ab7a49,
 in which the app name was changed from `djangocms2000` to just `cms`.
 
+You should apply all of these steps at once, without running the site until
+you're finished.
+
+- Place the cms subfolder on your path, instead of the djangocms2000 project folder
+- 'djangocms2000' becomes 'cms' in INSTALLED\_APPS and your root urls.py
+- Change DJANGOCMS2000\_ settings prefixes to CMS\_
+- Change Djangocms2000FallbackMiddleware to CMSFallbackMiddleware
 - Rename media/djangocms2000 -> media/cms
 - Rename templates/djangocms2000 -> templates/cms
 - Rename djangocms2000 db tables
 - Replace cms_page template names
 - Replace djangocms2000 entries in django\_content\_type db table
-- Change DJANGOCMS2000\_ settings prefixes to CMS\_
-- Change Djangocms2000FallbackMiddleware to CMSFallbackMiddleware
 
 
 BUGS FOUND BY MATT
