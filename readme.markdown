@@ -14,11 +14,17 @@ BASIC INSTALLATION:
 10. See reference.markdown for more info
 
 
-MIGRATION TO "CMS" VERSION:
----------------------------
+
+
+BACKWARDS-INCOMPATIBLE CHANGES:
+===============================
+
+"CMS" MIGRATION:
+----------------
 
 Applies to any descendant of commit b40137c51a4fc8d2b2ac2e6826afd05d77ab7a49,
-in which the app name was changed from `djangocms2000` to just `cms`.
+in which the app name was changed from `djangocms2000` to just `cms`, and moved
+into a subfolder.
 
 You should apply all of these steps at once, without running the site until
 you're finished.
@@ -34,27 +40,31 @@ you're finished.
 - Replace `cms_page` template names
 - Replace djangocms2000 entries in `django_content_type` db table
 
-
-BUGS FOUND BY MATT
+URL/URI MIGRATION:
 ------------------
 
+In commit 69c99c2b4e8c7adf4643bab7648831d375ae0e7a, all references to `uri` became
+`url`. To migrate, change the `cms_page.uri` field to `cms_page.url`
+
+
+
+
+
+TODO
+====
+
+- plain text needs to somehow distinguish between single line stuff and multi line for admin
+- incorporate tim's new designs
+- Markdown editing weirdness
+- The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
 - It's not really happy about editable blocks when there's no CMSPage
   e.g. when all blocks are 'generic'
 - z-indexes e.g. editable fields above panel at top of window.
 - editing a plain text block before the page has fully loaded opens up the html editor as well as the plain text editor
 
 
-TODO
-----
-
-- plain text needs to somehow distinguish between single line stuff and multi line for admin
-- incorporate tim's new designs
-- Markdown editing weirdness
-- The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
-
-
 TODONE
----------
+======
 
 - When editing "plain" fields (I think) the field is always populated 
   with what was its content on page load, even if it's been changed 
