@@ -151,10 +151,10 @@ class _CMSAbstractBaseModel(models.Model):
         
     def get_title(self):
         try:
-            return self.blocks.get(label="title").compiled_content
+            return strip_tags(self.blocks.get(label="title").compiled_content)
         except Block.DoesNotExist:
             try:
-                return self.blocks.get(label="name").compiled_content
+                return strip_tags(self.blocks.get(label="name").compiled_content)
             except Block.DoesNotExist:
                 return self.url
 
