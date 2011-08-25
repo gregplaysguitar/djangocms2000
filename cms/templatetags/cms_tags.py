@@ -315,12 +315,6 @@ class CmsPageNode(template.Node):
         context[self.varname] = get_or_create_page(url)
         return ''
 
-# deprecated, use cmspage instead
-@register.tag
-@easy_tag
-def get_current_page(_tag, _as, varname):
-    return CmsPageNode(varname, None)
-
 @register.tag
 @easy_tag
 def cmspage(_tag, url, _as, varname):
@@ -393,12 +387,6 @@ class CmsSiteMapNode(template.Node):
         else:
             return html
         
-# this is deprecated, use cmssitemap instead
-@register.tag
-@easy_tag
-def generate_sitemap(_tag, base_url=None, include_base=True, depth=None):
-    return CmsSiteMapNode(base_url, include_base, depth)
-
 
 @register.tag
 @easy_tag

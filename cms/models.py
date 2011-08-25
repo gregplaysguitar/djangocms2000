@@ -191,11 +191,8 @@ class Page(_CMSAbstractBaseModel):
     
     history = AuditTrail(show_in_admin=False)
     
-    
     def get_children(self, qs=None):
         return get_child_pages(self.url, qs)
-        return get_child_pages(self.uri, qs)
-
 
     def __unicode__(self):
         return self.url
