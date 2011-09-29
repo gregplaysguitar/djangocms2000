@@ -1,15 +1,15 @@
 BASIC INSTALLATION:
 ==================
 
-1. /djangocms2000/ -> djangocms2000.urls
-2. Requires simplejson ( pypi.python.org/pypi/simplejson/ )
-2. (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load djangocms2000_tags %} at the top)
-3. TEMPLATE_LOADERS -> add 'django.template.loaders.app_directories.load_template_source',
-4. Add djangocms2000.middleware.Djangocms2000FallbackMiddleware to your middleware classes (optional)
+1. Add (r'^djangocms2000/', include('djangocms2000.urls')) to your ROOT_URLCONF
+2. Install simplejson ( pypi.python.org/pypi/simplejson/ )
+2. (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load cms_tags %} at the top)
+3. Add 'django.template.loaders.app_directories.load_template_source' to your TEMPLATE_LOADERS setting
+4. Add cms.middleware.CMSFallbackMiddleware to your middleware classes (optional)
 5. Use {% cmsblock 'blockname' 'plain|html|markdown' %} to create editable blocks in templates
 6. To use images, download [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) and add it to your INSTALLED_APPS
 7. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
-8. Use ala flatpages if 4) was followed - if not you can still put blocks in any template
+8. If 4) was followed you can create new pages via the admin; if not you can still put blocks in any template.
 9. Pages can be edited in place if 2) was followed
 10. See reference.markdown for more info
 
