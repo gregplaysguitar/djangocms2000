@@ -1,7 +1,7 @@
 BASIC INSTALLATION:
 ==================
 
-1. Add (r'^djangocms2000/', include('djangocms2000.urls')) to your ROOT_URLCONF
+1. Add (r'^cms/', include('cms.urls')) to your ROOT_URLCONF
 2. Install simplejson ( pypi.python.org/pypi/simplejson/ )
 2. (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load cms_tags %} at the top)
 3. Add 'django.template.loaders.app_directories.load_template_source' to your TEMPLATE_LOADERS setting
