@@ -1,6 +1,6 @@
 {% include "cms/cms/jquery-include.html" %}
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}js/edit-mode-switcher.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
 
 <div>
     <style scoped>
@@ -9,7 +9,7 @@
         top: 0;
         right: 0;
         width: auto;
-        background: transparent url({{ cms_settings.MEDIA_URL }}images/overlay.png);
+        background: transparent url({{ cms_settings.STATIC_URL }}images/overlay.png);
         color: #fff;
         padding: 5px 10px;
         -webkit-border-radius: 3px;

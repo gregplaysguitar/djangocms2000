@@ -1,17 +1,17 @@
 {% load cms_tags %}
 
-<link rel="stylesheet" type="text/css" href="{{ cms_settings.MEDIA_URL }}css/cms.css">
+<link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
 {% if cms_settings.CUSTOM_STYLESHEET %}
 <link rel="stylesheet" type="text/css" href="{{ cms_settings.CUSTOM_STYLESHEET }}">
 {% endif %}
 {% include "cms/cms/jquery-include.html" %}
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}tiny_mce/tiny_mce.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}tiny_mce/jquery.tinymce.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}lib/jquery.color.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}lib/jquery.cookie.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}lib/jquery.form.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}js/cms.js"></script>
-<script type="text/javascript" src="{{ cms_settings.MEDIA_URL }}js/edit-mode-switcher.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/jquery.tinymce.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.color.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.form.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/cms.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
 <script type="text/javascript">
 if (!$.browser.msie) {
 	function setupCMS () {

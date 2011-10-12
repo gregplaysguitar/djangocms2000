@@ -1,5 +1,8 @@
-from django.conf.urls.defaults import *
 import os
+
+from django.conf.urls.defaults import *
+
+import settings
 
 
 urlpatterns = patterns('cms.views',
@@ -14,8 +17,8 @@ urlpatterns = patterns('cms.views',
     (r'^linklist.js$', 'linklist'),
 )
 
-
-urlpatterns += patterns('',
-	(r'^media/(?P<path>.*)$', 'django.views.static.serve', 
-		{'document_root': os.path.join(os.path.dirname(globals()["__file__"]), 'media')}),
-)
+if not settings.STATICFILES:
+	urlpatterns += patterns('',
+		(r'^media/(?P<path>.*)$', 'django.views.static.serve', 
+			{'document_root': os.path.join(os.path.dirname(globals()["__file__"]), 'media')}),
+	)
