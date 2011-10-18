@@ -115,8 +115,14 @@ class CMSBlockNode(template.Node):
         content = block.compiled_content
         for f, shortname, default in cms_settings.FILTERS:
             if (filters and shortname in filters) or (not filters and default):
-                module = __import__(f)
-                content = sys.modules[f].filter(content, block)
+                try:
+                    module = __import__(f)
+                    content = sys.modules[f].filter(content, block)
+                except ImportError:
+                    bits = f.split(".")
+                    module = __import__(".".join(bits[0:-1]), fromlist=[bits[-1]])
+                    fn = getattr(module, bits[-1])
+                    content = fn(content, block)
         return content
     
 @register.tag
