@@ -18,6 +18,11 @@
 	opacity: 0.6;
 }
 
+.cms-image.placeholder {
+    text-align: center;
+    background-color: #ddd;
+}
+
 
 
 .cms-block {
