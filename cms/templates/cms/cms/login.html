@@ -1,0 +1,35 @@
+{% load cms_tags %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Login to edit</title>
+	<link rel="stylesheet" href="{{ cms_settings.STATIC_URL }}css/login.css" type="text/css" media="all" charset="utf-8">
+</head>
+<body>
+
+
+{% if form.errors %}
+<p>Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<form method="post" action=".">
+{% csrf_token %}
+<p>
+	Login to edit {{ sitename }}
+</p>
+<p>
+	{{ form.username }}
+	{{ form.password }}
+	<input type="submit" value="Go" class="go" />
+</p>
+
+
+<input type="hidden" name="next" value="{% firstof next '/' %}" />
+</form>
+
+
+</body>
+</html>
+
