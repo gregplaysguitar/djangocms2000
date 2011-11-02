@@ -47,7 +47,16 @@ URL/URI MIGRATION:
 In commit 69c99c2b4e8c7adf4643bab7648831d375ae0e7a, all references to `uri` became
 `url`. To migrate, change the `cms_page.uri` field to `cms_page.url`
 
+Example SQL for the above migrations:
+-------------------------------------
 
+    update django_content_type set app_label='cms' where app_label='djangocms2000';
+    alter table djangocms2000_page rename to cms_page;
+    alter table djangocms2000_block rename to cms_block;
+    alter table djangocms2000_image rename to cms_image;
+    alter table djangocms2000_menuitem rename to cms_menuitem;
+    update cms_page set template='cms/static.html' where template='djangocms2000/static.html';
+    alter table cms_page change `url` `uri` varchar(255)  not null default '';
 
 
 
