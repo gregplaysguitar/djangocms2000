@@ -1,21 +1,21 @@
+import re, os, sys, datetime
+
 from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
-import re, os
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-#from custom_fields import RelativeFilePathField
 from django.template.loader import get_template
 from django import template
-import markdown2, gfm, datetime
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
-
-#from custom_fields import TemplateChoiceField
 from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
+from django.template import defaultfilters
+
+import markdown2, gfm
 
 from fields import ConstrainedImageField
 import settings as cms_settings
@@ -76,6 +76,29 @@ class Block(models.Model):
         else:
             self.compiled_content = self.raw_content
         super(Block, self).save(*args, **kwargs)    
+    
+    def get_filtered_content(self, filters=None):
+        content = self.compiled_content
+        non_default_filters = []
+        if filters:
+            for f in filters:
+                if hasattr(defaultfilters, f):
+                    content = getattr(defaultfilters, f)(content)
+                else:
+                    non_default_filters.append(f)
+                
+        for f, shortname, default in cms_settings.FILTERS:
+            if (shortname in non_default_filters) or (not filters and default):
+                try:
+                    module = __import__(f)
+                    content = sys.modules[f].filter(content, self)
+                except ImportError:
+                    bits = f.split(".")
+                    module = __import__(".".join(bits[0:-1]), fromlist=[bits[-1]])
+                    fn = getattr(module, bits[-1])
+                    content = fn(content, self)
+        return content
+        
     
     class Meta:
        ordering = ['id',]

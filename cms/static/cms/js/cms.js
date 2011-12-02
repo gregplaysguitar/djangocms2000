@@ -118,7 +118,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
             
             
 			$('#cms-htmlform form').ajaxForm({
-				'success': function(data) {
+				success: function(data) {
 					var raw_content = $.trim(data.raw_content),
 						compiled_content = $.trim(data.compiled_content);
 					$(block).find('input').val(raw_content);
@@ -134,12 +134,15 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 					}
 					
 				},
-				'beforeSubmit': function() {
+				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
 					$(block).find("span.inner").html(throbberString);
 					hideForm('html', false);
 				},
-				'dataType': 'json'
+				dataType: 'json',
+				data: {
+				    filters: $(block).attr('filters')
+				}
 			});
 			showForm('html');
 		}
@@ -185,7 +188,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 			
 
 			editFormContainer.find('form').ajaxForm({
-				'success': function(data) {
+				success: function(data) {
 				    //console.log(arguments);
 					//return true;
 					$(block).find("span.inner").html($.trim(data.compiled_content) || "Click to add text");
@@ -200,12 +203,15 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 					    post_edit_callback(block);
 					}
 				},
-				'beforeSubmit': function() {
+				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
 					$(block).find("span.inner").html(throbberString);
 					hideTextForm();
 				},
-				'dataType': 'json'
+				dataType: 'json',
+				data: {
+				    filters: $(block).attr('filters')
+				}
 			});
 			
 			/* manually submit the form if we're killing the click event above due to

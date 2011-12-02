@@ -1,4 +1,4 @@
-import os, sys
+import os
 
 try:
     import sorl
@@ -85,45 +85,37 @@ class CMSBlockNode(template.Node):
             block.format = format
             block.save()
         
-
-        data = {
-            'format': format,
-            'label': label,
-            'request': context['request'],
-            'sitewide': isinstance(content_object, Site),
-        }
-                
-        if context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
-            data['block'] = block
-
-            returnval = template.loader.render_to_string("cms/cms/block.html", data)
-        else:
-            if self.filters:
-                filters = template.Variable(self.filters).resolve(context).split(',')
-                returnval = self.get_compiled_content(block, filters)
-            else:
-                returnval = self.get_compiled_content(block)
-
         
+        if self.filters:
+            filters = template.Variable(self.filters).resolve(context).split(',')
+        else:
+            filters = []
+            
+        filtered_content = block.get_filtered_content(filters)
+        
+        if block.format != 'plain':
+            filtered_content = mark_safe(filtered_content)
+                       
+        if context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+            returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
+                'format': format,
+                'filters': ','.join(filters),
+                'label': label,
+                'request': context['request'],
+                'sitewide': isinstance(content_object, Site),
+                'filtered_content': filtered_content,
+                'block': block
+            }))
+        else:
+            returnval = filtered_content
+
+
         if self.alias:
-            context[self.alias] = mark_safe(returnval)
+            context[self.alias] = returnval
             return ""
         else:
             return returnval
     
-    def get_compiled_content(self, block, filters=None):
-        content = block.compiled_content
-        for f, shortname, default in cms_settings.FILTERS:
-            if (filters and shortname in filters) or (not filters and default):
-                try:
-                    module = __import__(f)
-                    content = sys.modules[f].filter(content, block)
-                except ImportError:
-                    bits = f.split(".")
-                    module = __import__(".".join(bits[0:-1]), fromlist=[bits[-1]])
-                    fn = getattr(module, bits[-1])
-                    content = fn(content, block)
-        return content
     
 @register.tag
 @easy_tag

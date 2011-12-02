@@ -80,13 +80,15 @@ def saveblock(request):
     block = Block.objects.get(
         pk=request.POST['%sblock_id' % (prefix)]
     )
-    #print block.save()
     
     block.raw_content = request.POST['%sraw_content' % (prefix)]
     block.format = request.POST['%sformat' % (prefix)]
     block.save()
-    #print block
-    return HttpResponse(simplejson.dumps({'compiled_content': block.compiled_content, 'raw_content': block.raw_content,}), mimetype='application/json')
+
+    return HttpResponse(simplejson.dumps({
+        'compiled_content': block.get_filtered_content(request.POST.get('filters', None).split(',')),
+        'raw_content': block.raw_content,
+    }), mimetype='application/json')
 
     
 
