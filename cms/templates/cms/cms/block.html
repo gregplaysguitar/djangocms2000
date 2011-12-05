@@ -5,7 +5,7 @@
 	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
 	
 	<span class="inner">
-{% endzealousspaceless %}{% if filtered_content %}{{ filtered_content }}{% else %}Click to add text{% endif %}{% zealousspaceless %}
+{% endzealousspaceless %}{% if block.raw_content %}{{ filtered_content }}{% else %}Click to add text{% endif %}{% zealousspaceless %}
 	</span>
 </span>
 {% endzealousspaceless %}
