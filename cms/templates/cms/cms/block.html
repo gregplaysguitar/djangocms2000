@@ -4,7 +4,7 @@
 <span class='cms-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if content_object.app_label == 'sites' and content_object.module_name == 'site' %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}" filters="{{ filters }}">
 	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
 	
-	<span class="inner">
+	<span class="cms-inner">
 {% endzealousspaceless %}{% if block.raw_content %}{{ filtered_content }}{% else %}Click to add text{% endif %}{% zealousspaceless %}
 	</span>
 </span>

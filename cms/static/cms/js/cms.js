@@ -122,7 +122,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 					var raw_content = $.trim(data.raw_content),
 						compiled_content = $.trim(data.compiled_content);
 					$(block).find('input').val(raw_content);
-					$(block).find("span.inner").html($.trim(raw_content) ? compiled_content : "Click to add text");
+					$(block).find("span.cms-inner").html($.trim(raw_content) ? compiled_content : "Click to add text");
 					
 					if (!compiled_content) {
 						$(block).addClass("placeholder");
@@ -136,7 +136,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 				},
 				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
-					$(block).find("span.inner").html(throbberString);
+					$(block).find("span.cms-inner").html(throbberString);
 					hideForm('html', false);
 				},
 				dataType: 'json',
@@ -191,7 +191,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 				success: function(data) {
 				    //console.log(arguments);
 					//return true;
-					$(block).find("span.inner").html($.trim(data.raw_content) ? $.trim(data.compiled_content) : "Click to add text");
+					$(block).find("span.cms-inner").html($.trim(data.raw_content) ? $.trim(data.compiled_content) : "Click to add text");
 					if (!$.trim(data.compiled_content)) {
 						$(block).addClass("placeholder");
 					}
@@ -205,7 +205,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 				},
 				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
-					$(block).find("span.inner").html(throbberString);
+					$(block).find("span.cms-inner").html(throbberString);
 					hideTextForm();
 				},
 				dataType: 'json',
