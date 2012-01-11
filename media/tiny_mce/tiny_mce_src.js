@@ -11989,7 +11989,6 @@ tinymce.create('tinymce.ui.Toolbar:tinymce.ui.Container', {
 		// Public functions
 
 		function get(name) {
-		    console.log(formats, name);
 			return name ? formats[name] : formats;
 		};
 
