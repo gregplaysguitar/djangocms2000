@@ -71,7 +71,7 @@ TODO
   e.g. when all blocks are 'generic'
 - z-indexes e.g. editable fields above panel at top of window.
 - editing a plain text block before the page has fully loaded opens up the html editor as well as the plain text editor
-
+- ability to tab through cms blocks on a page, hitting enter to edit the currently highlighted block
 
 TODONE
 ======
