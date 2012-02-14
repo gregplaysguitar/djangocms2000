@@ -102,6 +102,7 @@ class Block(models.Model):
     
     class Meta:
        ordering = ['id',]
+       unique_together = ('content_type', 'object_id', 'label')
     
 
 class Image(models.Model):
@@ -134,7 +135,9 @@ class Image(models.Model):
             }
         return _work()
     
-
+    class Meta:
+       unique_together = ('content_type', 'object_id', 'label')
+    
 
 
 TEMPLATE_DIR = settings.TEMPLATE_DIRS[0]
