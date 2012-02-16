@@ -1,29 +1,13 @@
-from models import Page, Block, Image, MenuItem
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django import forms
-from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 
 import settings as cms_settings
+from forms import PageForm, ReadonlyInput
+from models import Page, Block, Image, MenuItem
 
-from django.forms.widgets import HiddenInput
-from django.utils.safestring import mark_safe
-from forms import PageForm
-
-
-class ReadonlyInput(HiddenInput):
-    def __init__(self, attrs=None, model=None):
-        super(ReadonlyInput, self).__init__(attrs)
-        self.model = model
-        
-    def render(self, name, value, attrs=None):
-        if self.model:
-            text_value = self.model.objects.get(pk=value)
-        else:
-            text_value = value
-        return mark_safe("<p>%s</p>%s" % (text_value, super(ReadonlyInput, self).render(name, value, attrs)))
 
 
 

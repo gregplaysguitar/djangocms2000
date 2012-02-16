@@ -74,6 +74,8 @@ TODO
 - ability to tab through cms blocks on a page, hitting enter to edit the currently highlighted block
 - upgrade tinymce
 - Bind ESC key to cancel when editing inline
+- Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
+
 
 TODONE
 ======
