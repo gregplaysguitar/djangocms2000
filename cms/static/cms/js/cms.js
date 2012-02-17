@@ -36,7 +36,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 			theme_advanced_buttons3: "",
             theme_advanced_statusbar_location: "bottom",
             theme_advanced_resizing: true,
-			plugins: "paste",
+			plugins: "paste,inlinepopups",
 			relative_urls: false
 		};
 	}

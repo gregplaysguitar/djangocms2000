@@ -56,7 +56,7 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
             strict_loading_mode: 1,
             file_browser_callback: filebrowser_url ? djangoFileBrowser : null,
             mode: "exact",
-            plugins: "paste",
+            plugins: "paste,inlinepopups",
             heading_clear_tag: "p",
 			theme_advanced_buttons1: buttons,
             theme_advanced_buttons2: "",
