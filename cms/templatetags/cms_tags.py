@@ -24,24 +24,6 @@ from cms.decorators import easy_tag
 register = template.Library()
 
 
-# special implementation for Page.get_or_create - sets the template
-# for created pages in an attempt to minimise confusion in the admin
-def get_or_create_page(url):
-    try:
-        return Page.objects.get(url=url)
-    except Page.DoesNotExist:
-        # attempt to guess template from url
-        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/') + '.html')):
-            template = os.path.join(url.strip('/') + '.html')
-        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/'), 'index.html')):
-            template = os.path.join(url.strip('/'), 'index.html')
-        else:
-            template = ''
-    
-        return Page.objects.create(url=url, template=template)
-    
-
-
 def resolve_bool(var, context):
     return var in [True, 'True'] or (var not in ['False', '0', 0] and template.Variable(var).resolve(context))
 
@@ -74,7 +56,7 @@ class CMSBlockNode(template.Node):
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'].path_info)
+            content_object = Page.objects.get_for_url(context['request'].path_info)
                 
         block, created = Block.objects.get_or_create(
             label=label,
@@ -192,7 +174,7 @@ class CMSImageNode(template.Node):
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'].path_info)
+            content_object = Page.objects.get_for_url(context['request'].path_info)
             
 
         image, created = Image.objects.get_or_create(
@@ -310,7 +292,7 @@ class CmsPageNode(template.Node):
             url = template.Variable(self.url).resolve(context)
         else:
             url = context['request'].path_info
-        context[self.varname] = get_or_create_page(url)
+        context[self.varname] = Page.objects.get_for_url(url)
         return ''
 
 @register.tag

@@ -197,6 +197,11 @@ post_save.connect(dummy_render)
 
 
 
+class PageManager(models.Manager):
+    def get_for_url(self, url):
+        return Page.objects.get_or_create(url=url)[0]
+
+
 class LivePageManager(models.Manager):
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
@@ -210,7 +215,7 @@ class Page(_CMSAbstractBaseModel):
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
-    objects = models.Manager()
+    objects = PageManager()
     live = LivePageManager()
     
     class Meta:
