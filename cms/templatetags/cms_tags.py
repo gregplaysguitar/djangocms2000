@@ -78,7 +78,7 @@ class CMSBlockNode(template.Node):
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
                        
-        if context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -193,7 +193,7 @@ class CMSImageNode(template.Node):
         
         data = {
             'label': label,
-            'request': context['request'],
+            'request': context.get('request', None),
             'image': image,
             'constraint': constraint,
             'crop': crop,
@@ -202,7 +202,7 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
             data['editable'] = True
         
         
