@@ -1,0 +1,32 @@
+{% include "cms/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
+
+<div>
+    <style scoped>
+    #cms-logged_in {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: auto;
+        background: transparent url({{ cms_settings.STATIC_URL }}images/overlay.png);
+        color: #fff;
+        padding: 5px 10px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        z-index: 200;
+    }
+    #cms-logged_in a {
+        cursor: pointer;
+        padding: 0 5px;
+        color: #aaa;
+    }
+    </style>
+    
+    <div id="cms-logged_in">
+        <a class="edit-switcher on">Edit</a>
+        /
+        <a href="{% url cms.views.logout %}?from={{ request.path_info }}">Logout</a>
+    </div>
+</div>

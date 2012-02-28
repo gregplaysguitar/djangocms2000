@@ -1,0 +1,18 @@
+
+input.cms,
+textarea.cms {
+    width: 700px;
+}
+textarea.cms-html {
+    height: 300px;
+}
+
+
+
+.mceToolbar {
+    width: auto !important;
+}
+
+.mceFirst, .mceLast {
+    padding-top: 0 !important;
+}
