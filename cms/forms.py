@@ -55,7 +55,7 @@ class PageForm(forms.ModelForm):
         # just in case a template has been added/changed since last server restart
         self.fields['template'].widget.choices = template_choices()
                 
-        # if the page is rendered by an actual django url, hide template and make url readonly
+        # if the page is rendered by an actual django url, make template and url read-only
         instance = kwargs.get('instance', None)
         if instance:
             try:
