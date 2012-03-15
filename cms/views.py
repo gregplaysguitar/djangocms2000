@@ -118,15 +118,16 @@ def saveimage(request):
     
 
 @csrf_protect
-def render_page(request, url=None):
+def render_page(request, url):
     if request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
         qs = Page.objects
     else:
         qs = Page.live
     
-    if not url:
-        url = request.path_info
+    # don't try to render pages with no template (e.g. those who hold content for a
+    # url resolved elsewhere in the project)
+    qs = qs.exclude(template='')
     
     page = get_object_or_404(qs, url=url)
     return render_to_response(
