@@ -75,7 +75,7 @@ class PageForm(forms.ModelForm):
     
     def clean(self):
         data = self.cleaned_data
-        if not data.get('template', None):
+        if not data.get('template', None) and data.get('url', None):
             try:
                 resolve(data['url'])
             except Resolver404, e:
