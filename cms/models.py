@@ -156,12 +156,14 @@ def get_templates_from_dir(dir, exclude=None):
 
 def template_choices():
     CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
-    OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
-    return (
-        ('', '---------'),
-        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
-        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
-    )
+    return [('', '---------')] + get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)
+
+    #OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
+#    return (
+#        ('', '---------'),
+#        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
+#        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
+#    )
     
 
 def get_child_pages(parent_url, qs=None):
