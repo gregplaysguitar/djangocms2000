@@ -101,20 +101,20 @@ class CMSBlockNode(template.Node):
     
 @register.tag
 @easy_tag
-def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmsblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, None, alias, filters)
 
 
 @register.tag
 @easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmsgenericblock(_tag, label, content_object_variable, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, content_object_variable, alias, filters)
 
 @register.tag
 @easy_tag
-def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmssiteblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSBlockNode(label, format, editable, content_object, alias, filters)
