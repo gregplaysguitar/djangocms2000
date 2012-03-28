@@ -56,7 +56,7 @@ Example SQL for the above migrations:
     alter table djangocms2000_image rename to cms_image;
     alter table djangocms2000_menuitem rename to cms_menuitem;
     update cms_page set template='cms/static.html' where template='djangocms2000/static.html';
-    alter table cms_page change `url` `uri` varchar(255)  not null default '';
+    alter table cms_page change `uri` `url` varchar(255)  not null default '';
 
 
 
