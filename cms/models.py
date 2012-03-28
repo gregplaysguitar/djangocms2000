@@ -241,15 +241,6 @@ class Page(_CMSAbstractBaseModel):
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
-        
-    if kwargs['instance'].template:
-        choices = []
-        for group in template_choices():
-            choices += [t[0] for t in group[1]]
-            
-        if not kwargs['instance'].template in choices:
-            kwargs['instance'].template = choices[0]
-    
 pre_save.connect(page_pre, sender=Page)
 
 
