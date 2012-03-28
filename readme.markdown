@@ -34,7 +34,7 @@ you're finished.
 - `{% load djangocms2000_tags %}` becomes `{% load cms_tags %}` in templates.
 - Change `DJANGOCMS2000_` settings prefixes to `CMS_`
 - Change `djangocms2000.middleware.Djangocms2000FallbackMiddleware` to `cms.middleware.CMSFallbackMiddleware`
-- Rename media/djangocms2000 -> media/cms
+- If you are not using staticfiles, Rename media/djangocms2000 -> media/cms
 - Rename templates/djangocms2000 -> templates/cms
 - Rename djangocms2000 db tables
 - Replace `cms_page` template names
