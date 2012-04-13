@@ -10,12 +10,12 @@ Requirements
 Setup
 -----
 
-1. Put the cms folder on your path, and add 'cms' to your INSTALLED_APPS
-2. Add 'django.template.loaders.app_directories.load_template_source' to your TEMPLATE_LOADERS setting
-3. Ensure 'django.core.context_processors.request' is present in your TEMPLATE_CONTEXT_PROCESSORS setting
-4. Add (r'^cms/', include('cms.urls')) to your ROOT_URLCONF
-5. Optional: Add 'sorl.thumbnail' to your INSTALLED_APPS if you want to use cms images
-6. Optional: add 'cms.middleware.CMSFallbackMiddleware' to your middleware classes if you want to be
+1. Put the cms folder on your path, and add `'cms'` to your `INSTALLED_APPS`
+2. Add `'django.template.loaders.app_directories.load_template_source'` to your `TEMPLATE_LOADERS` setting
+3. Ensure `'django.core.context_processors.request'` is present in your `TEMPLATE_CONTEXT_PROCESSORS` setting
+4. Add `(r'^cms/', include('cms.urls'))` to your `ROOT_URLCONF`
+5. Optional: Add `'sorl.thumbnail'` to your `INSTALLED_APPS` if you want to use cms images
+6. Optional: add `'cms.middleware.CMSFallbackMiddleware'` to your middleware classes if you want to be
    able to add new pages via Django's admin.
 7. Optional: add `{% cmsextra %}` to the bottom of your base template to enable sitewide in-place 
    editing (remembering `{% load cms_tags %}` at the top)
@@ -25,11 +25,11 @@ Usage
 -----
 
 1. Use `{% load cms_tags %}` to enable the cms in a template
-2. Use {% cmsblock 'blockname' FORMAT filters=FILTERS %} to create an editable text block. FORMAT 
+2. Use `{% cmsblock 'blockname' FORMAT filters=FILTERS %}` to create an editable text block. FORMAT 
    can be 'plain' (default), 'html' or 'markdown'. FILTERS is an optional list of django template
-   filters, comma-separated. Example: {% cmsblock 'introduction' filters='linebreaks,urlize' %}
+   filters, comma-separated. Example: '{% cmsblock 'introduction' filters='linebreaks,urlize' %}'
 3. Use `{% cmsimage 'imagelabel' GEOMETRY crop=CROP %}` to create editable images. GEOMETRY and
-   CROP (both optional) correspond to sorl.thumbnail's 
+   CROP (both optional) correspond to sorl's 
    [geometry](http://thumbnail.sorl.net/template.html#geometry) and
    [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the original 
    image will be displayed.
