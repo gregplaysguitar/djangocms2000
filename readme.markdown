@@ -9,7 +9,7 @@ BASIC INSTALLATION:
 5. Use {% cmsblock 'blockname' 'plain|html|markdown' %} to create editable blocks in templates
 6. To use images, download [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) and add it to your INSTALLED_APPS
 7. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
-8. If 4) was followed you can create new pages via the admin; if not you can still put blocks in any template.
+8. If 5) was followed you can create new pages via the admin; if not you can still put blocks in any template.
 9. Pages can be edited in place if 2) was followed
 10. See reference.markdown for more info
 
