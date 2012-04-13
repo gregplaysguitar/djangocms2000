@@ -1,19 +1,42 @@
-BASIC INSTALLATION:
-==================
+GETTING STARTED:
+================
 
-1. Add (r'^cms/', include('cms.urls')) to your ROOT_URLCONF
-2. Install simplejson ( pypi.python.org/pypi/simplejson/ )
-2. (For optional edit-in-place) add cmsextra tag at bottom of base template (with {% load cms_tags %} at the top)
-3. Add 'django.template.loaders.app_directories.load_template_source' to your TEMPLATE_LOADERS setting
-4. Add cms.middleware.CMSFallbackMiddleware to your middleware classes (optional)
-5. Use {% cmsblock 'blockname' 'plain|html|markdown' %} to create editable blocks in templates
-6. To use images, download [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) and add it to your INSTALLED_APPS
-7. Use {% cmsimage 'imagename' '400x300' %} to create editable images 
-8. If 5) was followed you can create new pages via the admin; if not you can still put blocks in any template.
-9. Pages can be edited in place if 2) was followed
-10. See reference.markdown for more info
+Requirements
+------------
+1. [Django,](https://www.djangoproject.com) version 1.2 or higher
+2. [simplejson](pypi.python.org/pypi/simplejson/)
+3. [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) (optional, required for cms images)
+
+Setup
+-----
+
+1. Put the cms folder on your path, and add 'cms' to your INSTALLED_APPS
+2. Add 'django.template.loaders.app_directories.load_template_source' to your TEMPLATE_LOADERS setting
+3. Ensure 'django.core.context_processors.request' is present in your TEMPLATE_CONTEXT_PROCESSORS setting
+4. Add (r'^cms/', include('cms.urls')) to your ROOT_URLCONF
+5. Optional: Add 'sorl.thumbnail' to your INSTALLED_APPS if you want to use cms images
+6. Optional: add 'cms.middleware.CMSFallbackMiddleware' to your middleware classes if you want to be
+   able to add new pages via Django's admin.
+7. Optional: add `{% cmsextra %}` to the bottom of your base template to enable sitewide in-place 
+   editing (remembering `{% load cms_tags %}` at the top)
 
 
+Usage
+-----
+
+1. Use `{% load cms_tags %}` to enable the cms in a template
+2. Use {% cmsblock 'blockname' FORMAT filters=FILTERS %} to create an editable text block. FORMAT 
+   can be 'plain' (default), 'html' or 'markdown'. FILTERS is an optional list of django template
+   filters, comma-separated. Example: {% cmsblock 'introduction' filters='linebreaks,urlize' %}
+3. Use `{% cmsimage 'imagelabel' GEOMETRY crop=CROP %}` to create editable images. GEOMETRY and
+   CROP (both optional) correspond to sorl.thumbnail's 
+   [geometry](http://thumbnail.sorl.net/template.html#geometry) and
+   [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the original 
+   image will be displayed.
+4. `{% cmsextra %}` at the bottom of your page will enable in-place editing, if not enabled
+   sitewide.
+
+See reference.markdown for more info
 
 
 BACKWARDS-INCOMPATIBLE CHANGES:
