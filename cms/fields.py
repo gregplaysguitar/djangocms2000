@@ -32,4 +32,10 @@ class ConstrainedImageField(ImageField):
         signals.post_save.connect(self._constrain_image, sender=cls)
 
 
+    def south_field_triple(self):
+        """Returns a suitable description of this field for South."""
+        # We'll just introspect the _actual_ field.
+        from south.modelsinspector import introspector
+        args, kwargs = introspector(ImageField)
+        return ('django.db.models.fields.files.ImageField', args, kwargs)
 
