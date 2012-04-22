@@ -23,8 +23,14 @@ class ConstrainedImageField(ImageField):
 
     def _constrain_image(self, instance=None, **kwargs):
         if getattr(instance, self.name) and self.max_dimensions:
-            filename = getattr(instance, self.name).path
-            self._resize_image(filename, self.max_dimensions)
+            try:
+                filename = getattr(instance, self.name).path
+            except NotImplementedError:
+                # must be using a backend that doesn't support absolute paths
+                # TODO implement resizing for these backends, or fail loudly on application start?
+                pass
+            else:
+                self._resize_image(filename, self.max_dimensions)
 
 
     def contribute_to_class(self, cls, name):
