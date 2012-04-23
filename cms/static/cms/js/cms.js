@@ -237,18 +237,18 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 
 		$('.cms-form input.cancel').click(function() {
 			hideForm();
-		});	
-	
-		
-		$('.cms-block, .cms-image').each(function() {
-			var constraint;
-			if (constraint = $(this).attr('constraint')) {
-				var bits = constraint.match(/(\d+)x(\d+)/);
-				if (bits) {
-					$(this).width(bits[1]);
-					$(this).height(bits[2]);
-				}
+		});
+
+		$('.cms-image').each(function () {
+		    // if there's no image and we're cropping, size the placeholder the same as
+		    // the image so as not to break layouts.
+		    if (!$(this).find('img').length && $(this).attr('crop') && $(this).attr('constraint')) {
+				var bits = $(this).attr('constraint').match(/(\d+)x(\d+)/);
+                $(this).width(bits[1]);
+                $(this).height(bits[2]);
 			}
+		});
+		$('.cms-block, .cms-image').each(function() {
 			$(this).append('<span class="editMarker"></span>');
 		}).mouseover(function() {
 			if (!currently_editing) {

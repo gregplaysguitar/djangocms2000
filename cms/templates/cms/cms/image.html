@@ -3,7 +3,7 @@
 
 
 {% if editable %}
-<div class='cms-image {% if not image.file %}placeholder{% endif %}' blocktype="image" label='{{ label }}' image_id='{{ image.id }}' constraint="{{constraint}}">
+<div class='cms-image {% if not image.file %}placeholder{% endif %}' blocktype="image" label='{{ label }}' image_id='{{ image.id }}' constraint="{{ constraint }}" crop="{{ crop }}">
 {% endif %}
 
 
