@@ -67,6 +67,6 @@ SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 
 CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 
-
+UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
 
 
