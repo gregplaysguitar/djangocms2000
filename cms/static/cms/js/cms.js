@@ -244,8 +244,12 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 		    // the image so as not to break layouts.
 		    if (!$(this).find('img').length && $(this).attr('crop') && $(this).attr('constraint')) {
 				var bits = $(this).attr('constraint').match(/(\d+)x(\d+)/);
-                $(this).width(bits[1]);
-                $(this).height(bits[2]);
+                $(this).css({
+                    width: bits[1] + 'px',
+                    height: bits[2] + 'px',
+                    lineHeight: bits[2] + 'px',
+                    display: 'inline-block'
+                });
 			}
 		});
 		$('.cms-block, .cms-image').each(function() {
