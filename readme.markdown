@@ -86,6 +86,7 @@ Example SQL for the above migrations:
 TODO
 ====
 
+- give non-standard cms block attrs a data- prefix, and use jquery's .data() to access them
 - plain text needs to somehow distinguish between single line stuff and multi line for admin
 - incorporate tim's new designs
 - Markdown editing weirdness
