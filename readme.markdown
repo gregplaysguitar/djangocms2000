@@ -86,6 +86,7 @@ Example SQL for the above migrations:
 TODO
 ====
 
+- Upgrade tinymce and jquery, fix the way we load jquery (load own non-clashing version?)
 - give non-standard cms block attrs a data- prefix, and use jquery's .data() to access them
 - plain text needs to somehow distinguish between single line stuff and multi line for admin
 - incorporate tim's new designs
