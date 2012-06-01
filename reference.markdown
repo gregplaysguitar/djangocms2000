@@ -69,10 +69,19 @@ a site-wide block. Example
 
 Basic image block - use as with `cmsblock`. By default, will fit an image within
 the constraint, but won't crop. Format can be "html" (generates an <img> tag)
-or "url" (outputs the url to the resized image). Examples:
+or "url" (outputs the url to the resized image). 
+The 'constraint' argument can be of the format 'XxY', 'X', or 'xY' - the latter 
+two are for constraining just width and and just height, respectively.
+Examples:
 
-    {# standard usage #}
+    {# standard usage, fitted within 300x400 box but not cropped #}
     {% cmsimage "portrait" "300x400" %}
+    
+    {# resize to 200px wide, aspect ratio preserved #}
+    {% cmsimage "portrait" '200' %}
+    
+    {# resize to 200px high, aspect ratio preserved #}
+    {% cmsimage "portrait" 'x200' %}
 
     {# Don't resize the uploaded image at all #}
     {% cmsimage "portrait" %}
