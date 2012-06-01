@@ -130,7 +130,7 @@ def render_page(request, url=None):
     page = get_object_or_404(qs, url=url)
     
     if not page_is_authorised(request, page):
-        return HttpResponseRedirect(settings.LOGIN_URL + '?next=' + request.path_info)
+        return HttpResponseRedirect(cms_settings.LOGIN_URL + '?next=' + request.path_info)
     else:
         return render_to_response(
             page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),

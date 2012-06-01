@@ -67,6 +67,6 @@ SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 
 CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 
-
+LOGIN_URL = getattr(settings, 'CMS_LOGIN_URL', getattr(settings, 'LOGIN_URL', '/accounts/login/'))
 
 
