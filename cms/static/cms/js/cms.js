@@ -244,7 +244,6 @@
 		    // the image so as not to break layouts.
 		    if (!$(this).find('img').length && $(this).attr('constraint')) {
 				var bits = $(this).attr('constraint').split('x');
-				console.log(bits);
                 $(this).css({
                     width: bits[0] ? bits[0] + 'px' : 'auto',
                     height: bits[1] ? bits[1] + 'px' : 'auto',
