@@ -349,7 +349,7 @@ class CmsSiteMapNode(template.Node):
             base_uri = self.base_uri and template.Variable(self.base_uri).resolve(context) or '/'
             page = page_qs.get(uri=base_uri)
         except Page.DoesNotExist:
-            return ''
+            page = None
 
         include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
         depth = int(self.depth or 0)
@@ -357,8 +357,12 @@ class CmsSiteMapNode(template.Node):
         
         def _render(page, currentdepth = 1):
             html = []
-                
-            children = page.get_children(page_qs)
+            
+            if page:
+                children = page.get_children(page_qs)
+            else:
+                children = page_qs.filter(uri__iregex=r'^' + base_uri + '[^/]+/$')
+            
             if len(children):
                 html.append('<ul>')
                 for childpage in children:
@@ -371,7 +375,7 @@ class CmsSiteMapNode(template.Node):
             return "\n".join(html)
         
     
-        if include_base:
+        if include_base and page:
             html = "\n".join([
                 '<ul>',
                 '<li>',
