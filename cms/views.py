@@ -8,6 +8,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+import settings as djangocms2000_settings
+from utils import is_editing, page_is_authorised
+from forms import PublicPageForm
+from django.contrib.auth.views import login as auth_login
 
 from django.contrib.auth.views import login as auth_login
 
@@ -81,13 +85,15 @@ def saveblock(request):
     block = Block.objects.get(
         pk=request.POST['%sblock_id' % (prefix)]
     )
-    #print block.save()
     
     block.raw_content = request.POST['%sraw_content' % (prefix)]
     block.format = request.POST['%sformat' % (prefix)]
     block.save()
-    #print block
-    return HttpResponse(simplejson.dumps({'compiled_content': block.compiled_content, 'raw_content': block.raw_content,}), mimetype='application/json')
+
+    return HttpResponse(simplejson.dumps({
+        'compiled_content': block.get_filtered_content(request.POST.get('filters', None).split(',')),
+        'raw_content': block.raw_content,
+    }), mimetype='application/json')
 
     
 
@@ -126,6 +132,10 @@ def render_page(request, url=None):
     
     if not url:
         url = request.path_info
+
+    # don't try to render pages with no template (e.g. those who hold content for a
+    # url resolved elsewhere in the project)
+    qs = qs.exclude(template='')
     
     page = get_object_or_404(qs, url=url)
     

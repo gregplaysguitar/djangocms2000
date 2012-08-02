@@ -1,21 +1,21 @@
+import re, os, sys, datetime
+
 from django.db import models
 from django.conf import settings
 from django.contrib.sites.models import Site
-import re, os
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-#from custom_fields import RelativeFilePathField
 from django.template.loader import get_template
 from django import template
-import markdown2, gfm, datetime
 from django.utils.encoding import force_unicode
 from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
-
-#from custom_fields import TemplateChoiceField
 from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
+from django.template import defaultfilters
+
+import markdown2, gfm
 
 from fields import ConstrainedImageField
 import settings as cms_settings
@@ -77,8 +77,32 @@ class Block(models.Model):
             self.compiled_content = self.raw_content
         super(Block, self).save(*args, **kwargs)    
     
+    def get_filtered_content(self, filters=None):
+        content = self.compiled_content
+        non_default_filters = []
+        if filters:
+            for f in filters:
+                if hasattr(defaultfilters, f):
+                    content = getattr(defaultfilters, f)(content)
+                else:
+                    non_default_filters.append(f)
+                
+        for f, shortname, default in cms_settings.FILTERS:
+            if (shortname in non_default_filters) or (not filters and default):
+                try:
+                    module = __import__(f)
+                    content = sys.modules[f].filter(content, self)
+                except ImportError:
+                    bits = f.split(".")
+                    module = __import__(".".join(bits[0:-1]), fromlist=[bits[-1]])
+                    fn = getattr(module, bits[-1])
+                    content = fn(content, self)
+        return content
+        
+    
     class Meta:
        ordering = ['id',]
+       unique_together = ('content_type', 'object_id', 'label')
     
 
 class Image(models.Model):
@@ -94,7 +118,7 @@ class Image(models.Model):
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
-    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
+    file = ConstrainedImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
@@ -111,7 +135,9 @@ class Image(models.Model):
             }
         return _work()
     
-
+    class Meta:
+       unique_together = ('content_type', 'object_id', 'label')
+    
 
 
 TEMPLATE_DIR = settings.TEMPLATE_DIRS[0]
@@ -130,11 +156,14 @@ def get_templates_from_dir(dir, exclude=None):
 
 def template_choices():
     CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
-    OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
-    return (
-        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
-        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
-    )
+    return [('', '---------')] + get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)
+
+    #OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
+#    return (
+#        ('', '---------'),
+#        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
+#        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
+#    )
     
 
 def get_child_pages(parent_url, qs=None):
@@ -170,6 +199,11 @@ post_save.connect(dummy_render)
 
 
 
+class PageManager(models.Manager):
+    def get_for_url(self, url):
+        return Page.objects.get_or_create(url=url)[0]
+
+
 class LivePageManager(models.Manager):
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
@@ -189,7 +223,7 @@ class Page(_CMSAbstractBaseModel):
     sort_order = models.PositiveIntegerField(default=0)
     authorisation = models.CharField(choices=AUTHORISATION_CHOICES, max_length=10)
     
-    objects = models.Manager()
+    objects = PageManager()
     live = LivePageManager()
     
     class Meta:
@@ -213,15 +247,6 @@ class Page(_CMSAbstractBaseModel):
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
-        
-    if kwargs['instance'].template:
-        choices = []
-        for group in template_choices():
-            choices += [t[0] for t in group[1]]
-            
-        if not kwargs['instance'].template in choices:
-            kwargs['instance'].template = choices[0]
-    
 pre_save.connect(page_pre, sender=Page)
 
 

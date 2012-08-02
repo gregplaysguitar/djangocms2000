@@ -24,24 +24,6 @@ from cms.decorators import easy_tag
 register = template.Library()
 
 
-# special implementation for Page.get_or_create - sets the template
-# for created pages in an attempt to minimise confusion in the admin
-def get_or_create_page(url):
-    try:
-        return Page.objects.get(url=url)
-    except Page.DoesNotExist:
-        # attempt to guess template from url
-        if os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/') + '.html')):
-            template = os.path.join(url.strip('/') + '.html')
-        elif os.path.exists(os.path.join(settings.TEMPLATE_DIRS[0], url.strip('/'), 'index.html')):
-            template = os.path.join(url.strip('/'), 'index.html')
-        else:
-            template = ''
-    
-        return Page.objects.create(url=url, template=template)
-    
-
-
 def resolve_bool(var, context):
     return var in [True, 'True'] or (var not in ['False', '0', 0] and template.Variable(var).resolve(context))
 
@@ -74,7 +56,7 @@ class CMSBlockNode(template.Node):
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'].path_info)
+            content_object = Page.objects.get_for_url(context['request'].path_info)
                 
         block, created = Block.objects.get_or_create(
             label=label,
@@ -84,63 +66,54 @@ class CMSBlockNode(template.Node):
         if created:
             block.format = format
             block.save()
-        
-
-        data = {
-            'format': format,
-            'label': label,
-            'request': context['request'],
-            'sitewide': isinstance(content_object, Site),
-        }
                 
-        if context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
-            data['block'] = block
-
-            returnval = template.loader.render_to_string("cms/cms/block.html", data)
+        if self.filters:
+            filters = template.Variable(self.filters).resolve(context).split(',')
         else:
-            if self.filters:
-                filters = template.Variable(self.filters).resolve(context).split(',')
-                returnval = self.get_compiled_content(block, filters)
-            else:
-                returnval = self.get_compiled_content(block)
-
+            filters = []
+            
+        filtered_content = block.get_filtered_content(filters)
         
+        if block.format != 'plain':
+            filtered_content = mark_safe(filtered_content)
+                       
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+            returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
+                'format': format,
+                'filters': ','.join(filters),
+                'label': label,
+                'request': context['request'],
+                'sitewide': isinstance(content_object, Site),
+                'filtered_content': filtered_content,
+                'block': block
+            }))
+        else:
+            returnval = filtered_content
+
+
         if self.alias:
-            context[self.alias] = mark_safe(returnval)
+            context[self.alias] = returnval
             return ""
         else:
             return returnval
     
-    def get_compiled_content(self, block, filters=None):
-        content = block.compiled_content
-        for f, shortname, default in cms_settings.FILTERS:
-            if (filters and shortname in filters) or (not filters and default):
-                try:
-                    module = __import__(f)
-                    content = sys.modules[f].filter(content, block)
-                except ImportError:
-                    bits = f.split(".")
-                    module = __import__(".".join(bits[0:-1]), fromlist=[bits[-1]])
-                    fn = getattr(module, bits[-1])
-                    content = fn(content, block)
-        return content
     
 @register.tag
 @easy_tag
-def cmsblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmsblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, None, alias, filters)
 
 
 @register.tag
 @easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmsgenericblock(_tag, label, content_object_variable, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     return CMSBlockNode(label, format, editable, content_object_variable, alias, filters)
 
 @register.tag
 @easy_tag
-def cmssiteblock(_tag, label, format="html", editable=True, _as='', alias=None, filters=None, **kwargs):
+def cmssiteblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSBlockNode(label, format, editable, content_object, alias, filters)
@@ -162,7 +135,7 @@ except ImportError:
 
 
 class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='html', alias=None):
+    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='', colorspace='', alias=None):
         self.label = label
         self.content_object = content_object
         self.constraint = constraint
@@ -170,6 +143,7 @@ class CMSImageNode(template.Node):
         self.crop = crop
         self.editable = editable
         self.format = format
+        self.colorspace = colorspace
         self.alias = alias
 
     def render(self, context):
@@ -196,11 +170,16 @@ class CMSImageNode(template.Node):
         else:
             format = 'html'
         
+        if self.colorspace:
+            colorspace = template.Variable(self.colorspace).resolve(context)
+        else:
+            colorspace = ''
+        
         label = self.label.resolve(context)
         
         
         if not content_object:
-            content_object = get_or_create_page(context['request'].path_info)
+            content_object = Page.objects.get_for_url(context['request'].path_info)
             
 
         image, created = Image.objects.get_or_create(
@@ -219,16 +198,17 @@ class CMSImageNode(template.Node):
         
         data = {
             'label': label,
-            'request': context['request'],
+            'request': context.get('request', None),
             'image': image,
             'constraint': constraint,
             'crop': crop,
+            'colorspace': colorspace,
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
             'content_object': content_object,
         }
         #print self.editable
-        if context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
             data['editable'] = True
         
         
@@ -261,26 +241,26 @@ class CMSImageNode(template.Node):
 
 @register.tag
 @easy_tag
-def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
@@ -318,7 +298,7 @@ class CmsPageNode(template.Node):
             url = template.Variable(self.url).resolve(context)
         else:
             url = context['request'].path_info
-        context[self.varname] = get_or_create_page(url)
+        context[self.varname] = Page.objects.get_for_url(url)
         return ''
 
 @register.tag
@@ -361,7 +341,7 @@ class CmsSiteMapNode(template.Node):
         def _render(page, currentdepth = 1):
             html = []
                 
-            children = page.get_children(page_qs).order_by('url')
+            children = page.get_children(page_qs).order_by('sort_order', 'url')
             if len(children):
                 html.append('<ul>')
                 for childpage in children:

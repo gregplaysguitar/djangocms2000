@@ -8,23 +8,23 @@ Use `{% load cms_tags %}` to enable.
 
 ### Text tags
 
-#### `{% cmsblock label format='html' editable=1 alias=None filters='' %}`
+#### `{% cmsblock label format='plain' editable=1 alias=None filters='' %}`
 
 Basic cms content block. Place as many of these as you need in your template, 
 with unique labels (labels can be repeated if you want the same content in 
 more than one place, ie the window title and page title). Example template code:
     
     {# standard plain-text block #}
-    <h1>{% cmsblock "title" "plain" %}</h1>
+    <h1>{% cmsblock "title" %}</h1>
     
     {# non-editable #}
-    <title>{% cmsblock "title" "plain" editable=0 %} | Example.com</title>
+    <title>{% cmsblock "title" editable=0 %} | Example.com</title>
     
     {# markdown-formatted #}
     {% cmsblock "content" "markdown" %}
     
-    {# format defaults to "html" #}
-    {% cmsblock "content" %}
+    {# html format (uses tinymce editor) #}
+    {% cmsblock "content" "html" %}
     
     {# only show the block and surrounds if it has content or we're in edit mode #}
     {% cmsblock "tagline" "markdown" alias=tagline %}
@@ -34,8 +34,11 @@ more than one place, ie the window title and page title). Example template code:
     </blockquote>
     {% endif %}
     
+    {# utilise django's built in filters #}
+    {% cmsblock "content" filters='linebreaks,urlize' %}
+    
     {# apply the built in "typogrify" filter (requires django-typogrify) #}
-    {% cmsblock "content" filters='typogrify' %}
+    {% cmsblock "content" "html" filters='typogrify' %}
 
 
 #### `{% cmsgenericblock label content_object_variable format='html' editable=1 alias=None filters='' %}`
@@ -66,16 +69,25 @@ a site-wide block. Example
 
 Basic image block - use as with `cmsblock`. By default, will fit an image within
 the constraint, but won't crop. Format can be "html" (generates an <img> tag)
-or "url" (outputs the url to the resized image). Examples:
+or "url" (outputs the url to the resized image). 
+The 'constraint' argument can be of the format 'XxY', 'X', or 'xY' - the latter 
+two are for constraining just width and and just height, respectively.
+Examples:
 
-    {# standard usage #}
+    {# standard usage, fitted within 300x400 box but not cropped #}
     {% cmsimage "portrait" "300x400" %}
+    
+    {# resize to 200px wide, aspect ratio preserved #}
+    {% cmsimage "portrait" '200' %}
+    
+    {# resize to 200px high, aspect ratio preserved #}
+    {% cmsimage "portrait" 'x200' %}
 
     {# Don't resize the uploaded image at all #}
     {% cmsimage "portrait" %}
 
     {# crop to an exact size #}
-    {% cmsimage "banner" "960x120" crop=1 %}
+    {% cmsimage "banner" "960x120" crop='center' %}
     
     {# show i/default.png if no image added, and don't crop #}
     {% cmsimage "portrait" "300x400" defaultimage='i/default.png' %}

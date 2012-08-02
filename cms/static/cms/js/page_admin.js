@@ -4,12 +4,12 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
     $('textarea.cms-html').each(function(i, item) {
         id_list.push(item.id);
     });
-    
-    
+
+
     // filebrowser callback - only used if filebrowser_url is specified
     function djangoFileBrowser(field_name, url, type, win) {
         var url = filebrowser_url + "?pop=2&type=" + type;
-    
+
         tinyMCE.activeEditor.windowManager.open(
             {
                 'file': url,
@@ -28,10 +28,10 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
         );
         return false;
     };
-    
-    
+
+
     if (id_list.length) {
-        
+
         $('#' + id_list.join(', #')).tinymce({
 			setup: function() {
 			    // hack to stop tinymce's silly alert (see paste plugin source code)
@@ -56,7 +56,7 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
             strict_loading_mode: 1,
             file_browser_callback: filebrowser_url ? djangoFileBrowser : null,
             mode: "exact",
-            plugins: "paste",
+            plugins: "paste,inlinepopups",
             heading_clear_tag: "p",
 			theme_advanced_buttons1: buttons,
             theme_advanced_buttons2: "",
@@ -66,13 +66,12 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
         });
     }
 
-    
+
     // hack at the form for usability, if creating a page (not editing)
     if (('' + window.location).match(/\/add\/$/)) {
         $('div.inline-group').hide();
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').remove();
-        $('.form-row.is_live').remove();
     }
     else {
         $('div.inline-group').each(function() {
@@ -81,8 +80,8 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
             }
         });
     }
-    
-    
+
+
     $(function() {
         setTimeout(function() {
             // get rid of django's infernal "Add another ..." link that we don't want when the user is not allowed to add more inlines but the number of inlines varies per object argh

@@ -1,4 +1,4 @@
-var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+    var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
@@ -36,7 +36,7 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 			theme_advanced_buttons3: "",
             theme_advanced_statusbar_location: "bottom",
             theme_advanced_resizing: true,
-			plugins: "paste",
+			plugins: "paste,inlinepopups",
 			relative_urls: false
 		};
 	}
@@ -118,11 +118,11 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
             
             
 			$('#cms-htmlform form').ajaxForm({
-				'success': function(data) {
+				success: function(data) {
 					var raw_content = $.trim(data.raw_content),
 						compiled_content = $.trim(data.compiled_content);
 					$(block).find('input').val(raw_content);
-					$(block).find("span.inner").html(compiled_content || "Click to add text");
+					$(block).find("span.cms-inner").html($.trim(raw_content) ? compiled_content : "Click to add text");
 					
 					if (!compiled_content) {
 						$(block).addClass("placeholder");
@@ -134,12 +134,15 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 					}
 					
 				},
-				'beforeSubmit': function() {
+				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
-					$(block).find("span.inner").html(throbberString);
+					$(block).find("span.cms-inner").html(throbberString);
 					hideForm('html', false);
 				},
-				'dataType': 'json'
+				dataType: 'json',
+				data: {
+				    filters: $(block).attr('filters')
+				}
 			});
 			showForm('html');
 		}
@@ -185,10 +188,10 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 			
 
 			editFormContainer.find('form').ajaxForm({
-				'success': function(data) {
+				success: function(data) {
 				    //console.log(arguments);
 					//return true;
-					$(block).find("span.inner").html($.trim(data.compiled_content) || "Click to add text");
+					$(block).find("span.cms-inner").html($.trim(data.raw_content) ? $.trim(data.compiled_content) : "Click to add text");
 					if (!$.trim(data.compiled_content)) {
 						$(block).addClass("placeholder");
 					}
@@ -200,12 +203,15 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 					    post_edit_callback(block);
 					}
 				},
-				'beforeSubmit': function() {
+				beforeSubmit: function() {
 					$(block).removeClass("placeholder");
-					$(block).find("span.inner").html(throbberString);
+					$(block).find("span.cms-inner").html(throbberString);
 					hideTextForm();
 				},
-				'dataType': 'json'
+				dataType: 'json',
+				data: {
+				    filters: $(block).attr('filters')
+				}
 			});
 			
 			/* manually submit the form if we're killing the click event above due to
@@ -231,18 +237,21 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 
 		$('.cms-form input.cancel').click(function() {
 			hideForm();
-		});	
-	
-		
-		$('.cms-block, .cms-image').each(function() {
-			var constraint;
-			if (constraint = $(this).attr('constraint')) {
-				var bits = constraint.match(/(\d+)x(\d+)/);
-				if (bits) {
-					$(this).width(bits[1]);
-					$(this).height(bits[2]);
-				}
+
+		$('.cms-image').each(function () {
+		    // if there's no image and we're cropping, size the placeholder the same as
+		    // the image so as not to break layouts.
+		    if (!$(this).find('img').length && $(this).attr('constraint')) {
+				var bits = $(this).attr('constraint').split('x');
+                $(this).css({
+                    width: bits[0] ? bits[0] + 'px' : 'auto',
+                    height: bits[1] ? bits[1] + 'px' : 'auto',
+                    lineHeight: bits[2] + 'px',
+                    display: 'inline-block'
+                });
 			}
+		});
+		$('.cms-block, .cms-image').each(function() {
 			$(this).append('<span class="editMarker"></span>');
 		}).mouseover(function() {
 			if (!currently_editing) {

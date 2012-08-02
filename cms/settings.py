@@ -5,9 +5,9 @@ STATICFILES = 'django.contrib.staticfiles' in settings.INSTALLED_APPS
 ROOT_URL = getattr(settings, 'CMS_ROOT_URL', '/cms/')
 
 if STATICFILES:
-	default_static_url = '%scms/' % settings.STATIC_URL
+    default_static_url = '%scms/' % settings.STATIC_URL
 else:
-	default_static_url = '%smedia/' % ROOT_URL
+    default_static_url = '%smedia/' % ROOT_URL
 	
 # This setting should be CMS_STATIC_URL, but check CMS_MEDIA_URL for backwards-compatibility
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', getattr(settings, 'CMS_MEDIA_URL', default_static_url))
@@ -68,5 +68,6 @@ SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 
 LOGIN_URL = getattr(settings, 'CMS_LOGIN_URL', getattr(settings, 'LOGIN_URL', '/accounts/login/'))
+UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
 
 

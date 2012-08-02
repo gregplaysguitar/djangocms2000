@@ -1,29 +1,13 @@
-from models import Page, Block, Image, MenuItem
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django import forms
-from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 
 import settings as cms_settings
+from forms import PageForm, ReadonlyInput
+from models import Page, Block, Image, MenuItem
 
-from django.forms.widgets import HiddenInput
-from django.utils.safestring import mark_safe
-from forms import PageForm
-
-
-class ReadonlyInput(HiddenInput):
-    def __init__(self, attrs=None, model=None):
-        super(ReadonlyInput, self).__init__(attrs)
-        self.model = model
-        
-    def render(self, name, value, attrs=None):
-        if self.model:
-            text_value = self.model.objects.get(pk=value)
-        else:
-            text_value = value
-        return mark_safe("<p>%s</p>%s" % (text_value, super(ReadonlyInput, self).render(name, value, attrs)))
 
 
 
@@ -32,18 +16,15 @@ class BlockForm(forms.ModelForm):
     class Meta:
         model = Block
     def __init__(self, *args, **kwargs):
+        super(BlockForm, self).__init__(*args, **kwargs)
+
         # change the raw_content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
-            if kwargs['instance'].format == 'plain':
-                self.base_fields['raw_content'].widget = admin.widgets.AdminTextInputWidget()
-            else:
-                self.base_fields['raw_content'].widget = admin.widgets.AdminTextareaWidget()
-            self.base_fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
         
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.base_fields['raw_content'].required = required_cb(kwargs['instance'])
-        super(BlockForm, self).__init__(*args, **kwargs)
+            self.fields['raw_content'].required = required_cb(kwargs['instance'])
         
 
 class BlockFormSet(generic.generic_inlineformset_factory(Block)):
@@ -66,10 +47,11 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
     def __init__(self, *args, **kwargs):
+        super(ImageForm, self).__init__(*args, **kwargs)
+
         required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.base_fields['file'].required = required_cb(kwargs['instance'])
-        super(ImageForm, self).__init__(*args, **kwargs)
+            self.fields['file'].required = required_cb(kwargs['instance'])
         
 
 
