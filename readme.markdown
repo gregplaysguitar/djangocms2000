@@ -101,7 +101,7 @@ TODO
 - Bind ESC key to cancel when editing inline
 - Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
 - The test for urlconf-rendered vs middleware-rendered pages fails when the url resolves, but the view returns a 404. Fix this, or perhaps just document? See forms.py, line 62
-
+- New syntax for blocks, with default eg. {% cmsblock "title" %}Default title here{% endcmsblock %}
 
 TODONE
 ======
