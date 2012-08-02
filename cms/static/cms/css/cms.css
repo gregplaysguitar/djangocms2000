@@ -1,0 +1,271 @@
+
+.cms-image,
+.cms-block {
+	cursor: pointer;
+	position: relative;
+	z-index: 1;
+	/*background: #eee;
+	border: 4px solid transparent;
+*/
+}
+.cms-image {
+	z-index: 20;
+}
+
+.cms-image.placeholder,
+.cms-block.placeholder {
+	font-style: italic;
+	opacity: 0.6;
+}
+
+.cms-image.placeholder {
+    text-align: center;
+    background-color: #ddd;
+}
+
+
+
+.cms-block {
+	display: block;
+}
+.cms-block.hovered {
+	background: #D1F0FF;
+}
+
+.cms-block.sitewide.hovered {
+	background: #fff0d1;
+}
+
+.cms-image span.editMarker,
+.cms-block span.editMarker {
+	position: absolute;
+	right: 0px;
+	top: -25px;
+	width: 95px;
+	height: 50px;
+	background: transparent url(../images/edit.png) top left no-repeat;
+	display: none;
+}
+
+.cms-image span.throbber,
+.cms-block span.throbber {
+	position: relative;
+	right: auto;
+	top: auto;
+	width: auto;
+	height: auto;
+	background: none;
+	display: block;
+	font-style: italic;
+	opacity: 0.7;
+}
+
+.cms-overlay {
+	display: none;
+	position: fixed;
+	z-index: 2000;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: transparent url(../images/overlay.png);
+	opacity: 1;
+	
+}
+.cms-overlay .cms-form {
+	margin: 100px auto;
+	width: 760px;
+}
+.cms-overlay .cms-form .wrap {
+    background: #fff;
+    margin: 0;
+    padding: 20px;
+    -webkit-box-shadow: black 0 2px 4px;
+    -moz-box-shadow: black 0 2px 4px;
+    box-shadow: black 0 2px 4px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    position: relative;
+
+}
+.cms-overlay .cms-form .wrap p {
+    margin-bottom: 20px;
+    font-style: italic;
+    color: #aaa;
+    font-size: 0.9em;
+    padding: 5px;
+    
+}
+.cms-overlay .cms-form .wrap label {
+    float: left;
+    width: 80px;
+    margin-right: 10px;
+    display: inline;
+    font-style: normal;
+    color: #222;
+    font-size: 1.11em;
+    position: relative;
+}
+.cms-overlay .cms-form .wrap input {
+    display: inline;
+}
+.cms-overlay .cms-form .wrap .haserrors {
+    background: #ffe;
+    border: 1px solid #fdd;
+}
+.cms-overlay .cms-form .wrap .error {
+    margin-bottom: 10px;
+    color: red;
+    font-size: 1.11em;
+    font-style: normal;
+    display: block;
+}
+
+.cms-overlay .cms-form .wrap .message {
+    position: absolute;
+    font-size: 3em;
+    font-style: italic;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    color: #888;
+    top: 0;
+    left: 0;
+    line-height: 100px;
+}
+
+
+.cms-overlay .cms-form h2 {
+	color: #fff;
+	font-size: 30px;
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 0;
+	margin: 0;
+    -webkit-text-shadow: black 0 2px 4px;
+    -moz-text-shadow: black 0 2px 4px;
+    text-shadow: black 0 2px 4px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 6px;
+}
+.cms-overlay .cms-form input.cancel,
+.cms-overlay .cms-form input.save {
+	background: transparent url(../images/save.png) top left no-repeat;
+	width: 99px;
+	height: 47px;
+	text-indent: -5000px;
+	border: none;
+	padding: 0;
+	margin: 10px 0;
+	float: right;
+    font-size: 12px;
+}
+.cms-overlay .cms-form input.cancel {
+	background-image: url(../images/cancel.png);
+}
+
+.cms-form input.save:focus,
+.cms-form input.cancel:focus {
+    text-decoration: underline;
+}
+
+#cms-imageform .wrap input,
+#cms-imageform .wrap label {
+    float: none;
+    display: block;
+}
+
+
+#cms-htmlform #id_raw_content {
+	/* see tinymce init for size of editor */
+	
+}
+
+#cms-imageform .form,
+#cms-imageform .current {
+	margin-top: 20px;
+	float: left;
+	width: 49%;
+}
+#cms-imageform .current img {
+	max-height: 150px;
+	max-width: 300px;
+}
+
+#cms-textform {
+	position: relative;
+	display: none;
+	z-index: 200;
+}
+#cms-textform #id_raw_content {
+	width: 100%;
+	height: 30px;
+	font-weight: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+	color: inherit;
+	background: none;
+}
+#cms-textform input.save,
+#cms-textform input.cancel {
+	position: absolute;
+	bottom: -1em;
+	right: 0;
+	font-size: 12px;
+	width: auto;
+}
+#cms-textform input.cancel {
+	right: 50px;
+}
+
+
+
+#cms-menu {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: transparent url(../images/overlay.png);
+	color: #fff;
+	padding: 5px 0;
+	text-align: left;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	z-index: 200;
+}
+#cms-menu > div {
+	/*width: 960px;*/
+	margin: 0 10px;
+}
+#cms-menu > div span.status {
+	float: right;
+}
+#cms-menu a {
+	color: #aaa;
+}
+#cms-menu input {
+	width: auto;
+}
+#cms-menu a {
+    cursor: pointer;
+    margin: 0 5px;
+    text-decoration: none;
+}
+#cms-menu a:hover {
+    color: #ccc;
+}
+
+
+
+#getarealbrowser {
+	display: none;
+	z-index: 200;
+}
+
+
+.clear { clear: both; }
