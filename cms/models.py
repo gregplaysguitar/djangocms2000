@@ -222,6 +222,7 @@ class Page(_CMSAbstractBaseModel):
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     sort_order = models.PositiveIntegerField(default=0)
     authorisation = models.CharField(choices=AUTHORISATION_CHOICES, max_length=10)
+    groups = models.ManyToManyField('auth.Group', blank=True, help_text=u'Restrict access to the selected groups and superusers. Overrides authorisation setting.')
     
     objects = PageManager()
     live = LivePageManager()

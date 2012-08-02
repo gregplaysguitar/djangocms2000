@@ -7,7 +7,9 @@ def is_editing(request):
 
 
 def page_is_authorised(request, page):
-    if page.authorisation == 'staff':
+    if page.groups.count():
+        return request.user.is_superuser or bool(page.groups.filter(id__in=[g.id for g in request.user.groups.all()]).count())  
+    elif page.authorisation == 'staff':
         return request.user.is_staff
     elif page.authorisation == 'active':
         return request.user.is_authenticated()
