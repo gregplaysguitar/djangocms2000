@@ -237,6 +237,7 @@
 
 		$('.cms-form input.cancel').click(function() {
 			hideForm();
+		});
 
 		$('.cms-image').each(function () {
 		    // if there's no image and we're cropping, size the placeholder the same as
