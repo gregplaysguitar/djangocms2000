@@ -179,11 +179,6 @@ which is (by default) served by django's built in static view. For better perfor
 and symlink to the directory from within your `MEDIA_ROOT`
 
 
-#### `CMS_EDIT_IN_PLACE`
-
-Turns the edit-in-place function on and off – default is `True`.
-
-
 #### `CMS_CUSTOM_STYLESHEET`
 
 Location of custom styles for the editor, if needed. Defaults to `None`.

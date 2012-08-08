@@ -1,10 +1,5 @@
 import os
 
-try:
-    import sorl
-except ImportError:
-    sorl = None
-
 from django import template
 from django.contrib.auth.forms import AuthenticationForm
 from django import template
@@ -15,7 +10,7 @@ from django.template import RequestContext
 from django.utils.safestring import mark_safe
 
 from cms.utils import is_editing
-from cms.models import Block, Page, Image, MenuItem, get_child_pages
+from cms.models import Block, Page, Image, get_child_pages
 from cms.forms import BlockForm, ImageForm, PublicPageForm
 from cms import settings as cms_settings
 from cms.decorators import easy_tag
@@ -77,7 +72,7 @@ class CMSBlockNode(template.Node):
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
                        
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and is_editing(context['request']):
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -117,19 +112,6 @@ def cmssiteblock(_tag, label, format="plain", editable=True, _as='', alias=None,
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
     return CMSBlockNode(label, format, editable, content_object, alias, filters)
-
-
-
-
-
-
-
-try:
-    from django.template.defaulttags import csrf_token
-except ImportError:
-    @register.tag
-    def csrf_token(parser, token):
-        return template.Node()
 
 
 
@@ -211,26 +193,13 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and is_editing(context['request']):
             data['editable'] = True
         
-        
-        
-
-
-        if hasattr(sorl, "NullHandler"):
-            # assume up-to-date sorl
-            if format == 'url':
-                returnval = template.loader.render_to_string("cms/cms/image_url.html", data)
-            else:
-                returnval = template.loader.render_to_string("cms/cms/image.html", data)
+        if format == 'url':
+            returnval = template.loader.render_to_string("cms/cms/image_url.html", data)
         else:
-            # assume older sorl syntax
-            if format == 'url':
-                returnval = template.loader.render_to_string("cms/cms/image_url_oldsorl.html", data)
-            else:
-                returnval = template.loader.render_to_string("cms/cms/image_oldsorl.html", data)
-        
+            returnval = template.loader.render_to_string("cms/cms/image.html", data)
         
         if self.alias:
             if returnval.strip():
@@ -266,67 +235,42 @@ def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, edit
     return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
+@register.simple_tag(takes_context=True)
+def cmseditor(context):
+    if context['request'].user.has_module_perms("cms"):
+        if is_editing(context['request']):
+            try:
+                page = Page.objects.get(url=context['request'].path_info)
+            except Page.DoesNotExist:
+                page = False
 
-
-class CMSEditorNode(template.Node):
-        
-    def render(self, context):
-        if cms_settings.EDIT_IN_PLACE:
-            if context['request'].user.has_module_perms("cms"):
-                if is_editing(context['request']):
-                    try:
-                        page = Page.objects.get(url=context['request'].path_info)
-                    except Page.DoesNotExist:
-                        page = False
-
-                    return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
-                        'page': page,
-                        'cms_settings': cms_settings,
-                        'editor_form': BlockForm(),
-                        'html_editor_form': BlockForm(prefix="html"),
-                        'image_form': ImageForm(),
-                        'page_form': page and PublicPageForm(instance=page) or None,
-                        'new_page_form': PublicPageForm(prefix='new'),
-                    }))
-                else:
-                    return template.loader.render_to_string("cms/cms/logged_in.html", RequestContext(context['request'], {
-                        'cms_settings': cms_settings,
-                    }))
-            elif 'edit' in context['request'].GET:
-                return template.loader.render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
-                    'login_form': AuthenticationForm(),
-                    'cms_settings': cms_settings,
-                }))
-            elif 'cms-has_edited_before' in context['request'].COOKIES:
-                return "" #template.loader.render_to_string("cms/cms/persistent_link.html")
-            else:
-                return ""
+            return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
+                'page': page,
+                'cms_settings': cms_settings,
+                'editor_form': BlockForm(),
+                'html_editor_form': BlockForm(prefix="html"),
+                'image_form': ImageForm(),
+                'page_form': page and PublicPageForm(instance=page) or None,
+                'new_page_form': PublicPageForm(prefix='new'),
+            }))
         else:
-            return ''
-
-@register.tag
-@easy_tag
-def cmseditor(_tag):
-    return CMSEditorNode()
-
-
-
-
-
-
-
-class CMSEditingNode(template.Node):
-    def __init__(self, varname):
-        self.varname = varname
-
-    def render(self, context):
-        context[self.varname] = is_editing(context['request'])
+            return template.loader.render_to_string("cms/cms/logged_in.html", RequestContext(context['request'], {
+                'cms_settings': cms_settings,
+            }))
+    elif 'edit' in context['request'].GET:
+        return template.loader.render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
+            'login_form': AuthenticationForm(),
+            'cms_settings': cms_settings,
+        }))
+    elif 'cms-has_edited_before' in context['request'].COOKIES:
+        return "" #template.loader.render_to_string("cms/cms/persistent_link.html")
+    else:
         return ''
 
-@register.tag
-@easy_tag
-def cmsediting(_tag, _as, varname):
-    return CMSEditingNode(varname)
+
+@register.assignment_tag(takes_context=True)
+def cmsediting(context):
+    return is_editing(context['request'])
 
 
 

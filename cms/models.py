@@ -16,7 +16,6 @@ from django.test.client import Client
 from django.template import defaultfilters
 
 import settings as cms_settings
-from decorators import cached
 
 
 try:
@@ -114,16 +113,13 @@ class Image(models.Model):
         return self.label
  
  
-    # these can be expensive for large images so cache 'em
+    # TODO these can be expensive for large images so should be cached
+    # sorl should handle it though, need to hook into it somehow
     def dimensions(self):
-        key = '-'.join((cms_settings.CACHE_PREFIX, 'image_dimensions', self.file.url))
-        @cached(key, 3600)
-        def _work():
-            return {
-                'width': self.file.width,
-                'height': self.file.height,
-            }
-        return _work()
+        return {
+            'width': self.file.width,
+            'height': self.file.height,
+        }
     
     class Meta:
        unique_together = ('content_type', 'object_id', 'label')

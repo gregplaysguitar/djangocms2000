@@ -12,8 +12,6 @@ else:
 # This setting should be CMS_STATIC_URL, but check CMS_MEDIA_URL for backwards-compatibility
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', getattr(settings, 'CMS_MEDIA_URL', default_static_url))
 
-EDIT_IN_PLACE = getattr(settings, 'CMS_EDIT_IN_PLACE', True)
-
 CUSTOM_STYLESHEET = getattr(settings, 'CMS_CUSTOM_STYLESHEET', None)
 
 HIGHLIGHT_START_COLOR = getattr(settings, 'CMS_HIGHLIGHT_START_COLOR', "#ff0")
