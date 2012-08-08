@@ -118,7 +118,7 @@ Returns a list of links representing the "crumbtrail" - example template code:
     {% cmsgetcrumbtrail as crumbtrail %}
     <a href="/">Home</a>
     {% for link in crumbtrail %}
-    > <a href="{{ link.uri }}">{% firstof link.page.page_title link.name %}</a>
+    > <a href="{{ link.uri }}">{% firstof link.name link.page.get_title %}</a>
     {% endfor %}
 
 
@@ -142,20 +142,6 @@ produces something like
 Generates sitemap as a nested html list, starting with base_uri as the root
 (relies on a sane url scheme to work).
 
-
-#### `{% get_page_menu as varname)`
-
-Returns a list of MenuItem objects for constructing a navigation menu. Example
-
-    <ul>
-        {% get_page_menu as menu_item_list %}
-        {% for item in menu_item_list %}
-        <li>
-            <a href="{{ item.page.uri }}">{{ item }}</a>
-        </li>
-        {% endfor %}
-    </ul>
-    
     
 ## Settings
 

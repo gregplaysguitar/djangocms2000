@@ -1,278 +1,79 @@
-import os
+# -*- coding: utf-8 -*-
 
 from django import template
-from django.contrib.auth.forms import AuthenticationForm
-from django import template
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
-from django.template import RequestContext
-from django.utils.safestring import mark_safe
+from django.conf import settings
 
+from cms.models import Block, Page
 from cms.utils import is_editing
-from cms.models import Block, Page, Image, get_child_pages
-from cms.forms import BlockForm, ImageForm, PublicPageForm
-from cms import settings as cms_settings
-from cms.decorators import easy_tag
-
+from base import BaseNode
 
 register = template.Library()
 
 
-class CMSBlockNode(template.Node):
-    def __init__(self, label, format, editable, content_object=None, alias=None, filters=None):
-        self.label = label
-        self.format = format
-        self.editable = editable
-        self.content_object = content_object
-        self.alias = alias
-        self.filters = filters
-        
-    def render(self, context):
-        
-        if isinstance(self.content_object, unicode):
-            content_object = template.Variable(self.content_object).resolve(context)
-        else:
-            content_object = self.content_object
-        
-        # note the `label = kwargs['parser'].compile_filter(label)` below
-        label = self.label.resolve(context)
-
-        if isinstance(self.format, str):
-            format = self.format
-        else:
-            format = template.Variable(self.format).resolve(context)
-        
-        if self.editable == True:
-            editable = True
-        else:
-            editable = template.Variable(self.editable).resolve(context)
-        
-        
-        if not content_object:
-            content_object = Page.objects.get_for_url(context['request'].path_info)
-                
-        block, created = Block.objects.get_or_create(
-            label=label,
-            content_type=ContentType.objects.get_for_model(content_object),
-            object_id=content_object.id
-        )
-        if created:
-            block.format = format
-            block.save()
-        
-        
-        if self.filters:
-            filters = template.Variable(self.filters).resolve(context).split(',')
-        else:
-            filters = []
-            
-        filtered_content = block.get_filtered_content(filters)
-        
-        if block.format != 'plain':
-            filtered_content = mark_safe(filtered_content)
-                       
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and is_editing(context['request']):
-            returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
-                'format': format,
-                'filters': ','.join(filters),
-                'label': label,
-                'request': context['request'],
-                'sitewide': isinstance(content_object, Site),
-                'filtered_content': filtered_content,
-                'block': block
-            }))
-        else:
-            returnval = filtered_content
-
-
-        if self.alias:
-            context[self.alias] = returnval
-            return ""
-        else:
-            return returnval
+class BaseBlockNode(BaseNode):
+    '''Abstract node providing generic functionality for blocks;
+       subclasses must define `get_block`.'''
     
+    required_params = ('label',)
+    default_template = template.Template('{{ obj.content }}')
+        
+    def is_empty(self, obj):
+        return not obj.content.strip()
     
-@register.tag
-@easy_tag
-def cmsblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, None, alias, filters)
-
-
-@register.tag
-@easy_tag
-def cmsgenericblock(_tag, label, content_object_variable, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    return CMSBlockNode(label, format, editable, content_object_variable, alias, filters)
-
-@register.tag
-@easy_tag
-def cmssiteblock(_tag, label, format="plain", editable=True, _as='', alias=None, filters=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSBlockNode(label, format, editable, content_object, alias, filters)
-
-
-
-
-class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='', colorspace='', alias=None):
-        self.label = label
-        self.content_object = content_object
-        self.constraint = constraint
-        self.defaultimage = defaultimage
-        self.crop = crop
-        self.editable = editable
-        self.format = format
-        self.colorspace = colorspace
-        self.alias = alias
-
+    def get_block(self, context, options):
+        raise NotImplementedError()
+    
     def render(self, context):
-        #return "dsfds"
-        if isinstance(self.content_object, unicode):
-            content_object = template.Variable(self.content_object).resolve(context)
+        options = self.get_options(context)
+        editing = options.get('editable', True) and is_editing(context['request'])
+        
+        if editing:
+            block = self.get_block(context, options)
+            return template.loader.render_to_string("cms/cms/block.html", {
+                'block': block,
+                'rendered_content': self.get_rendered_content(block, context),
+            })
         else:
-            content_object = self.content_object
-        
-        if self.editable == True:
-            editable = True
-        else:
-            editable = template.Variable(self.editable).resolve(context)
-        
-        if self.constraint:
-            constraint = template.Variable(self.constraint).resolve(context)
-        else:
-            constraint = None
-        
-        if self.defaultimage:
-            defaultimage = template.Variable(self.defaultimage).resolve(context)
-        else:
-            defaultimage = False
-        
-        if self.format:
-            format = template.Variable(self.format).resolve(context)
-        else:
-            format = 'html'
-        
-        if self.colorspace:
-            colorspace = template.Variable(self.colorspace).resolve(context)
-        else:
-            colorspace = ''
-        
-        label = self.label.resolve(context)
-        
-        
-        if not content_object:
-            content_object = Page.objects.get_for_url(context['request'].path_info)
-            
+            # TODO cache here
+            return self.get_rendered_content(self.get_block(context, options), context)
 
-        image, created = Image.objects.get_or_create(
-            label=label,
-            content_type=ContentType.objects.get_for_model(content_object),
-            object_id=content_object.id
-        )
-        #print image.file
-        try:
-            crop = template.Variable(self.crop).resolve(context)
-        except:
-            crop = self.crop
-        
-        if crop == 'crop':
-            crop = 'center'
-        
-        data = {
-            'label': label,
-            'request': context.get('request', None),
-            'image': image,
-            'constraint': constraint,
-            'crop': crop,
-            'colorspace': colorspace,
-            'defaultimage': defaultimage,
-            'sitewide': isinstance(content_object, Site),
-            'content_object': content_object,
-        }
-        #print self.editable
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and is_editing(context['request']):
-            data['editable'] = True
-        
-        if format == 'url':
-            returnval = template.loader.render_to_string("cms/cms/image_url.html", data)
-        else:
-            returnval = template.loader.render_to_string("cms/cms/image.html", data)
-        
-        if self.alias:
-            if returnval.strip():
-                context[self.alias] = mark_safe(returnval)
-            else:
-                context[self.alias] = ''
-            return ""
-        else:
-            return returnval
 
+class BlockNode(BaseBlockNode):
+    '''Works with blocks related to a Page, which is determined from the request.'''
+    
+    def get_block(self, context, options):
+        page = Page.objects.get_for_url(context['request'].path_info)
+        ctype = ContentType.objects.get_for_model(page)
+        return Block.objects.get_or_create(label=options['label'], content_type=ctype, object_id=page.id)[0]
+ 
+@register.tag
+def cmsblock(parser, token):
+    return BlockNode(parser, token)
+
+
+class SiteBlockNode(BlockNode):
+    '''Works with blocks related to a Site, which is determined via django settings.'''
+    
+    def get_block(self, context, options):
+        ctype = ContentType.objects.get(app_label='sites', model='site')
+        return Block.objects.get_or_create(label=options['label'], content_type=ctype, object_id=settings.SITE_ID)[0]
 
 @register.tag
-@easy_tag
-def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, colorspace, alias)
+def cmssiteblock(parser, token):
+    return SiteBlockNode(parser, token)
 
 
+class GenericBlockNode(BlockNode):
+    '''Works with blocks related to any model object, which should be passed in after 'label'.'''
 
-@register.tag
-@easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, colorspace, alias)
-
-
+    required_params = ('label', 'object')
+    def get_block(self, context, options):
+        ctype = ContentType.objects.get_for_model(options['object'])
+        return Block.objects.get_or_create(label=options['label'], content_type=ctype, object_id=options['object'].id)[0]
 
 @register.tag
-@easy_tag
-def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
-    label = kwargs['parser'].compile_filter(label)
-    content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, colorspace, alias)
-
-
-@register.simple_tag(takes_context=True)
-def cmseditor(context):
-    if context['request'].user.has_module_perms("cms"):
-        if is_editing(context['request']):
-            try:
-                page = Page.objects.get(url=context['request'].path_info)
-            except Page.DoesNotExist:
-                page = False
-
-            return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
-                'page': page,
-                'cms_settings': cms_settings,
-                'editor_form': BlockForm(),
-                'html_editor_form': BlockForm(prefix="html"),
-                'image_form': ImageForm(),
-                'page_form': page and PublicPageForm(instance=page) or None,
-                'new_page_form': PublicPageForm(prefix='new'),
-            }))
-        else:
-            return template.loader.render_to_string("cms/cms/logged_in.html", RequestContext(context['request'], {
-                'cms_settings': cms_settings,
-            }))
-    elif 'edit' in context['request'].GET:
-        return template.loader.render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
-            'login_form': AuthenticationForm(),
-            'cms_settings': cms_settings,
-        }))
-    elif 'cms-has_edited_before' in context['request'].COOKIES:
-        return "" #template.loader.render_to_string("cms/cms/persistent_link.html")
-    else:
-        return ''
-
-
-@register.assignment_tag(takes_context=True)
-def cmsediting(context):
-    return is_editing(context['request'])
-
-
-
+def cmsgenericblock(parser, token):
+    return GenericBlockNode(parser, token)
 
 

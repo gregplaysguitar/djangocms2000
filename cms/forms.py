@@ -28,7 +28,7 @@ class BlockForm(forms.Form):
 	block_id = forms.CharField(widget=forms.HiddenInput)
 	format = forms.CharField(widget=forms.HiddenInput)
 	
-	raw_content = forms.CharField(widget=forms.Textarea)
+	content = forms.CharField(widget=forms.Textarea)
 
 
 class ImageForm(forms.Form):

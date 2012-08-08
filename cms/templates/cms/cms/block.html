@@ -1,8 +1,8 @@
 
-<span class='cms-block {{ format }} {% if not block.compiled_content %}placeholder{% endif %} {% if content_object.app_label == 'sites' and content_object.module_name == 'site' %}sitewide{% endif %}' label='{{ label }}' block_id='{{ block.id }}' format="{{ format }}" filters="{{ filters }}">
-	<input type="hidden" name="raw_content" value="{{ block.raw_content }}">
+<span class='cms-block {{ block.format }} {% if not block.content %}placeholder{% endif %}' label='{{ block.label }}' block_id='{{ block.id }}' format="{{ block.format }}">
+	<input type="hidden" name="content" value="{{ block.content }}">
 	
 	<span class="cms-inner">
-{% if block.raw_content %}{{ filtered_content|safe }}{% else %}Click to add text{% endif %}
+        {% firstof rendered_content 'Click to add text' %}
 	</span>
 </span>

@@ -1,12 +1,13 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-from django import forms
-from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.utils.html import strip_tags
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
-from models import Page, Block, Image, MenuItem
+from models import Page, Block, Image
 
 
 
@@ -18,13 +19,13 @@ class BlockForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BlockForm, self).__init__(*args, **kwargs)
 
-        # change the raw_content widget based on the format of the block - a bit hacky but best we can do
+        # change the content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
-            self.fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.fields['content'].widget.attrs['class'] = "%s cms cms-%s" % (self.fields['content'].widget.attrs['class'], kwargs['instance'].format)
         
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.fields['raw_content'].required = required_cb(kwargs['instance'])
+            self.fields['content'].required = required_cb(kwargs['instance'])
         
 
 class BlockFormSet(generic.generic_inlineformset_factory(Block)):
@@ -37,7 +38,7 @@ class BlockInline(generic.GenericTabularInline):
     model = Block
     extra = 0
     formset = BlockFormSet
-    fields = ('raw_content',)
+    fields = ('content',)
     form = BlockForm
 
 
@@ -65,6 +66,16 @@ class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
     list_display=['get_title',]
     save_on_top = True
+    
+    def get_title(self, obj):
+        try:
+            return strip_tags(obj.blocks.get(label="title").content)
+        except Block.DoesNotExist:
+            try:
+                return strip_tags(obj.blocks.get(label="name").content)
+            except Block.DoesNotExist:
+                return obj.url
+                
     class Media:
         js = cms_settings.ADMIN_JS
         css = cms_settings.ADMIN_CSS
@@ -73,8 +84,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
 
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['page_title', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
-    list_display_links=['page_title', 'url', ]
+    list_display=['get_title', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
+    list_display_links=['get_title', 'url', ]
 
     list_filter=['site', 'template', 'is_live', 'creation_date',]
     
@@ -84,7 +95,7 @@ class PageAdmin(CMSBaseAdmin):
     view_on_site.short_description = ' '
     
     
-    search_fields = ['url', 'blocks__compiled_content', 'template',]
+    search_fields = ['url', 'blocks__content', 'template',]
     form = PageForm
     exclude = []
     
@@ -93,11 +104,6 @@ if not cms_settings.USE_SITES_FRAMEWORK:
     PageAdmin.exclude.append('site')
         
 admin.site.register(Page, PageAdmin)
-
-
-admin.site.register(MenuItem, list_display=['__unicode__','page','sort'])
-
-
 
 
 
@@ -110,16 +116,23 @@ class BlockFormSite(BlockForm):
 
 class BlockAdmin(admin.ModelAdmin):
     def queryset(self, request):
-        if False and request.user.is_superuser:
-            return Block.objects.all()
-        else:
-            return Block.objects.filter(content_type=ContentType.objects.get_for_model(Site))
+        '''TODO: this is a bit hacky, and might cause confusion - perhaps revisit?'''
+        return Block.objects.filter(content_type=ContentType.objects.get_for_model(Site))
 
     form = BlockFormSite
-    fields = ['label', 'raw_content',]
-    list_display = ['label_display', 'format', 'content_display',]
+    fields = ['label', 'content',]
+    list_display = ['label_display', 'format', 'content_snippet',]
     search_fields = ['label', ]
-
+    
+    def label_display(self, obj):
+        return obj.label.replace('-', ' ').replace('_', ' ').capitalize()
+    label_display.short_description = 'label'
+    label_display.admin_order_field = 'label'
+    
+    def content_snippet(self):
+        return truncate_words(strip_tags(self.content), 10)
+    
+    
     class Media:
         js = cms_settings.ADMIN_JS
         css = cms_settings.ADMIN_CSS

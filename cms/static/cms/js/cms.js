@@ -19,7 +19,7 @@
 			    tinyMCE.get(id).execCommand('mcePasteText', true);
 			},
             paste_auto_cleanup_on_paste: true,
-			//"elements: "id_raw_content",
+			//"elements: "id_content",
 			language: "en",
 			directionality: "ltr",
 			theme: "advanced",
@@ -111,16 +111,17 @@
 			showForm('image');
 		}
 		else if ($(block).attr('format') === 'html') {
-			$('#cms-htmlform #id_html-raw_content').val(raw_content).html(raw_content);
-			tinyMCE.get("id_html-raw_content").setContent(raw_content);
+			$('#cms-htmlform #id_html-content').val(raw_content).html(raw_content);
+			tinyMCE.get("id_html-content").setContent(raw_content);
 			$('#cms-htmlform #id_html-block_id').val($(block).attr('block_id'));
 			$('#cms-htmlform #id_html-format').val($(block).attr('format'));
             
             
 			$('#cms-htmlform form').ajaxForm({
 				success: function(data) {
-					var raw_content = $.trim(data.raw_content),
-						compiled_content = $.trim(data.compiled_content);
+					var raw_content = $.trim(data.content),
+					    // TODO somehow get the compiled content here...
+						compiled_content = $.trim(data.content);
 					$(block).find('input').val(raw_content);
 					$(block).find("span.cms-inner").html($.trim(raw_content) ? compiled_content : "Click to add text");
 					
@@ -163,7 +164,7 @@
             });
 		    
 		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
-			$('#cms-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
+			$('#cms-textform #id_content').val(raw_content).html(raw_content_escaped);
 			$('#cms-textform #id_block_id').val($(block).attr('block_id'));
 			$('#cms-textform #id_format').val($(block).attr('format'));
 			
@@ -191,14 +192,14 @@
 				success: function(data) {
 				    //console.log(arguments);
 					//return true;
-					$(block).find("span.cms-inner").html($.trim(data.raw_content) ? $.trim(data.compiled_content) : "Click to add text");
-					if (!$.trim(data.compiled_content)) {
+					$(block).find("span.cms-inner").html($.trim(data.content) || "Click to add text");
+					if (!$.trim(data.content)) {
 						$(block).addClass("placeholder");
 					}
 					highlightBlock(block);
 					currently_editing = false;
 					$(post_edit_callbacks).each(function(i, fn) { fn(); });
-					$(block).find('input').val($.trim(data.raw_content));
+					$(block).find('input').val($.trim(data.content));
 					if (typeof post_edit_callback === 'function') {
 					    post_edit_callback(block);
 					}
@@ -233,7 +234,7 @@
 	
 	$(function() {
 	
-		$('#id_html-raw_content').tinymce(tinymce_init_object);
+		$('#id_html-content').tinymce(tinymce_init_object);
 
 		$('.cms-form input.cancel').click(function() {
 			hideForm();

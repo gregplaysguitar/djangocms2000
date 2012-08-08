@@ -8,7 +8,7 @@ from django.contrib.contenttypes import generic
 from django.template.loader import get_template
 from django import template
 from django.utils.encoding import force_unicode
-from django.utils.html import escape, strip_tags
+from django.utils.html import strip_tags
 from django.utils.text import truncate_words
 from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
@@ -18,17 +18,6 @@ from django.template import defaultfilters
 import settings as cms_settings
 
 
-try:
-    from audit import AuditTrail
-except ImportError:
-    class AuditTrail(object):
-        def __init__(*args, **kwargs):
-            pass
-
-"""
-from django.db.models.signals import post_init
-from django.utils.functional import curry
-"""
 
 BLOCK_TYPE_CHOICES = (
     ('plain', 'Plain text'),
@@ -40,34 +29,16 @@ class Block(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
-    
-    #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
     format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='', blank=False)
-    raw_content = models.TextField("Content", blank=True, )
-    compiled_content = models.TextField(blank=True, editable=False)
-    
-
-    history = AuditTrail(show_in_admin=False)
-    
-    def label_display(self):
-        return self.label.replace('-', ' ').replace('_', ' ').capitalize()
-    label_display.short_description = 'label'
-    label_display.admin_order_field = 'label'
-    
-    def content_display(self):
-        return truncate_words(strip_tags(self.compiled_content), 10)
+    content = models.TextField(blank=True, default='')
     
     def __unicode__(self):
         return self.label
         #return "'%s' on %s" % (self.label, self.page.url)
     
-    def save(self, *args, **kwargs):
-        self.compiled_content = self.raw_content
-        super(Block, self).save(*args, **kwargs)    
-    
     def get_filtered_content(self, filters=None):
-        content = self.compiled_content
+        content = self.content
         non_default_filters = []
         if filters:
             for f in filters:
@@ -98,8 +69,6 @@ class Image(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
-
-    history = AuditTrail(show_in_admin=False)
 
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').title()
@@ -164,14 +133,7 @@ class _CMSAbstractBaseModel(models.Model):
     blocks = generic.GenericRelation(Block)
     images = generic.GenericRelation(Image)
         
-    def get_title(self):
-        try:
-            return strip_tags(self.blocks.get(label="title").compiled_content)
-        except Block.DoesNotExist:
-            try:
-                return strip_tags(self.blocks.get(label="name").compiled_content)
-            except Block.DoesNotExist:
-                return self.url
+    
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
@@ -209,8 +171,6 @@ class Page(_CMSAbstractBaseModel):
     class Meta:
         ordering = ('url',)
     
-    history = AuditTrail(show_in_admin=False)
-    
     def get_children(self, qs=None):
         return get_child_pages(self.url, qs)
 
@@ -220,9 +180,6 @@ class Page(_CMSAbstractBaseModel):
     def get_absolute_url(self):
         return self.url
 
-    def page_title(self):
-        return self.get_title()
-
 
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
@@ -230,48 +187,17 @@ def page_pre(sender, **kwargs):
 pre_save.connect(page_pre, sender=Page)
 
 
-
-class MenuItem(models.Model):
-    page = models.OneToOneField(Page)
-    text = models.CharField(max_length=255, blank=True, default="", help_text="If left blank, will use page title")
-    title = models.CharField(max_length=255, blank=True, default="")
-    sort = models.IntegerField(blank=True, default=0)
-    
-    class Meta:
-        ordering = ('sort','id',)
-    
-    def get_text(self):
-        return self.text or self.page.page_title()
-    
-    def __unicode__(self):
-        return self.get_text()
-    
-
-
-
-
-
-
 """
 Abstract model for other apps that want to have related Blocks and Images
 """
 class CMSBaseModel(_CMSAbstractBaseModel):
 
-    
     BLOCK_LABELS = [] # list of tuples of the form ('name', 'format',), but will fall back if it's just a list of strings
     IMAGE_LABELS = [] # list of strings
     
-    
-    def __unicode__(self):
-        return self.get_title()
-    
-    def _block_LABEL(self, label):
-        return self.blocks.get(label=label).compiled_content
-    
-    
-    
     class Meta:
         abstract = True
+
 
 # add extra blocks on save (dummy rendering happens too since CMSBaseModel extends _CMSAbstractBaseModel)
 def add_blocks(sender, **kwargs):
@@ -296,21 +222,4 @@ def add_blocks(sender, **kwargs):
                 object_id=kwargs['instance'].id
             )
 post_save.connect(add_blocks)
-
-
-"""
-Possible todo: If the base model has a field named _block_LABEL, 
-save the block's value there as well via post_save?
-"""
-
-
-# Set up the accessor method for block content
-def add_methods(sender, **kwargs):
-    if issubclass(sender, CMSBaseModel):
-        for label_tuple in sender.BLOCK_LABELS:
-            setattr(sender, 'block_%s' % label_tuple[0],
-                curry(sender._block_LABEL, label=label_tuple[0]))
-
-# connect the add_accessor_methods function to the post_init signal
-class_prepared.connect(add_methods)
 
