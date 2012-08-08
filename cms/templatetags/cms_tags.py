@@ -17,7 +17,7 @@ class BaseBlockNode(BaseNode):
     
     required_params = ('label',)
     default_template = template.Template('{{ obj.content }}')
-        
+    
     def is_empty(self, obj):
         return not obj.content.strip()
     
@@ -30,6 +30,13 @@ class BaseBlockNode(BaseNode):
         
         if editing:
             block = self.get_block(context, options)
+                
+            # This step naively assumes that the same block is not defined somewhere
+            # else with a different format.  
+            if options.get('format', None) and block.format != options['format']:
+                block.format = options['format']
+                block.save()
+                
             return template.loader.render_to_string("cms/cms/block.html", {
                 'block': block,
                 'rendered_content': self.get_rendered_content(block, context),
