@@ -24,10 +24,6 @@ from cms.decorators import easy_tag
 register = template.Library()
 
 
-def resolve_bool(var, context):
-    return var in [True, 'True'] or (var not in ['False', '0', 0] and template.Variable(var).resolve(context))
-
-
 class CMSBlockNode(template.Node):
     def __init__(self, label, format, editable, content_object=None, alias=None, filters=None):
         self.label = label
@@ -52,7 +48,10 @@ class CMSBlockNode(template.Node):
         else:
             format = template.Variable(self.format).resolve(context)
         
-        editable = resolve_bool(self.editable, context)
+        if self.editable == True:
+            editable = True
+        else:
+            editable = template.Variable(self.editable).resolve(context)
         
         
         if not content_object:
@@ -154,7 +153,10 @@ class CMSImageNode(template.Node):
         else:
             content_object = self.content_object
         
-        editable = resolve_bool(self.editable, context)
+        if self.editable == True:
+            editable = True
+        else:
+            editable = template.Variable(self.editable).resolve(context)
         
         if self.constraint:
             constraint = template.Variable(self.constraint).resolve(context)
@@ -266,166 +268,7 @@ def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, edit
 
 
 
-
-
-# gets a list of menu items from models.MenuItem
-class CmsPageMenuNode(template.Node):
-    def __init__(self, varname):
-        self.varname = varname
-        
-    def render(self, context):
-        #print MenuItem.objects.all()
-        context[self.varname] = MenuItem.objects.all()
-        if not context['request'].user.has_module_perms("cms"):
-            context[self.varname] = context[self.varname].filter(page__is_live=True)
-        return ''
-
-@register.tag
-@easy_tag
-def get_page_menu(_tag, _as, varname):
-    return CmsPageMenuNode(varname)
-
-
-
-
-# gets a page
-class CmsPageNode(template.Node):
-    def __init__(self, varname, url):
-        self.varname = varname
-        self.url = url
-        
-    def render(self, context):
-        if self.url:
-            url = template.Variable(self.url).resolve(context)
-        else:
-            url = context['request'].path_info
-        context[self.varname] = Page.objects.get_for_url(url)
-        return ''
-
-@register.tag
-@easy_tag
-def cmspage(_tag, url, _as, varname):
-    return CmsPageNode(varname, url)
-
-
-
-
-
-
-
-
-
-# generates a nested html list of the site structure (relies on sane url scheme)
-class CmsSiteMapNode(template.Node):
-    def __init__(self, base_url, include_base, depth, alias):
-        self.base_url = base_url
-        self.include_base = include_base
-        self.depth = depth
-        self.alias = alias
-        
-    def render(self, context):
-        if context['request'].user.has_module_perms("cms"):
-            page_qs = Page.objects
-        else:
-            page_qs = Page.live
-
-        try:
-            base_url = self.base_url and template.Variable(self.base_url).resolve(context) or '/'
-            page = page_qs.get(url=base_url)
-        except Page.DoesNotExist:
-            return ''
-
-        include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
-        depth = int(self.depth or 0)
-        
-        
-        def _render(page, currentdepth = 1):
-            html = []
-                
-            children = page.get_children(page_qs).order_by('url')
-            if len(children):
-                html.append('<ul>')
-                for childpage in children:
-                    html.append('<li>\n<a href="%s">%s</a>' % (childpage.url, childpage.page_title()))
-                    if (not depth) or currentdepth < depth:
-                        html.append(_render(childpage, currentdepth + 1))
-                    html.append('</li>')
-                html.append('</ul>')
-            
-            return "\n".join(html)
-        
-    
-        if include_base:
-            html = "\n".join([
-                '<ul>',
-                '<li>',
-                '<a href="%s">%s</a>' % (page.url, page.page_title()),
-                _render(page),
-                '</li>',
-                '</ul>',
-            ])
-        else:
-            html = _render(page)
-        
-
-        if self.alias:
-            context[self.alias] = mark_safe(html)
-            return ''
-        else:
-            return html
-        
-
-@register.tag
-@easy_tag
-def cmssitemap(_tag, base_url=None, include_base=True, depth=None, _as='', alias=None):
-    return CmsSiteMapNode(base_url, include_base, depth, alias)
-
-
-
-
-
-
-
-
-
-class CMSCrumbtrailNode(template.Node):
-    def __init__(self, varname):
-        self.varname = varname
-        
-    def render(self, context):
-        #varname = template.Variable(self.varname).resolve(context)
-        crumbtrail = []
-        
-        if context['request'].META['PATH_INFO'].strip('/'):
-            url_parts = context['request'].META['PATH_INFO'].strip('/').split('/')
-            current_url = '/'
-            for url_part in url_parts:
-                current_url += url_part + '/'
-                name = url_part.replace('-', ' ').replace(':', ': ').title()
-                try:
-                    page = Page.objects.get(url=current_url)
-                except Page.DoesNotExist:
-                    page = None
-                crumbtrail.append({
-                    'url': current_url,
-                    'name': name,
-                    'page': page
-                })
-            
-        context[self.varname] = crumbtrail
-        return ''
-
-@register.tag
-@easy_tag
-def cmsgetcrumbtrail(_tag, _as, varname):
-    return CMSCrumbtrailNode(varname)
-
-
-
-
-
-
-class CMSExtraNode(template.Node):
+class CMSEditorNode(template.Node):
         
     def render(self, context):
         if cms_settings.EDIT_IN_PLACE:
@@ -460,12 +303,12 @@ class CMSExtraNode(template.Node):
                 return ""
         else:
             return ''
-            
-@easy_tag
-def cmsextra(_tag):
-    return CMSExtraNode()
 
-register.tag(cmsextra)
+@register.tag
+@easy_tag
+def cmseditor(_tag):
+    return CMSEditorNode()
+
 
 
 
@@ -488,37 +331,4 @@ def cmsediting(_tag, _as, varname):
 
 
 
-
-## Tags for working with Pages
-
-class PageNamedBlockNode(template.Node):
-    def __init__(self, page, blockname):
-        self.page = template.Variable(page)
-        self.blockname = template.Variable(blockname)
-
-    def render(self, context):
-        page = self.page.resolve(context)
-        blockname = self.blockname.resolve(context)
-        return page.blocks.get(label=blockname).compiled_content
-
-@register.tag
-@easy_tag
-def get_page_block(_tag, page, block):
-    return PageNamedBlockNode(page, block)
-
-
-class PagesForTemplateNode(template.Node):
-    def __init__(self, varname, template_name="default.html"):
-        self.varname = varname
-        self.template_name = template.Variable(template_name)
-        super(PagesForTemplateNode, self).__init__()
-
-    def render(self, context):
-        context[self.varname] = Page.objects.filter(template__endswith=self.template_name.resolve(context)).order_by('url')
-        return ''
-
-@register.tag
-@easy_tag
-def pages_for_template(_tagname, template, _as, varname):
-    return PagesForTemplateNode(varname, template)
 

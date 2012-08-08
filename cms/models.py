@@ -15,9 +15,6 @@ from django.utils.functional import curry
 from django.test.client import Client
 from django.template import defaultfilters
 
-import markdown2, gfm
-
-from fields import ConstrainedImageField
 import settings as cms_settings
 from decorators import cached
 
@@ -36,7 +33,6 @@ from django.utils.functional import curry
 
 BLOCK_TYPE_CHOICES = (
     ('plain', 'Plain text'),
-    ('markdown', 'Markdown'),
     ('html', 'HTML'),
 )
 
@@ -68,13 +64,7 @@ class Block(models.Model):
         #return "'%s' on %s" % (self.label, self.page.url)
     
     def save(self, *args, **kwargs):
-        if self.format == 'markdown':
-            if self.raw_content.strip():
-                self.compiled_content = markdown2.markdown(gfm.gfm(force_unicode((self.raw_content)))).strip()
-            else:
-                self.compiled_content = ''
-        else:
-            self.compiled_content = self.raw_content
+        self.compiled_content = self.raw_content
         super(Block, self).save(*args, **kwargs)    
     
     def get_filtered_content(self, filters=None):
@@ -118,7 +108,7 @@ class Image(models.Model):
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
-    file = ConstrainedImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
+    file = models.ImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
