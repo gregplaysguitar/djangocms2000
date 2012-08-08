@@ -47,7 +47,7 @@ class BaseBlockNode(BaseNode):
 
 
 class BlockNode(BaseBlockNode):
-    '''Works with blocks related to a Page, which is determined from the request.'''
+    '''Works with blocks related to a Page, which is determined via the request.'''
     
     def get_block(self, context, options):
         page = Page.objects.get_for_url(context['request'].path_info)
@@ -72,7 +72,8 @@ def cmssiteblock(parser, token):
 
 
 class GenericBlockNode(BlockNode):
-    '''Works with blocks related to any model object, which should be passed in after 'label'.'''
+    '''Works with blocks related to any model object, which should be passed
+       in as an argument after 'label'.'''
 
     required_params = ('label', 'object')
     def get_block(self, context, options):
