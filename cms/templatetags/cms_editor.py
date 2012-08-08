@@ -25,8 +25,8 @@ def cmseditor(context):
             return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
                 'page': page,
                 'cms_settings': cms_settings,
-                'editor_form': BlockForm(),
-                'html_editor_form': BlockForm(prefix="html"),
+                'editor_form': BlockForm(prefix='plain'),
+                'html_editor_form': BlockForm(prefix='html'),
                 'image_form': ImageForm(),
                 'page_form': page and PublicPageForm(instance=page) or None,
                 'new_page_form': PublicPageForm(prefix='new'),

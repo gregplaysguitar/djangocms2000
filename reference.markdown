@@ -165,14 +165,10 @@ which is (by default) served by django's built in static view. For better perfor
 and symlink to the directory from within your `MEDIA_ROOT`
 
 
-#### `CMS_CUSTOM_STYLESHEET`
-
-Location of custom styles for the editor, if needed. Defaults to `None`.
-
-
 #### `CMS_HIGHLIGHT_START_COLOR`
 
 Used to highlight changes made via the edit-in-place system on save. Default is `'#ff0'`.
+
 
 #### `CMS_HIGHLIGHT_END_COLOR`
 

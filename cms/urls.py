@@ -8,8 +8,8 @@ import settings
 urlpatterns = patterns('cms.views',
 	(r'^actions/savepage/$', 'savepage'),
 	(r'^actions/savepage/(\d+)/$', 'savepage'),
-	(r'^actions/saveblock/$', 'saveblock'),
-	(r'^actions/saveimage/$', 'saveimage'),
+	(r'^actions/saveblock/(\d+)$', 'saveblock'),
+	(r'^actions/saveimage/(\d+)$', 'saveimage'),
 	
 	(r'^login/$', 'login'),
 	(r'^logout/$', 'logout'),

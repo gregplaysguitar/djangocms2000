@@ -10,6 +10,7 @@ from django import template
 from django.utils.encoding import force_unicode
 from django.utils.html import strip_tags
 from django.utils.text import truncate_words
+from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
 from django.test.client import Client
@@ -32,6 +33,13 @@ class Block(models.Model):
     label = models.CharField(max_length=255)
     format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='', blank=False)
     content = models.TextField(blank=True, default='')
+        
+    def safe_content(self):
+        '''Returns content, marked safe if necessary'''
+        if self.format == 'html':
+            return mark_safe(self.content)
+        else:
+            return self.content
     
     def __unicode__(self):
         return self.label

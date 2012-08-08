@@ -1,26 +1,19 @@
-import re, os
+import re, os, copy
 
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.utils import simplejson
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.views import login as auth_login
+from django.views.decorators.csrf import csrf_protect
+from django.core.urlresolvers import resolve, Resolver404
 
-try:
-    from django.views.decorators.csrf import csrf_protect
-except ImportError:
-    def csrf_protect(func):
-        return func
-
-from forms import PublicPageForm
+from forms import PublicPageForm, BlockForm, ImageForm
 import settings as cms_settings
-from utils import is_editing
 from models import Block, Page, Image
-
 
 
 def logout(request):
@@ -34,11 +27,6 @@ def logout(request):
 def login(request, *args, **kwargs):
     kwargs['template_name'] = 'cms/cms/login.html'
     return auth_login(request, *args, **kwargs)
-        
-
-    #(r'^login/$', '', {'template_name': 'cms/cms/login.html',}),
-
-
 
 
 @permission_required("cms.change_page")
@@ -66,35 +54,53 @@ def savepage(request, page_pk=None):
                 'errors': form.errors,
             }), mimetype='application/json')
 
+
+def get_page_content(base_request, page_url):
+    try:
+        urlmatch = resolve(page_url)
+    except Resolver404, e:
+        # must be an admin-created page, rendered by the middleware
+        page_func = lambda r: render_page(r, page_url)
+    else:
+        # must be a django-created page, rendered by a urlconf
+        page_func = urlmatch.func
     
+    # reuse the request to avoid having to fake sessions etc, but it'll have to be hacked
+    # a little so it has the right url and doesn't trigger a POST
+    request = copy.copy(base_request)
+    request.path = request.path_info = page_url
+    request.POST = None
+    
+    try:
+        return page_func(request)
+    except Http404:
+        # this shouldn't ever happen, but just in case
+        return ''
 
 
+BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
 
 @permission_required("cms.change_page")
-def saveblock(request):
-    if 'prefix' in request.POST:
-        prefix = '%s-' % request.POST['prefix']
-    else:
-        prefix = ''
-        
-    block = Block.objects.get(
-        pk=request.POST['%sblock_id' % (prefix)]
-    )
+def saveblock(request, block_id):
+    block = get_object_or_404(Block, id=block_id)
+    form = BlockForm(request.POST, instance=block, prefix=block.format)
+    block = form.save()
     
-    block.content = request.POST['%scontent' % (prefix)]
-    block.format = request.POST['%sformat' % (prefix)]
-    block.save()
-
+    # render the page to get the updated content
+    page_url = re.compile('https?://%s' % request.META['HTTP_HOST']).sub('', request.META['HTTP_REFERER'])
+    page_response = get_page_content(request, page_url)
+    
+    # extract body content from HttpResponse. The response content is assumed to be sane
+    page_content = BODY_RE.search(page_response.content).groups()[0]
+        
     return HttpResponse(simplejson.dumps({
-        'compiled_content': block.get_filtered_content(request.POST.get('filters', None).split(',')),
+        'page_content': page_content,
         'content': block.content,
     }), mimetype='application/json')
 
     
-
-    
 @permission_required("cms.change_page")
-def saveimage(request):
+def saveimage(request, image_id):
     #print request.POST
     image = Image.objects.get(
         pk=request.POST['image_id']

@@ -19,7 +19,6 @@
 			    tinyMCE.get(id).execCommand('mcePasteText', true);
 			},
             paste_auto_cleanup_on_paste: true,
-			//"elements: "id_content",
 			language: "en",
 			directionality: "ltr",
 			theme: "advanced",
@@ -80,6 +79,8 @@
 	//$('body').prepend(topMenu);
 	
 	function edit(block) {
+		var save_url = $(block).attr('save_url');
+		
 		//console.log(block, currently_editing, $(block).attr('type'));
 		
 		if (currently_editing) {
@@ -95,9 +96,8 @@
 		}
 		
 		if ($(block).attr('blocktype') === 'image') {
-			$('#cms-imageform #id_image_id').val($(block).attr('image_id'));
-			$('#cms-imageform #id_redirect_to').val(window.location);
-			
+		    // TODO ajaxify this
+			$('#cms-imageform').attr('action', save_url);
 			if ($(block).find('img').length) {
 				$('#cms-imageform h2').html('Change image');
 				$('#cms-imageform div.current img').attr('src', $(block).find('img').eq(0).attr('src'));
@@ -110,122 +110,114 @@
 			
 			showForm('image');
 		}
-		else if ($(block).attr('format') === 'html') {
-			$('#cms-htmlform #id_html-content').val(raw_content).html(raw_content);
-			tinyMCE.get("id_html-content").setContent(raw_content);
-			$('#cms-htmlform #id_html-block_id').val($(block).attr('block_id'));
-			$('#cms-htmlform #id_html-format').val($(block).attr('format'));
-            
-            
-			$('#cms-htmlform form').ajaxForm({
-				success: function(data) {
-					var raw_content = $.trim(data.content),
-					    // TODO somehow get the compiled content here...
-						compiled_content = $.trim(data.content);
-					$(block).find('input').val(raw_content);
-					$(block).find("span.cms-inner").html($.trim(raw_content) ? compiled_content : "Click to add text");
-					
-					if (!compiled_content) {
-						$(block).addClass("placeholder");
-					}
-					highlightBlock(block);
-					currently_editing = false;
-					if (typeof post_edit_callback === 'function') {
-					    post_edit_callback(block);
-					}
-					
-				},
-				beforeSubmit: function() {
-					$(block).removeClass("placeholder");
-					$(block).find("span.cms-inner").html(throbberString);
-					hideForm('html', false);
-				},
-				dataType: 'json',
-				data: {
-				    filters: $(block).attr('filters')
-				}
-			});
-			showForm('html');
-		}
 		else {
-		    var post_edit_callbacks = [];
-            
-            $(block).parents('a').each(function(e) {
-                var me = $(this),
-                    cancel = function() {
-                        return false;
-                    };
-                me.bind('click', cancel);
-                post_edit_callbacks.push(function() {
-                    setTimeout(function() {
-                        me.unbind('click', cancel);
-                    }, 100);
-                });
-            });
+		    var inner = $(block).find(".cms-inner");
 		    
-		    raw_content_escaped = raw_content.replace('<', '&lt;').replace('<', '&lt;');
-			$('#cms-textform #id_content').val(raw_content).html(raw_content_escaped);
-			$('#cms-textform #id_block_id').val($(block).attr('block_id'));
-			$('#cms-textform #id_format').val($(block).attr('format'));
-			
-			var editFormContainer = $('#cms-textform').clone();
-			editFormContainer.find('textarea').css({'height': $(block).height()});
-			editFormContainer.css({'display': 'block'});
-			
-			$(block).parent().append(editFormContainer);
-			$(block).css({'display': 'none'});
-			
-			
-			
-			editFormContainer.find('textarea').focus().select();
-			
-			function hideTextForm() {
-				$(block).css({'display': 'block'});
-				editFormContainer.remove();
-				currently_editing = false;
-				$(post_edit_callbacks).each(function(i, fn) { fn(); });
-			};
-			editFormContainer.find('input.cancel').click(hideTextForm);
-			
-
-			editFormContainer.find('form').ajaxForm({
-				success: function(data) {
-				    //console.log(arguments);
-					//return true;
-					$(block).find("span.cms-inner").html($.trim(data.content) || "Click to add text");
-					if (!$.trim(data.content)) {
-						$(block).addClass("placeholder");
-					}
-					highlightBlock(block);
-					currently_editing = false;
-					$(post_edit_callbacks).each(function(i, fn) { fn(); });
-					$(block).find('input').val($.trim(data.content));
-					if (typeof post_edit_callback === 'function') {
-					    post_edit_callback(block);
-					}
-				},
-				beforeSubmit: function() {
-					$(block).removeClass("placeholder");
-					$(block).find("span.cms-inner").html(throbberString);
-					hideTextForm();
-				},
-				dataType: 'json',
-				data: {
-				    filters: $(block).attr('filters')
-				}
-			});
-			
-			/* manually submit the form if we're killing the click event above due to
-			   the parent being an <a> tag */
-    		if ($(block).parents('a').length) {
-        		editFormContainer.find('form input[type=submit]').click(function() {
-        		    $(this).parents('form').eq(0).submit();
-    		    });
+		    function update_block(page_content) {
+                var updated_body = $('<div>' + page_content + '</div>'),
+                    // save_url is unique to the block, so use it to find the updated block 
+                    updated_block = updated_body.find('.cms-block[save_url="' + save_url + '"]'),
+                    updated_content = $.trim(updated_block.find('.cms-inner').html());
+                
+                inner.html(updated_content || "Click to add text");
+                if (!updated_content) {
+                    $(block).addClass("placeholder");
+                }                        
+		    };
+		    
+            if ($(block).attr('format') === 'html') {
+                $('#cms-htmlform #id_html-content').val(raw_content).html(raw_content);
+                tinyMCE.get("id_html-content").setContent(raw_content);
+                $('#cms-htmlform #id_format').val($(block).attr('format'));
+                
+                
+                $('#cms-htmlform form').ajaxForm({
+                    url: save_url,
+                    success: function(data) {
+                        update_block(data.page_content);
+                        highlightBlock(block);
+                        currently_editing = false;
+                        if (typeof post_edit_callback === 'function') {
+                            post_edit_callback(block);
+                        }
+                        
+                    },
+                    beforeSubmit: function() {
+                        $(block).removeClass("placeholder");
+                        inner.html(throbberString);
+                        hideForm('html', false);
+                    },
+                    dataType: 'json'
+                });
+                showForm('html');
             }
-            
-            
-		}
-
+            else {
+                var reset_callbacks = [];
+                
+                $(block).parents('a').each(function(e) {
+                    var me = $(this),
+                        cancel = function() {
+                            return false;
+                        };
+                    me.bind('click', cancel);
+                    reset_callbacks.push(function() {
+                        setTimeout(function() {
+                            me.unbind('click', cancel);
+                        }, 100);
+                    });
+                });
+                            
+                var editFormContainer = $('#cms-textform').clone();
+                raw_content_escaped = raw_content.replace('>', '&gt;').replace('<', '&lt;');
+                editFormContainer.find('textarea[name$="content"]').val(raw_content).html(raw_content_escaped);
+    
+                editFormContainer.show().find('textarea').css({'height': $(block).height()});
+                
+                $(block).parent().append(editFormContainer);
+                $(block).css({'display': 'none'});
+    
+                editFormContainer.find('textarea').focus().select();
+                
+                function hideTextForm() {
+                    $(block).css({'display': 'block'});
+                    editFormContainer.remove();
+                    currently_editing = false;
+                    $(reset_callbacks).each(function(i, fn) { fn(); });
+                };
+                editFormContainer.find('input.cancel').click(hideTextForm);
+                
+                
+                editFormContainer.find('form').ajaxForm({
+                    url: save_url,
+                    success: function(data) {
+                        update_block(data.page_content);
+                        highlightBlock(block);
+                        currently_editing = false;
+                        $(block).find('input').val(data.content);
+                        $(reset_callbacks).each(function(i, fn) { fn(); });
+                        if (typeof post_edit_callback === 'function') {
+                            post_edit_callback(block);
+                        }
+                    },
+                    beforeSubmit: function() {
+                        $(block).removeClass("placeholder");
+                        inner.html(throbberString);
+                        hideTextForm();
+                    },
+                    dataType: 'json'
+                });
+                
+                /* manually submit the form if we're killing the click event above due to
+                   the parent being an <a> tag */
+                if ($(block).parents('a').length) {
+                    editFormContainer.find('form input[type=submit]').click(function() {
+                        $(this).parents('form').eq(0).submit();
+                    });
+                }
+                
+                
+            }
+        }
 		
 		
 		currently_editing = true;

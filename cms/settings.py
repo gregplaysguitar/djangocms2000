@@ -12,15 +12,13 @@ else:
 # This setting should be CMS_STATIC_URL, but check CMS_MEDIA_URL for backwards-compatibility
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', getattr(settings, 'CMS_MEDIA_URL', default_static_url))
 
-CUSTOM_STYLESHEET = getattr(settings, 'CMS_CUSTOM_STYLESHEET', None)
-
 HIGHLIGHT_START_COLOR = getattr(settings, 'CMS_HIGHLIGHT_START_COLOR', "#ff0")
 HIGHLIGHT_END_COLOR = getattr(settings, 'CMS_HIGHLIGHT_END_COLOR', "#fff")
 
 
 
 ADMIN_JS = getattr(settings, 'CMS_ADMIN_JS', (
-    STATIC_URL + 'lib/jquery-1.4.2.min.js',
+    STATIC_URL + 'lib/jquery.js',
     STATIC_URL + 'tiny_mce/tiny_mce.js',
     STATIC_URL + 'tiny_mce/jquery.tinymce.js',
     STATIC_URL + 'js/page_admin.js',

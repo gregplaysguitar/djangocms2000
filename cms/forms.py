@@ -5,8 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.safestring import mark_safe
 
-from models import Page, template_choices
-
+from models import Page, Block, Image, template_choices
 
 
 class ReadonlyInput(forms.widgets.HiddenInput):
@@ -24,21 +23,16 @@ class ReadonlyInput(forms.widgets.HiddenInput):
 
 
 
-class BlockForm(forms.Form):
-	block_id = forms.CharField(widget=forms.HiddenInput)
-	format = forms.CharField(widget=forms.HiddenInput)
-	
-	content = forms.CharField(widget=forms.Textarea)
+class BlockForm(forms.ModelForm):
+	class Meta:
+	    model = Block
+	    fields = ('content', )
 
 
-class ImageForm(forms.Form):
-	image_id = forms.CharField(widget=forms.HiddenInput)
-	redirect_to = forms.CharField(widget=forms.HiddenInput)
-	
-	description = forms.CharField(widget=forms.TextInput)
-	file = forms.FileField()
-
-
+class ImageForm(forms.ModelForm):
+	class Meta:
+	    model = Image
+	    fields = ('file', 'description', )
 
 
 URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
@@ -46,7 +40,6 @@ URL_DASH_REGEX = re.compile('--+')
 class PageForm(forms.ModelForm):
     template = forms.CharField(
         widget=forms.Select(choices=template_choices()),
-        #help_text="Choose from Static Templates unless you're sure of what you're doing.",
         required=False
     )
     def __init__(self, *args, **kwargs):
@@ -67,8 +60,10 @@ class PageForm(forms.ModelForm):
                 # must be a django-created page, rendered by a urlconf
                 self.fields['url'].widget = ReadonlyInput()
                 self.fields['url'].help_text = ''
+
+                # TODO hide/delete these rather than showing them as readonly?
                 self.fields['template'].widget = ReadonlyInput()
-                #self.fields['template'].help_text = ''
+                del self.fields['is_live']
         
     class Meta:
         model = Page
@@ -95,7 +90,6 @@ class PageForm(forms.ModelForm):
             raise forms.ValidationError('A page with this url already exists')
         
         return url
-
 
 
 class PublicPageForm(PageForm):
