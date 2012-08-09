@@ -10,9 +10,8 @@ from base import BaseNode
 register = template.Library()
 
 
-class BlockNode(BaseNode):
-    '''Node providing generic functionality for blocks; by default will work with blocks 
-       related to a Page object, which is determined via the request.'''
+class BaseBlockNode(BaseNode):
+    '''Node providing generic functionality for blocks.'''
     
     required_params = ('label',)
     default_template = template.Template('{{ obj.safe_content }}')
@@ -23,14 +22,24 @@ class BlockNode(BaseNode):
     def render(self, context):
         def renderer(block):
             return self.get_rendered_content(block, context)
-        return get_rendered_block(context['request'], renderer=renderer, **self.get_options(context))
+        return get_rendered_block(renderer=renderer, **self.get_options(context))
+
+
+class BlockNode(BaseBlockNode):
+    '''Works with blocks related to a Page object, which is determined via the request.
+       Requires an HttpRequest instance to be present in the template context.'''
+    
+    def get_options(self, context):
+        options = {'request': context['request']}
+        options.update(super(BlockNode, self).get_options(context))
+        return options
 
 @register.tag
 def cmsblock(parser, token):
     return BlockNode(parser, token)
 
 
-class SiteBlockNode(BlockNode):
+class SiteBlockNode(BaseBlockNode):
     '''Works with blocks related to a Site, which is determined via django settings.'''
     
     def get_options(self, context):
@@ -43,7 +52,7 @@ def cmssiteblock(parser, token):
     return SiteBlockNode(parser, token)
 
 
-class GenericBlockNode(BlockNode):
+class GenericBlockNode(BaseBlockNode):
     '''Works with blocks related to any model object, which should be passed
        in as an argument after 'label'.'''
 

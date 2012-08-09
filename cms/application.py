@@ -25,7 +25,7 @@ def get_block(label, url=None, site_id=None, object=None):
                                        object_id=object_id)[0]
     
 
-def get_rendered_block(request, label, renderer=lambda b: b.safe_content(), 
+def get_rendered_block(label, request=None, renderer=lambda b: b.safe_content(), 
                        format='plain', editable=True, site_id=None, object=None):
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
@@ -37,8 +37,10 @@ def get_rendered_block(request, label, renderer=lambda b: b.safe_content(),
         block_kwargs = {'site_id': site_id}
     elif object:
         block_kwargs = {'object': object}
-    else:
+    elif request:
         block_kwargs = {'url': request.path_info}
+    else:
+        raise TypeError('One of site_id, object or request is required.')
         
     if editing:
         block = get_block(label, **block_kwargs)
