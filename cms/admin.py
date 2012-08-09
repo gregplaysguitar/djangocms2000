@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 
 import settings as cms_settings
@@ -11,7 +12,16 @@ from models import Page, Block, Image
 
 
 
-
+admin_js = (
+    cms_settings.STATIC_URL + 'lib/jquery-1.4.2.min.js',
+    cms_settings.STATIC_URL + 'tiny_mce/tiny_mce.js',
+    cms_settings.STATIC_URL + 'tiny_mce/jquery.tinymce.js',
+    cms_settings.STATIC_URL + 'js/page_admin.js',
+    reverse_lazy('cms.views.page_admin_init'),
+)
+admin_css = {
+    'all': (cms_settings.STATIC_URL + 'css/page_admin.css',),
+}
 
 class BlockForm(forms.ModelForm):
     class Meta:
@@ -28,16 +38,11 @@ class BlockForm(forms.ModelForm):
             self.fields['content'].required = required_cb(kwargs['instance'])
         
 
-class BlockFormSet(generic.generic_inlineformset_factory(Block)):
-    def __init__(self, *args, **kwargs):
-        super(BlockFormSet, self).__init__(*args, **kwargs)
-        self.can_delete = cms_settings.ADMIN_CAN_DELETE_BLOCKS
 
 
 class BlockInline(generic.GenericTabularInline):
     model = Block
     extra = 0
-    formset = BlockFormSet
     fields = ('content',)
     form = BlockForm
 
@@ -77,8 +82,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
                 return obj.url
                 
     class Media:
-        js = cms_settings.ADMIN_JS
-        css = cms_settings.ADMIN_CSS
+        js = admin_js
+        css = admin_css
     class Meta:
         abstract=True
 
@@ -131,12 +136,11 @@ class BlockAdmin(admin.ModelAdmin):
     
     def content_snippet(self):
         return truncate_words(strip_tags(self.content), 10)
-    
-    
+        
     class Media:
-        js = cms_settings.ADMIN_JS
-        css = cms_settings.ADMIN_CSS
-    
+        js = admin_js
+        css = admin_css
+        
 admin.site.register(Block, BlockAdmin)
 
 

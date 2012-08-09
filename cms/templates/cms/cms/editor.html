@@ -15,14 +15,11 @@ if (!$.browser.msie) {
 	function setupCMS () {
 	    cms(
 	        jQuery,
-	        "{{ cms_settings.HIGHLIGHT_START_COLOR }}",
-	        "{{ cms_settings.HIGHLIGHT_END_COLOR }}",
+	        "{{ cms_settings.HIGHLIGHT_COLOR }}",
 	        null,
-	        "{{ cms_settings.FILEBROWSER_URL_ADMIN }}",
 	        "{{ cms_settings.TINYMCE_BUTTONS }}",
 	        "{{ cms_settings.TINYMCE_CONTENT_CSS }}",
 	        "{% url 'cms.views.linklist' %}",
-	        {% if request.user.is_superuser %}1{% else %}0{%endif %},
 	        {{ cms_settings.POST_EDIT_CALLBACK|safe }}
 	    );
 	}

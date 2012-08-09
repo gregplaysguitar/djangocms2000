@@ -146,74 +146,17 @@ Generates sitemap as a nested html list, starting with base_uri as the root
 ## Settings
 
 
-#### `CMS_ROOT_URL`
-
-Should correspond to whatever url base you've got pointing to cms.urls
-in your root url conf. Defaults to `'/cms/'`
-
-
-#### `CMS_STATIC_URL`
-
-Where the cms/media directory can be found. Defaults to
-
-    CMS_ROOT_URL + 'media/', 
-
-which is (by default) served by django's built in static view. For better performance, set
-    
-    CMS_STATIC_URL = STATIC_URL + 'cms/'
-    
-and symlink to the directory from within your `MEDIA_ROOT`
-
-
-#### `CMS_HIGHLIGHT_START_COLOR`
+#### `CMS_HIGHLIGHT_COLOR`
 
 Used to highlight changes made via the edit-in-place system on save. Default is `'#ff0'`.
 
 
-#### `CMS_HIGHLIGHT_END_COLOR`
-
-Should equal (as closely as possible) your site's background colour. Default is `'#fff'`.
-
-
-#### `CMS_ADMIN_JS`
-
-A tuple of javascript files to include when using the built in admin. Defaults to
-
-    (
-        CMS_STATIC_URL + 'tiny_mce/tiny_mce.js',
-        CMS_STATIC_URL + 'lib/jquery-1.3.2.min.js',
-        CMS_STATIC_URL + 'js/page_admin.js',
-        CMS_ROOT_URL + 'page_admin_init.js',
-    )
-
-
-#### `CMS_ADMIN_CSS`
-
-A dict of css files to include when using in the built-in admin. Defaults to
-
-    {
-        'all': (STATIC_URL + 'css/page_admin.css',),
-    }
-
-
-#### `CMS_ADMIN_CAN_DELETE_BLOCKS`
-
-Whether or not blocks can be deleted when editing in the built-in admin. Defaults to `settings.DEBUG`
-
-
-#### `CMS_FILEBROWSER_URL_ADMIN`
-
-Url for filebrowser integration into tinymce - default is blank.
-
-
 #### `CMS_USE_SITES_FRAMEWORK`
-
 
 Turns on integration with django.contrib.sites - default is `False`.
 
 
 #### `CMS_TINYMCE_BUTTONS`
-
 
 Buttons to include in tinymce editor - defaults to
 
@@ -222,12 +165,10 @@ Buttons to include in tinymce editor - defaults to
 
 #### `CMS_TINYMCE_CONTENT_CSS`
 
-
 Path to css file for styling tinymce editor - default is blank.
 
 
 #### `CMS_POST_EDIT_CALLBACK`
-
 
 Javascript code to execute after a front-end edit - default is blank. Example usage:  
 
@@ -236,21 +177,9 @@ Javascript code to execute after a front-end edit - default is blank. Example us
 
 #### `CMS_MAX_IMAGE_DIMENSIONS`
 
-
 Maximum image dimensions saved by the editor - if a larger file is uploaded, it 
 will be resized before save. Default is `(1920, 1200)`
 
-#### `CMS_FILTERS`
-
-
-A tuple of filter declarations - each of the form `(module, shortname, default)`. 
-`shortname` is used to apply the filter when calling the templatetag, ie 
-`{% cmsblock 'text' filters='typogrify' %}`. Default determines whether the filter
-will be applied by default or not. Default:
-
-    (
-        ('cms.filters.typogrify_filter', 'typogrify', False),
-    )
 
 #### `CMS_BLOCK_REQUIRED_CALLBACK`
 
@@ -265,9 +194,4 @@ in question as its sole argument. Default is `None`. Example:
 #### `CMS_IMAGE_REQUIRED_CALLBACK`
 
 Identical to `BLOCK_REQUIRED_CALLBACK` but takes an Image instance as its argument.
-
-
-#### `CMS_CACHE_PREFIX`
-
-Cache backend prefix - defaults to `cms`
 

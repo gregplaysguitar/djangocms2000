@@ -1,4 +1,4 @@
-    var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+    var cms = function ($, highlight_color, tinymce_init_object, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
@@ -309,9 +309,24 @@
 	});
 	
 	function highlightBlock(block) {
-		$(block).css({backgroundColor: (highlight_start_color || "#ff0")}).animate({backgroundColor: (highlight_end_color || "#fff")}, 500, function() {
-			$(block).css({backgroundColor: ("")});	
+		$(block).css({
+		    backgroundColor: highlight_color		    
 		});
+		setTimeout(function() {
+            $(block).css({
+                '-moz-transition': 'all 500ms',
+                '-webkit-transition': 'all 500ms',
+                transition: 'all 500ms',
+                backgroundColor: ''
+            });
+            setTimeout(function() {
+                $(block).css({
+                    '-moz-transition': 'all 500ms',
+                    '-webkit-transition': 'all 500ms',
+                    transition: 'all 500ms'
+                });
+            }, 500);
+        }, 1);
 	};
 
 	function showForm(which) {
