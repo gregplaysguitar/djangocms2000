@@ -165,7 +165,8 @@ Buttons to include in tinymce editor - defaults to
 
 #### `CMS_TINYMCE_CONTENT_CSS`
 
-Path to css file for styling tinymce editor - default is blank.
+Path, or callable returning a path, to css file for styling tinymce editor. Default is
+blank. Use a callable to avoid reversing urls etc at runtime.
 
 
 #### `CMS_POST_EDIT_CALLBACK`

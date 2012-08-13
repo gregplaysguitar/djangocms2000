@@ -1,34 +1,9 @@
-var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, buttons, is_superuser) {
+var cmsAdmin = function($, linklist_url, tinymce_content_css, buttons) {
 
     id_list = [];
     $('textarea.cms-html').each(function(i, item) {
         id_list.push(item.id);
     });
-
-
-    // filebrowser callback - only used if filebrowser_url is specified
-    function djangoFileBrowser(field_name, url, type, win) {
-        var url = filebrowser_url + "?pop=2&type=" + type;
-
-        tinyMCE.activeEditor.windowManager.open(
-            {
-                'file': url,
-                'width': 820,
-                'height': 500,
-                'resizable': "yes",
-                'scrollbars': "yes",
-                'inline': "no",
-                'close_previous': "no"
-            },
-            {
-                'window': win,
-                'input': field_name,
-                'editor_id': tinyMCE.selectedInstance.editorId
-            }
-        );
-        return false;
-    };
-
 
     if (id_list.length) {
 
@@ -54,7 +29,6 @@ var cmsAdmin = function($, filebrowser_url, linklist_url, tinymce_content_css, b
             directionality: "ltr",
             theme: "advanced",
             strict_loading_mode: 1,
-            file_browser_callback: filebrowser_url ? djangoFileBrowser : null,
             mode: "exact",
             plugins: "paste,inlinepopups",
             heading_clear_tag: "p",

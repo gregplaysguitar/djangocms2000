@@ -101,24 +101,17 @@ def saveblock(request, block_id):
     
 @permission_required("cms.change_page")
 def saveimage(request, image_id):
-    #print request.POST
-    image = Image.objects.get(
-        pk=request.POST['image_id']
-    )
-    
+    image = get_object_or_404(Image, id=image_id)
+
     if 'delete' in request.POST:
         if image.file:
             image.file.delete()
         image.description = ""
+        image.save()
     else:
-        if 'file' in request.FILES:
-            if image.file:
-                image.file.delete()
-            image.file.save(request.FILES['file'].name, request.FILES['file'])
-        image.description = request.POST['description']
+        form = ImageForm(request.POST, request.FILES, instance=image)
+        image = form.save()
     
-    image.save()
-
     return HttpResponseRedirect(request.POST['redirect_to'])
     
     
@@ -148,13 +141,15 @@ def render_page(request, url):
     
 # used to initialise django admin tinymce
 def page_admin_init(request):
-    response = render_to_response(
-        'cms/cms/page_admin_init.js',
-        {
-            'cms_settings': cms_settings,
-        },
-        context_instance=RequestContext(request)
-    )
+
+    css = cms_settings.TINYMCE_CONTENT_CSS
+    tinymce_content_css = css if callable(css) else css
+    
+    response = render_to_response('cms/cms/page_admin_init.js', {
+        'cms_settings': cms_settings,
+        'tinymce_content_css': tinymce_content_css,
+    }, context_instance=RequestContext(request))
+    
     response['Content-Type'] = 'application/javascript'
     return response
 

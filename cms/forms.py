@@ -10,17 +10,19 @@ from models import Page, Block, Image, template_choices
 
 class ReadonlyInput(forms.widgets.HiddenInput):
     is_hidden = False
-    def __init__(self, attrs=None, model=None):
+    def __init__(self, attrs=None, model=None, display_text=None):
         super(ReadonlyInput, self).__init__(attrs)
         self.model = model
+        self.display_text = display_text
         
     def render(self, name, value, attrs=None):
-        if self.model:
+        if self.display_text:
+            text_value = self.display_text          
+        elif self.model:
             text_value = self.model.objects.get(pk=value)
         else:
             text_value = value
         return mark_safe("<p>%s</p>%s" % (text_value, super(ReadonlyInput, self).render(name, value, attrs)))
-
 
 
 class BlockForm(forms.ModelForm):
@@ -62,8 +64,10 @@ class PageForm(forms.ModelForm):
                 self.fields['url'].help_text = ''
 
                 # TODO hide/delete these rather than showing them as readonly?
-                self.fields['template'].widget = ReadonlyInput()
-                del self.fields['is_live']
+                self.fields['template'].widget = ReadonlyInput(display_text='n/a')
+                self.fields['template'].help_text = ''
+                self.fields['is_live'].widget = ReadonlyInput(display_text='n/a')
+                self.fields['is_live'].help_text = ''
         
     class Meta:
         model = Page

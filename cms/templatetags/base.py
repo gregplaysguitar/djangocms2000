@@ -24,22 +24,24 @@ class BaseNode(template.Node):
     
     {% TAGNAME [params key1=val1 key2=val2...] %}
     
-    Subclasses must define
-    
-    - self.required_params (tuple of param name strings)
-    - self.default_template (Template object to render for the simple format.)
-    - get_obj(self, **options) (gets object for insertion into the context)
+    Subclasses must define:
+    - self.required_params
+      tuple of param name strings
+    - self.render(self, context)
+      renders the tag
     
     Optional:
-    
-    - is_empty(self, obj) tests whether we should render the default content
+    - optional_params
+      tuple of optional params to come after required_params
+    - is_empty(self, obj) 
+      tests whether we should render the {% empty %} section
     '''
 
-    #child_nodelists = ('nodelist_content', 'nodelist_empty') # this came from sorl, not sure what it does...?
-    error_msg = ('Syntax error. Expected: ``%s label [key1=val1 key2=val2...] [as var]``')
+    #child_nodelists = ('nodelist_content', 'nodelist_empty') # this is in sorl, not sure what it does...?
     
     nodelist_content = template.NodeList()
     nodelist_empty = template.NodeList()
+    optional_params = []
     
     def __init__(self, parser, token):
         bits = token.split_contents()
@@ -50,7 +52,7 @@ class BaseNode(template.Node):
             # presence of 'as' means that the last bit is the varname, there
             # is definitely an end tag, and there might be an empty too
             if len(bits) < (required_length + 2):
-                raise template.TemplateSyntaxError(self.error_msg % tagname)
+                raise template.TemplateSyntaxError(self.error_msg(tagname))
             
             option_bits = bits[required_length:-2]
             self.varname = bits[-1]
@@ -62,7 +64,7 @@ class BaseNode(template.Node):
         else:
             # no 'as', so must be the simpler format
             if len(bits) < required_length:
-                raise template.TemplateSyntaxError(self.error_msg % tagname)
+                raise template.TemplateSyntaxError(self.error_msg(tagname))
             option_bits = bits[required_length:]
             self.varname = None
         
@@ -70,15 +72,28 @@ class BaseNode(template.Node):
         
         # required params are the ones immediately after the tag itself
         self.options = zip(self.required_params, [parser.compile_filter(b) for b in required_bits])
-
+        
+        # zero or more optional_params come next.
+        optional_param_values = []
+        for b in option_bits:
+            if not kwarg_re.match(b):
+                optional_param_values.append(parser.compile_filter(b))
+            else:
+                break
+        self.options += zip(self.optional_params, optional_param_values)
+                
         # all other params are treated as kwarg-like pairs
-        for bit in option_bits:
+        for bit in option_bits[len(optional_param_values):]:
             match = kwarg_re.match(bit)
             if not match:
-                raise template.TemplateSyntaxError(self.error_msg % tagname)
+                raise template.TemplateSyntaxError(self.error_msg(tagname))
             key = smart_str(match.group('key'))
             expr = parser.compile_filter(match.group('value'))
             self.options.append((key, expr))
+    
+    def error_msg(self, tagname):
+        return 'Syntax error. Expected: ``%s [%s key1=val1 key2=val2...] [as var]``' % \
+            (tagname, ' '.join(self.required_params), ' '.join(self.optional_params))
     
     def get_options(self, context):
         resolved_options = {}
@@ -87,8 +102,27 @@ class BaseNode(template.Node):
             value = noresolve.get(unicode(expr), expr.resolve(context))
             resolved_options[key] = value
         
+        renderer = self.get_renderer(context)
+        if renderer:
+            resolved_options['renderer'] = renderer
+        
         return resolved_options
     
+    def get_renderer(self, context):
+        if self.varname:
+            def renderer(obj):
+                if self.is_empty(obj):
+                    output = self.nodelist_empty.render(context)
+                else:
+                    context.push()
+                    context[self.varname] = obj
+                    output = self.nodelist_content.render(context)
+                    context.pop()        
+                return output
+            return renderer
+        else:
+            return None
+    """
     def get_rendered_content(self, obj, context):
         if self.is_empty(obj):
             output = self.nodelist_empty.render(context)
@@ -103,11 +137,10 @@ class BaseNode(template.Node):
             context.pop()        
 
         return output
+    """
     
     def render(self, context):
-        obj = self.get_obj(**self.get_options(context))
-        return get_rendered_content(obj, context)
-        
+        raise NotImplementedError
     
     def __iter__(self):
         for node in self.nodelist_content:

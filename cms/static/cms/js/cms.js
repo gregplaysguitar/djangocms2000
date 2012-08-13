@@ -1,12 +1,9 @@
-    var cms = function ($, highlight_color, tinymce_init_object, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
+    var cms = function ($, highlight_color, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
-		currently_editing = false;
-	
-	
-	if (!tinymce_init_object) {
-	    tinymce_init_object = {
+		currently_editing = false,
+		tinymce_init_object = {
 			setup: function() {
 			    // hack to stop tinymce's silly alert (see paste plugin source code)
 			    var cookie = tinymce.util.Cookie;
@@ -38,55 +35,14 @@
 			plugins: "paste,inlinepopups",
 			relative_urls: false
 		};
-	}
-
 	
-	// filebrowser callback - only used if filebrowser_url is specified
-	function djangoFileBrowser(field_name, url, type, win) {
-        var url = filebrowser_url + "?pop=2&type=" + type;
-    
-        tinyMCE.activeEditor.windowManager.open(
-            {
-                'file': url,
-                'width': 820,
-                'height': 500,
-                'resizable': "yes",
-                'scrollbars': "yes",
-                'inline': "no",
-                'close_previous': "no"
-            },
-            {
-                'window': win,
-                'input': field_name,
-                'editor_id': tinyMCE.selectedInstance.editorId
-            }
-        );
-        return false;
-    };
-	
-	tinymce_init_object['file_browser_callback'] = djangoFileBrowser;
-	
-	
-	/*
-	$('body').css({
-		'padding-top': '30px'
-	});
-	*/
-	
-	//$("#cms-menu").prependTo('body');
-	//var topMenu = $("#cms-menu").clone();
-	//$('body').remove("#cms-menu");
-	//$('body').prepend(topMenu);
 	
 	function edit(block) {
 		var save_url = $(block).attr('save_url');
 		
-		//console.log(block, currently_editing, $(block).attr('type'));
-		
 		if (currently_editing) {
 			return false;
 		}
-		
 		
 		if ($(block).hasClass('placeholder')) {
 			var raw_content = '';
@@ -95,13 +51,15 @@
 			var raw_content = $.trim($(block).find('input').val());
 		}
 		
-		if ($(block).attr('blocktype') === 'image') {
+		if ($(block).hasClass('cms-image')) {
+		    var img = $(block).find('img');
 		    // TODO ajaxify this
-			$('#cms-imageform').attr('action', save_url);
+			$('#cms-imageform form').attr('action', save_url);
 			if ($(block).find('img').length) {
 				$('#cms-imageform h2').html('Change image');
-				$('#cms-imageform div.current img').attr('src', $(block).find('img').eq(0).attr('src'));
+				$('#cms-imageform div.current img').attr('src', img.attr('src'));
 				$('#cms-imageform div.current').css({'visibility': 'visible'});
+				$('#cms-imageform input[name$="description"]').val(img.attr('alt'));
 			}
 			else {
 				$('#cms-imageform h2').html('Add image');

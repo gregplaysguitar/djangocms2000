@@ -33,7 +33,7 @@ class Block(models.Model):
     format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='', blank=False)
     content = models.TextField(blank=True, default='')
         
-    def safe_content(self):
+    def display_content(self):
         '''Returns content, marked safe if necessary'''
         if self.format == 'html':
             return mark_safe(self.content)

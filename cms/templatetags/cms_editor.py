@@ -21,7 +21,10 @@ def cmseditor(context):
                 page = Page.objects.get(url=context['request'].path_info)
             except Page.DoesNotExist:
                 page = False
-
+            
+            css = cms_settings.TINYMCE_CONTENT_CSS
+            tinymce_content_css = css if callable(css) else css
+            
             return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
                 'page': page,
                 'cms_settings': cms_settings,
@@ -30,6 +33,7 @@ def cmseditor(context):
                 'image_form': ImageForm(),
                 'page_form': page and PublicPageForm(instance=page) or None,
                 'new_page_form': PublicPageForm(prefix='new'),
+                'tinymce_content_css': tinymce_content_css,
             }))
         else:
             return template.loader.render_to_string("cms/cms/logged_in.html", RequestContext(context['request'], {
