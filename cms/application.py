@@ -114,7 +114,7 @@ def default_image_renderer(img):
                                                                    img.width,
                                                                    img.height)
     else:
-        return None
+        return ''
 
 def get_rendered_image(label, editable=True, renderer=default_image_renderer, 
                        site_id=None, object=None, request=None, 
