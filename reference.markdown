@@ -1,14 +1,13 @@
 # djangocms2000 Reference
 
-... currently a work in progress.
-
 ## Template Tags
 
 Use `{% load cms_tags %}` to enable.
 
-### Text tags
 
-#### `{% cmsblock label format='plain' editable=1 alias=None filters='' %}`
+#### cmsblock
+
+Format: `{% cmsblock label [format='plain' editable=1 as alias] %}`
 
 Basic cms content block. Place as many of these as you need in your template, 
 with unique labels (labels can be repeated if you want the same content in 
@@ -20,135 +19,98 @@ more than one place, ie the window title and page title). Example template code:
     {# non-editable #}
     <title>{% cmsblock "title" editable=0 %} | Example.com</title>
     
-    {# markdown-formatted #}
-    {% cmsblock "content" "markdown" %}
-    
     {# html format (uses tinymce editor) #}
-    {% cmsblock "content" "html" %}
+    {% cmsblock "content" format="html" %}
     
-    {# only show the block and surrounds if it has content or we're in edit mode #}
-    {% cmsblock "tagline" "markdown" alias=tagline %}
-    {% if tagline %}
-    <blockquote class="grid_10">
-        {{ tagline }}
-    </blockquote>
-    {% endif %}
+    {# extended syntax, demonstrating the use of template filters on the block content #}
+    {% cmsblock 'text' as block %}
+        {{ block.content|urlize|linebreaks }}
+    {% endcmsblock %}
+
+    {# extended syntax, with default content #}
+    {% cmsblock 'text' as block %}
+        <p>{{ block.content }}</p>
+    {% empty %}
+        <p>Default content here</p>
+    {% endcmsblock %}    
     
-    {# utilise django's built in filters #}
-    {% cmsblock "content" filters='linebreaks,urlize' %}
+
+#### cmsimage
+
+Format: `{% cmsimage label [geometry='' crop='' editable=1 as alias] %}`
+
+Basic image block - use as with `cmsblock`. The `geometry` argument can be of the format
+'XxY', 'X', or 'xY', for constraining on width and height, just width, and just height, 
+respectively. Examples:
+
+    {# render image as uploaded, no resizing #}
+    {% cmsimage "image" %}
     
-    {# apply the built in "typogrify" filter (requires django-typogrify) #}
-    {% cmsblock "content" "html" filters='typogrify' %}
+    {# fit within a 300x400 box, don't crop #}
+    {% cmsimage "image" geometry="300x400" %}
+    
+    {# resize to 300x400 exactly, cropping if necessary #}
+    {% cmsimage "image" geometry="300x400" crop='center' %}
+    
+    {# resize to 200px wide, don't crop  #}
+    {% cmsimage "image" geometry='200' %}
+    
+    {# resize to 200px high, don't crop #}
+    {% cmsimage "image" geometry='x200' %}
+    
+    {# custom image display, in this case adding a link to download the original image #}
+    {% cmsimage "image" geometry="300x400" as img %}
+        <a href="{{ img.image.file.url }}">
+            <img src="{{ img.url }}" alt="{{ img.image.description }}" 
+                 width="{{ img.width }}" height="{{ img.height }}">
+        </a>
+    {% endcmsimage %}
+    
+    {# show default image if no image added #}
+    {% cmsimage "image" as img %}
+        <img src="{{ img.url }}" alt="{{ img.image.description }}" 
+             width="{{ img.width }}" height="{{ img.height }}">
+    {% empty %}
+        <img src="path-to-default-image.jpg">
+    {% endcmsimage %}
+    
 
+#### Generic blocks and images
 
-#### `{% cmsgenericblock label content_object_variable format='html' editable=1 alias=None filters='' %}`
+Format:
 
-Like `cmssiteblock`, but attached to a generic object (`Article`, `Post` etc) instead
-of a cms page. `content_object_variable` should be the relevant instance. Example usage:
+    {% cmsgenericblock label object [format='plain' editable=1 as alias] %}
+    {% cmsgenericimage label object [geometry='' crop='' editable=1 as alias] %}
 
-    {% for article in article_list %}
+Like `cmsblock` and `cmsimage`, but attached to a generic `django.db.models.Model` 
+object instead of a cms page. The additional `object` argument is required and should 
+be the relevant instance. Example usage:
+
+    {% for article in articles %}
         <article>
-            <h1>{% cmsgenericblock 'title' article 'plain' %}</h1>
-            {% cmsgenericblock 'text' article %}
+            <h1>{% cmsgenericblock 'title' article %}</h1>
+            {% cmsgenericblock 'text' article format='html' %}
+            {% cmsgenericimage 'text' article geometry='400x300' %}
         </article>
     {% endfor %}
 
 
-#### `{% cmssiteblock label format='html' editable=1 alias=None filters='' %}`
+#### Site blocks and images
 
-Like a `cmsgenericblock` that is attached to the current site instance, so effectively
-a site-wide block. Example
+Format:
 
-    <head>
-        <title>{% block title %}{% endblock %} | {% cmssiteblock "base-title" "plain" editable=0 %}</title>
-    </head>
- 
-### Image tags
+    {% cmssiteblock label [format='plain' editable=1 as alias] %}
+    {% cmssiteimage label [geometry='' crop='' editable=1 as alias] %}
 
-#### `{% cmsimage label constraint='' crop='' defaultimage='' editable=1 format='' alias=None %}`
+Like a `cmsgenericblock` that is automatically attached to the current site instance, 
+so effectively a site-wide block. Example
 
-Basic image block - use as with `cmsblock`. By default, will fit an image within
-the constraint, but won't crop. Format can be "html" (generates an <img> tag)
-or "url" (outputs the url to the resized image). 
-The 'constraint' argument can be of the format 'XxY', 'X', or 'xY' - the latter 
-two are for constraining just width and and just height, respectively.
-Examples:
-
-    {# standard usage, fitted within 300x400 box but not cropped #}
-    {% cmsimage "portrait" "300x400" %}
+    <title>{% block title %}{% endblock %} | {% cmssiteblock "base-title" editable=0 %}</title>
     
-    {# resize to 200px wide, aspect ratio preserved #}
-    {% cmsimage "portrait" '200' %}
-    
-    {# resize to 200px high, aspect ratio preserved #}
-    {% cmsimage "portrait" 'x200' %}
-
-    {# Don't resize the uploaded image at all #}
-    {% cmsimage "portrait" %}
-
-    {# crop to an exact size #}
-    {% cmsimage "banner" "960x120" crop='center' %}
-    
-    {# show i/default.png if no image added, and don't crop #}
-    {% cmsimage "portrait" "300x400" defaultimage='i/default.png' %}
-    
-    {# only show the image if one has been uploaded #}
-    {% cmsimage "portrait" "300x400" defaultimage='i/default.png' format='url' alias=image_url %}
-    {% if image_url %}
-    <img src="{{ image_url }}" alt="portrait">
-    {% endif %}
+    <footer>{% cmssiteimage "footer-logo" geometry='200x200' %}</footer>
 
 
-#### `{% cmsgenericimage label content_object_variable constraint='' crop='' defaultimage='' editable=1 format='' alias=None %}`
-
-See `cmsgenericblock`, above.
-
-
-#### `{% cmssiteimage label constraint='' crop='' defaultimage='' editable=1 format='' alias=None %}`
-
-See `cmssiteblock`', above.
-
-
-### Miscellaneous tags
-
-#### `{% cmsgetcrumbtrail as varname %}`
-
-Returns a list of links representing the "crumbtrail" - example template code:
-
-    {% cmsgetcrumbtrail as crumbtrail %}
-    <a href="/">Home</a>
-    {% for link in crumbtrail %}
-    > <a href="{{ link.uri }}">{% firstof link.name link.page.get_title %}</a>
-    {% endfor %}
-
-
-#### `{% cmspage as varname %}`
-
-Returns the current Page object based on request.path_info. This can be used in
-conjunction with [django-shorturls](http://github.com/jacobian/django-shorturls)
-in django template code, to generate a canonical link ie:
-    
-    {% load cms_tags shorturl %}
-    {% cmspage as current_page %}
-    {% revcanonical current_page %}
-    
-produces something like
-
-    <link rev="canonical" href="http://gregbrown.co.nz/s/E">
-
-
-#### `{% cmssitemap base_uri=None include_base=True depth=None %}`
-
-Generates sitemap as a nested html list, starting with base_uri as the root
-(relies on a sane url scheme to work).
-
-    
 ## Settings
-
-
-#### `CMS_HIGHLIGHT_COLOR`
-
-Used to highlight changes made via the edit-in-place system on save. Default is `'#ff0'`.
 
 
 #### `CMS_USE_SITES_FRAMEWORK`

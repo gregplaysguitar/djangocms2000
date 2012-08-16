@@ -2,7 +2,6 @@ from django.conf import settings
 
 # Customisable settings - see reference.markdown
 
-HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
 USE_SITES_FRAMEWORK = getattr(settings, 'CMS_USE_SITES_FRAMEWORK', False)
 TINYMCE_BUTTONS = getattr(settings, 'CMS_TINYMCE_BUTTONS', "formatselect,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code")
 TINYMCE_CONTENT_CSS = getattr(settings, 'CMS_TINYMCE_CONTENT_CSS', "")
@@ -18,5 +17,5 @@ STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
 SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
-
+HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
 
