@@ -2,7 +2,7 @@ from django.conf import settings
 
 # Customisable settings - see reference.markdown
 
-HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_START_COLOR', "#ff0")
+HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
 USE_SITES_FRAMEWORK = getattr(settings, 'CMS_USE_SITES_FRAMEWORK', False)
 TINYMCE_BUTTONS = getattr(settings, 'CMS_TINYMCE_BUTTONS', "formatselect,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code")
 TINYMCE_CONTENT_CSS = getattr(settings, 'CMS_TINYMCE_CONTENT_CSS', "")
