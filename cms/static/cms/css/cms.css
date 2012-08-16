@@ -4,6 +4,7 @@
 	cursor: pointer;
 	position: relative;
 	z-index: 1;	
+	display: inline-block;
 }
 .cms-image {
 	z-index: 20;
@@ -27,10 +28,12 @@
 }
 .cms-block.hovered {
 	background: #D1F0FF;
+	background: rgba(0, 127, 255, 0.2);
 }
 
 .cms-block.sitewide.hovered {
 	background: #fff0d1;
+	background: rgba(255, 127, 0, 0.5);
 }
 
 .cms-image span.editMarker,

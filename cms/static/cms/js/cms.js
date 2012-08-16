@@ -279,9 +279,9 @@
             });
             setTimeout(function() {
                 $(block).css({
-                    '-moz-transition': 'all 500ms',
-                    '-webkit-transition': 'all 500ms',
-                    transition: 'all 500ms'
+                    '-moz-transition': 'none',
+                    '-webkit-transition': 'none',
+                    transition: 'none'
                 });
             }, 500);
         }, 1);
