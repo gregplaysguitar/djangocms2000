@@ -9,7 +9,7 @@ Requirements
 1. [Django,](https://www.djangoproject.com) version 1.4 or higher
 2. [simplejson](pypi.python.org/pypi/simplejson/)
 3. [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) version 10+ (optional, 
-   required for cms images)
+   required for automatically resizing cms images)
 
 Installation
 ------------
@@ -24,7 +24,8 @@ Installation
    `TEMPLATE_CONTEXT_PROCESSORS` setting
 5. Ensure `'django.template.loaders.app_directories.load_template_source'` is present in 
    your `TEMPLATE_LOADERS` setting
-6. Optional: Add `'sorl.thumbnail'` to your `INSTALLED_APPS` if you want to use cms images
+6. Optional: Add `'sorl.thumbnail'` to your `INSTALLED_APPS` if you want to use resized
+   cms images
 7. Optional: add `'cms.middleware.CMSFallbackMiddleware'` to your middleware classes if 
    you want to be able to add new pages via Django's admin.
 8. Optional: add `{% cmseditor %}` to the bottom of your base template to enable sitewide
@@ -35,8 +36,8 @@ Usage
 1. Use `{% load cms_tags %}` to enable the cms tags in a template/
 2. Use `{% cmsblock LABEL [format=FORMAT] %}` to create an editable text block.
    FORMAT can be 'plain' (default) or 'html'.
-3. Use `{% cmsimage LABEL GEOMETRY [crop=CROP] %}` to create editable images. GEOMETRY
-   and CROP (both optional) correspond to sorl's 
+3. Use `{% cmsimage LABEL [geometry=GEOMETRY crop=CROP] %}` to create editable images. 
+   GEOMETRY and CROP (both optional) correspond to sorl's 
    [geometry](http://thumbnail.sorl.net/template.html#geometry) and
    [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the
    original image will be displayed.

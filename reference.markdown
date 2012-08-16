@@ -39,8 +39,10 @@ more than one place, ie the window title and page title). Example template code:
 
 Format: `{% cmsimage label [geometry='' crop='' editable=1 as alias] %}`
 
-Basic image block - use as with `cmsblock`. The `geometry` argument can be of the format
-'XxY', 'X', or 'xY', for constraining on width and height, just width, and just height, 
+Basic image block - use as with `cmsblock`. The `geometry` and `crop` arguments
+correspond to sorl's [geometry](http://thumbnail.sorl.net/template.html#geometry) and 
+[crop](http://thumbnail.sorl.net/template.html#crop) options, and can be of the format
+'XxY', 'X', or 'xY', for constraining width and height, just width, and just height, 
 respectively. Examples:
 
     {# render image as uploaded, no resizing #}
