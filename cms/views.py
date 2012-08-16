@@ -69,13 +69,21 @@ def get_page_content(base_request, page_url):
     # a little so it has the right url and doesn't trigger a POST
     request = copy.copy(base_request)
     request.path = request.path_info = page_url
-    request.POST = None
+    request.method = 'GET'
     
     try:
-        return page_func(request)
+        response = page_func(request)
     except Http404:
         # this shouldn't ever happen, but just in case
         return ''
+    else:
+        # handle deferred rendering - see BaseHandler.get_response in 
+        # django.core.handlers.base
+        # Note that we're ignoring any template response middleware modifiers
+        if hasattr(response, 'render') and callable(response.render):
+            return response.render()
+        else:
+            return response
 
 
 BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
