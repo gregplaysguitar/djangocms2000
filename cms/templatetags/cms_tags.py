@@ -10,7 +10,7 @@ register = template.Library()
 
 
 class BaseBlockNode(BaseNode):
-    '''Node providing which renders a cms Block.'''
+    '''Node which renders a cms Block.'''
     
     required_params = ('label',)
     
@@ -22,7 +22,7 @@ class BaseBlockNode(BaseNode):
 
 
 class BaseImageNode(BaseNode):
-    '''Node providing which renders a cms Image.'''
+    '''Node which renders a cms Image.'''
 
     required_params = ('label',)
     optional_params = ('geometry',)
