@@ -87,7 +87,7 @@ class PageForm(forms.ModelForm):
         
         url = ("/%s" % (url.lstrip('/'))).replace('//', '/')
         
-        if settings.APPEND_SLASH and url[-1] != '/':
+        if settings.APPEND_SLASH and not url.endswith('/'):
             url = "%s/" % url
         
         if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(url__in=[url.rstrip('/'), "%s/" % url.rstrip('/')]):
