@@ -23,7 +23,7 @@ def cmseditor(context):
                 page = False
             
             css = cms_settings.TINYMCE_CONTENT_CSS
-            tinymce_content_css = css if callable(css) else css
+            tinymce_content_css = css() if callable(css) else css
             
             return template.loader.render_to_string("cms/cms/editor.html", RequestContext(context['request'], {
                 'page': page,
