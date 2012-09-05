@@ -30,7 +30,7 @@ class Block(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     label = models.CharField(max_length=255)
-    format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='', blank=False)
+    format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='plain', blank=False)
     content = models.TextField(blank=True, default='')
         
     def display_content(self):
