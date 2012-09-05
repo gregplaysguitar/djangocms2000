@@ -63,7 +63,7 @@ def get_page_content(base_request, page_url):
         page_func = lambda r: render_page(r, page_url)
     else:
         # must be a django-created page, rendered by a urlconf
-        page_func = urlmatch.func
+        page_func = lambda r: urlmatch.func(r, *urlmatch.args, **urlmatch.kwargs)
     
     # reuse the request to avoid having to fake sessions etc, but it'll have to be hacked
     # a little so it has the right url and doesn't trigger a POST
