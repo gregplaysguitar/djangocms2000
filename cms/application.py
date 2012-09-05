@@ -48,10 +48,10 @@ def get_rendered_block(label, editable=True, renderer=lambda b: b.display_conten
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
        for the block.'''
-
+    
     editing = editable and request and is_editing(request)
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
-                                       
+    
     if editing:
         block = get_block(label, **lookup_kwargs)
             

@@ -49,7 +49,7 @@ class SiteMixin(BaseNode):
        settings.'''
     
     def get_options(self, context):
-        options = {'site_id': settings.SITE_ID}
+        options = {'site_id': settings.SITE_ID, 'request': context['request']}
         options.update(super(SiteMixin, self).get_options(context))
         return options
         
