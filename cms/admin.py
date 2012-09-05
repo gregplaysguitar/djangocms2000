@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
+from django.utils.text import truncate_words
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
@@ -134,8 +135,8 @@ class BlockAdmin(admin.ModelAdmin):
     label_display.short_description = 'label'
     label_display.admin_order_field = 'label'
     
-    def content_snippet(self):
-        return truncate_words(strip_tags(self.content), 10)
+    def content_snippet(self, obj):
+        return truncate_words(strip_tags(obj.content), 10)
         
     class Media:
         js = admin_js
