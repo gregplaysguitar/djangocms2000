@@ -1,2 +1,2 @@
-__version__ = '2.0.dev'
-VERSION = tuple(map(int, __version__.split('.')))
+VERSION = (2, 0, 'dev')
+__version__ = '.'.join(map(str, __version_info__))
