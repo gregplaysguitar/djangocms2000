@@ -73,7 +73,7 @@ def get_page_content(base_request, page_url):
     
     try:
         response = page_func(request)
-    except Http404:
+    except Http404, e:
         # this shouldn't ever happen, but just in case
         return ''
     else:
@@ -95,7 +95,7 @@ def saveblock(request, block_id):
     block = form.save()
     
     # render the page to get the updated content
-    page_url = re.compile('https?://%s' % request.META['HTTP_HOST']).sub('', request.META['HTTP_REFERER'])
+    page_url = re.compile('https?://%s' % request.META['HTTP_HOST']).sub('', request.META['HTTP_REFERER']).split('?')[0]
     page_response = get_page_content(request, page_url)
     
     # extract body content from HttpResponse. The response content is assumed to be sane
