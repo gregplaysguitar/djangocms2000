@@ -122,22 +122,6 @@ class BaseNode(template.Node):
             return renderer
         else:
             return None
-    """
-    def get_rendered_content(self, obj, context):
-        if self.is_empty(obj):
-            output = self.nodelist_empty.render(context)
-        else:
-            context.push()
-            if self.varname:
-                context[self.varname] = obj
-                output = self.nodelist_content.render(context)
-            else:
-                context['obj'] = obj
-                output = self.default_template.render(context)
-            context.pop()        
-
-        return output
-    """
     
     def render(self, context):
         raise NotImplementedError

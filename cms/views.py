@@ -99,7 +99,12 @@ def saveblock(request, block_id):
     page_response = get_page_content(request, page_url)
     
     # extract body content from HttpResponse. The response content is assumed to be sane
-    page_content = BODY_RE.search(page_response.content).groups()[0]
+    match = BODY_RE.search(page_response.content)
+    if match:
+        page_content = match.groups()[0]
+    else:
+        # no <body> tag, so assume an ajax response containing only a page fragment
+        page_content = page_response.content
         
     return HttpResponse(simplejson.dumps({
         'page_content': page_content,
