@@ -9,7 +9,6 @@ from models import Block, Image, Page
 from utils import is_editing
 
 
-
 def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
     if url:
@@ -42,15 +41,26 @@ def get_lookup_kwargs(site_id=None, object=None, request=None):
         raise TypeError('One of site_id, object or request is required.')
         
 
-def get_rendered_block(label, editable=True, renderer=lambda b: b.display_content(), 
+def default_block_renderer(block, filters=None):
+    content = block.display_content()
+    if filters:
+        for f in filters.split('|'):
+            content = getattr(template.defaultfilters, f)(content)
+    return content
+
+
+def get_rendered_block(label, editable=True, renderer=None, 
                        site_id=None, object=None, request=None, 
-                       format='plain'):
+                       format='plain', filters=None):
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
        for the block.'''
     
     editing = editable and request and is_editing(request)
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
+    
+    if not renderer:
+        renderer = functools.partial(default_block_renderer, filters=filters)
     
     if editing:
         block = get_block(label, **lookup_kwargs)
