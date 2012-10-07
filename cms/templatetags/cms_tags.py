@@ -332,40 +332,40 @@ class CmsSiteMapNode(template.Node):
             base_url = self.base_url and template.Variable(self.base_url).resolve(context) or '/'
             page = page_qs.get(url=base_url)
         except Page.DoesNotExist:
-            page = None
-
-        include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
-        depth = int(self.depth or 0)
-        
-        
-        def _render(page, currentdepth = 1):
-            html = []
-            children = page.get_children(page_qs).order_by('sort_order', 'url')
-            if len(children):
-                html.append('<ul>')
-                for childpage in children:
-                    html.append('<li>\n<a href="%s">%s</a>' % (childpage.url, childpage.page_title()))
-                    if (not depth) or currentdepth < depth:
-                        html.append(_render(childpage, currentdepth + 1))
-                    html.append('</li>')
-                html.append('</ul>')
-            
-            return "\n".join(html)
-        
-    
-        if include_base and page:
-            html = "\n".join([
-                '<ul>',
-                '<li>',
-                '<a href="%s">%s</a>' % (page.url, page.page_title()),
-                _render(page),
-                '</li>',
-                '</ul>',
-            ])
+            html = ''
         else:
-            html = _render(page)
+            include_base = self.include_base == True or (self.include_base != 'False' and template.Variable(self.include_base).resolve(context))
+            depth = int(self.depth or 0)
+            
+            
+            def _render(page, currentdepth = 1):
+                html = []
+                children = page.get_children(page_qs).order_by('sort_order', 'url')
+                if len(children):
+                    html.append('<ul>')
+                    for childpage in children:
+                        html.append('<li>\n<a href="%s">%s</a>' % (childpage.url, childpage.page_title()))
+                        if (not depth) or currentdepth < depth:
+                            html.append(_render(childpage, currentdepth + 1))
+                        html.append('</li>')
+                    html.append('</ul>')
+                
+                return "\n".join(html)
+            
         
-
+            if include_base and page:
+                html = "\n".join([
+                    '<ul>',
+                    '<li>',
+                    '<a href="%s">%s</a>' % (page.url, page.page_title()),
+                    _render(page),
+                    '</li>',
+                    '</ul>',
+                ])
+            else:
+                html = _render(page)
+            
+    
         if self.alias:
             context[self.alias] = mark_safe(html)
             return ''
