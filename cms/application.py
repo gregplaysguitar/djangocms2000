@@ -43,7 +43,7 @@ def get_lookup_kwargs(site_id=None, object=None, request=None):
 
 def default_block_renderer(block, filters=None):
     content = block.display_content()
-    if filters:
+    if filters and content:
         for f in filters.split('|'):
             content = getattr(template.defaultfilters, f)(content)
     return content
