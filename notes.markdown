@@ -60,7 +60,7 @@ TODO
 - Bind ESC key to cancel when editing inline
 - Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
 - The test for urlconf-rendered vs middleware-rendered pages fails when the url resolves, but the view returns a 404. Fix this, or perhaps just document? See forms.py, line 62
-- New syntax for blocks, with default eg. {% cmsblock "title" %}Default title here{% endcmsblock %}
+- With extended syntax, just wrap the block content and not the whole thing in editing bits...? Might need a new RenderedBlock object and to revamp the `renderer` system somewhat.
 
 TODONE
 ======
@@ -84,3 +84,4 @@ TODONE
 - refactor template tags to use dynamic number of arguments so "as varname" just has to go at the end
 - For CMSBaseModel-based generic objects, render the objects get\_absolute\_url instead
   of requiring BLOCK\_LABELS and IMAGE\_LABELS constants
+- New syntax for blocks, with default eg. {% cmsblock "title" %}Default title here{% endcmsblock %}
