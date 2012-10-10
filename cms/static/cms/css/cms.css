@@ -202,10 +202,15 @@
 	height: 30px;
 	font-weight: inherit;
 	font-family: inherit;
-	font-size: inherit;
+    font-size: inherit;
+    text-align: inherit;
 	line-height: inherit;
+	letter-spacing: inherit;
 	color: inherit;
 	background: none;
+	padding: 5px;
+	margin: -6px;
+	border: 1px solid #ccc;
 }
 #cms-textform input.save,
 #cms-textform input.cancel {
