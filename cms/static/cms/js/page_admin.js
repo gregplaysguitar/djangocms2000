@@ -55,12 +55,4 @@ var cmsAdmin = function($, linklist_url, tinymce_content_css, buttons) {
         });
     }
 
-
-    $(function() {
-        setTimeout(function() {
-            // get rid of django's infernal "Add another ..." link that we don't want when the user is not allowed to add more inlines but the number of inlines varies per object argh
-            $('#cms-block-content_type-object_id-group.inline-group .add-row').hide();
-            $('#cms-image-content_type-object_id-group.inline-group .add-row').hide();
-        }, 100);
-    });
 };

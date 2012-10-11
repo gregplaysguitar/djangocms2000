@@ -43,7 +43,7 @@ class BlockForm(forms.ModelForm):
 
 class BlockInline(generic.GenericTabularInline):
     model = Block
-    extra = 0
+    max_num = 0
     fields = ('content',)
     form = BlockForm
 
@@ -64,7 +64,7 @@ class ImageForm(forms.ModelForm):
 
 class ImageInline(generic.GenericTabularInline):
     model = Image
-    extra = 0
+    max_num = 0
     exclude = ('label',)
     form = ImageForm
 
