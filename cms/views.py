@@ -69,8 +69,9 @@ def get_page_content(base_request, page_url):
     # a little so it has the right url and doesn't trigger a POST
     request = copy.copy(base_request)
     request.path = request.path_info = page_url
-    request.method = 'GET'
-    
+    request.META['REQUEST_METHOD'] = request.method = 'GET'
+    request.POST = None
+        
     try:
         response = page_func(request)
     except Http404, e:
