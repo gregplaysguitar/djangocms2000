@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.core.cache import cache
 from django.template.loader import get_template
 from django import template
 from django.utils.encoding import force_unicode
@@ -16,7 +17,7 @@ from django.utils.functional import curry
 from django.test.client import Client
 
 import settings as cms_settings
-
+from utils import generate_cache_key
 
 
 BLOCK_TYPE_CHOICES = (
@@ -46,7 +47,7 @@ class Block(models.Model):
     class Meta:
        ordering = ['id',]
        unique_together = ('content_type', 'object_id', 'label')
-    
+   
 
 class Image(models.Model):
     content_type = models.ForeignKey(ContentType)
@@ -76,6 +77,14 @@ class Image(models.Model):
     class Meta:
        unique_together = ('content_type', 'object_id', 'label')
     
+
+def clear_cache(sender, instance, **kwargs):
+    key = generate_cache_key(instance._meta.module_name, instance.label,
+                             object=instance.content_object)
+    cache.delete(key)
+post_save.connect(clear_cache, sender=Block)
+post_save.connect(clear_cache, sender=Image)
+
 
 
 TEMPLATE_DIR = settings.TEMPLATE_DIRS[0]

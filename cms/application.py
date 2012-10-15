@@ -4,9 +4,10 @@ import functools
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 
 from models import Block, Image, Page
-from utils import is_editing
+from utils import is_editing, generate_cache_key
 
 
 def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
@@ -76,9 +77,13 @@ def get_rendered_block(label, editable=True, renderer=None,
             'rendered_content': renderer(block),
         })
     else:
-        # TODO cache here
-        return renderer(get_block(label, **lookup_kwargs))
-
+        key = generate_cache_key('block', label, **lookup_kwargs)
+        value = cache.get(key)
+        if value == None:
+            value = renderer(get_block(label, **lookup_kwargs))
+            cache.set(key, value)
+        return value
+            
 
 class RenderedImage:
     '''A wrapper class for Image which can optionally be resized, via the geometry and 
@@ -143,5 +148,9 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
             'rendered_content': renderer(RenderedImage(image, geometry, crop)),
         })
     else:
-        # TODO cache here
-        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
+        key = generate_cache_key('image', label, **lookup_kwargs)
+        value = cache.get(key)
+        if value == None:
+            value = renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
+            cache.set(key, value)
+        return value

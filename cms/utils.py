@@ -1,5 +1,4 @@
-
-
+import settings
 
 
 def is_editing(request):
@@ -8,15 +7,30 @@ def is_editing(request):
 
 
 
-def generate_cache_key(label, app_label=None, module_name=None, object_pk=None, object=None):
+def generate_cache_key(type, label=None, site_id=None, object=None, url=None):
     '''generate a consistent unique cache key based on various arguments'''
     
-    if all([app_label, module_name, object_pk]):
-        key_bits = [app_label, module_name, object_pk]
-    elif object:
-        key_bits = [object._meta.app_label, object._meta.module_name, object.pk]
-    else:
-        raise TypeError(u'Required arguments: either all of app_label, module_name and object_pk, or object')
+    if not (site_id or object or url):
+        raise TypeError(u'Required arguments: one of site_id, object or url.')
+
+    key_bits = [settings.CACHE_PREFIX, type, label]
     
-    key_bits.append(label)
+    if object:
+        app_label = object._meta.app_label
+        module_name = object._meta.module_name
+        if app_label == 'sites' and module_name == 'site':
+            # must actually be a site block, being referenced by the sites.Site object
+            site_id = object.pk
+        elif app_label == 'cms' and module_name == 'page':
+            # must be a cms.Page, ditto
+            url = object.url
+        
+    if site_id:
+        key_bits.append('site_id:%s' % site_id)
+    elif url:
+        key_bits.append('url:%s' % url)
+    else:
+        # must be an object present, otherwise we wouldn't have got this far
+        key_bits.append('object_pk:%s' % object.pk)
+                
     return '|'.join(key_bits)

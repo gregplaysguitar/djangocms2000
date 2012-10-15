@@ -1,3 +1,5 @@
+import hashlib
+
 from django.conf import settings
 
 # Customisable settings - see reference.markdown
@@ -18,4 +20,7 @@ SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
 HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
+
+# let's be *really* careful not to display content from another site using the same cache
+CACHE_PREFIX = 'cms-%s' % hashlib.sha1(settings.SECRET_KEY).hexdigest()[:5]
 
