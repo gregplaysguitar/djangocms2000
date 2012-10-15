@@ -67,7 +67,6 @@ class Image(models.Model):
  
  
     # TODO these can be expensive for large images so should be cached
-    # sorl should handle it though, need to hook into it somehow
     def dimensions(self):
         return {
             'width': self.file.width,
@@ -86,7 +85,6 @@ post_save.connect(clear_cache, sender=Block)
 post_save.connect(clear_cache, sender=Image)
 
 
-
 TEMPLATE_DIR = settings.TEMPLATE_DIRS[0]
 
 def get_templates_from_dir(dir, exclude=None):
@@ -101,16 +99,10 @@ def get_templates_from_dir(dir, exclude=None):
     
     return templates
 
+
 def template_choices():
     CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
     return [('', '---------')] + get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)
-
-    #OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
-#    return (
-#        ('', '---------'),
-#        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
-#        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
-#    )
     
 
 def get_child_pages(parent_url, qs=None):
@@ -125,7 +117,6 @@ class _CMSAbstractBaseModel(models.Model):
     blocks = generic.GenericRelation(Block)
     images = generic.GenericRelation(Image)
         
-    
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
@@ -137,8 +128,6 @@ def dummy_render(sender, **kwargs):
 post_save.connect(dummy_render)
 
 
-
-
 class PageManager(models.Manager):
     def get_for_url(self, url):
         return Page.objects.get_or_create(url=url)[0]
@@ -147,7 +136,6 @@ class PageManager(models.Manager):
 class LivePageManager(models.Manager):
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
-
 
 
 class Page(_CMSAbstractBaseModel):
@@ -179,11 +167,10 @@ def page_pre(sender, **kwargs):
 pre_save.connect(page_pre, sender=Page)
 
 
-"""
-Abstract model for other apps that want to have related Blocks and Images
-"""
-class CMSBaseModel(_CMSAbstractBaseModel):
 
+class CMSBaseModel(_CMSAbstractBaseModel):
+    """Abstract model for other apps that want to have related Blocks and Images"""
+    
     BLOCK_LABELS = [] # list of tuples of the form ('name', 'format',), but will fall back if it's just a list of strings
     IMAGE_LABELS = [] # list of strings
     
