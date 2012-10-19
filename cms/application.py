@@ -12,20 +12,28 @@ from utils import is_editing, generate_cache_key
 
 def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
-    if url:
-        ctype = ContentType.objects.get_for_model(Page)
-        object_id = Page.objects.get_for_url(url).pk
-    elif site_id:
-        ctype = ContentType.objects.get(app_label='sites', model='site')
-        object_id = site_id
-    elif object:
-        ctype = ContentType.objects.get_for_model(object)
-        object_id = object.id
-    else:
-        raise TypeError(u'One of url, site_id or object is required')
     
-    return model_cls.objects.get_or_create(label=label, content_type=ctype,
-                                       object_id=object_id)[0]
+    key = generate_cache_key(model_cls._meta.module_name, label, url=url, site_id=site_id, object=object)
+    
+    obj = cache.get(key)
+    if obj == None:
+        if url:
+            ctype = ContentType.objects.get_for_model(Page)
+            object_id = Page.objects.get_for_url(url).pk
+        elif site_id:
+            ctype = ContentType.objects.get(app_label='sites', model='site')
+            object_id = site_id
+        elif object:
+            ctype = ContentType.objects.get_for_model(object)
+            object_id = object.id
+        else:
+            raise TypeError(u'One of url, site_id or object is required')
+        
+        obj = model_cls.objects.get_or_create(label=label, content_type=ctype,
+                                           object_id=object_id)[0]
+        
+        cache.set(key, obj)
+    return obj
 
 get_block = functools.partial(get_block_or_image, Block)
 get_image = functools.partial(get_block_or_image, Image)
@@ -77,13 +85,8 @@ def get_rendered_block(label, editable=True, renderer=None,
             'rendered_content': renderer(block),
         })
     else:
-        key = generate_cache_key('block', label, **lookup_kwargs)
-        value = cache.get(key)
-        if value == None:
-            value = renderer(get_block(label, **lookup_kwargs))
-            cache.set(key, value)
-        return value
-            
+        return renderer(get_block(label, **lookup_kwargs))
+
 
 class RenderedImage:
     '''A wrapper class for Image which can optionally be resized, via the geometry and 
@@ -148,9 +151,4 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
             'rendered_content': renderer(RenderedImage(image, geometry, crop)),
         })
     else:
-        key = generate_cache_key('image', label, **lookup_kwargs)
-        value = cache.get(key)
-        if value == None:
-            value = renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
-            cache.set(key, value)
-        return value
+        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
