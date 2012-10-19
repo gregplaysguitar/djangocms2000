@@ -166,6 +166,8 @@
 			$('#cms-textform #id_raw_content').val(raw_content).html(raw_content_escaped);
 			$('#cms-textform #id_block_id').val($(block).attr('block_id'));
 			$('#cms-textform #id_format').val($(block).attr('format'));
+            console.log($(block).data('block_id'));
+            console.log($(block).data('format'));
 			
 			var editFormContainer = $('#cms-textform').clone();
 			editFormContainer.find('textarea').css({'height': $(block).height()});
