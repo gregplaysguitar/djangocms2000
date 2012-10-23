@@ -106,8 +106,9 @@ def template_choices():
     
 
 def get_child_pages(parent_url, qs=None):
-    return (qs or Page.live).filter(url__iregex=r'^' + parent_url + '[^/]+/$')
-    #return (qs or Page.objects).filter(url__iregex=r'^' + parent_url + '.+$')
+    if not parent_url.endswith('/'):
+        parent_url += '/'
+    return (qs or Page.live).filter(url__iregex=r'^' + parent_url + '[^/]+/?$')
 
 
 class _CMSAbstractBaseModel(models.Model):
