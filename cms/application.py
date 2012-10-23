@@ -29,8 +29,16 @@ def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
         else:
             raise TypeError(u'One of url, site_id or object is required')
         
-        obj = model_cls.objects.get_or_create(label=label, content_type=ctype,
-                                           object_id=object_id)[0]
+        if model_cls == Image:
+            values = ('pk', 'label', 'file', 'description', )
+        else:
+            values = ('pk', 'label', 'format', 'content', )
+        
+        try:
+            obj = model_cls.objects.get(label=label, content_type=ctype, object_id=object_id) \
+                                   .values(*values)
+        except model_cls.DoesNotExist:
+            obj = {}
         
         cache.set(key, obj)
     return obj
