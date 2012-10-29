@@ -91,7 +91,7 @@ def saveblock(request):
     block.save()
 
     return HttpResponse(simplejson.dumps({
-        'compiled_content': block.get_filtered_content(request.POST.get('filters', None).split(',')),
+        'compiled_content': block.get_filtered_content(request.POST.get('filters', '').split(',')),
         'raw_content': block.raw_content,
     }), mimetype='application/json')
 
