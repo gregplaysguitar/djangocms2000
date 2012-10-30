@@ -160,3 +160,15 @@ in question as its sole argument. Default is `None`. Example:
 
 Identical to `BLOCK_REQUIRED_CALLBACK` but takes an Image instance as its argument.
 
+
+#### `CMS_DUMMY_IMAGE_SOURCE`
+
+If set, and DEBUG is True, empty cms images will be filled with a placeholder from 
+the given source. Format is borrowed from
+[sorl](http://sorl-thumbnail.readthedocs.org/en/latest/reference/settings.html),
+and should contain `%(width)s` and `%(height)s` placeholders, i.e.
+
+    'http://placehold.it/%(width)sx%(height)s'
+    'http://placekitten.com/%(width)s/%(height)s'
+
+Defaults value is `None`.

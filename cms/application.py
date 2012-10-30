@@ -8,7 +8,7 @@ from django.core.cache import cache
 
 from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
-
+import settings as cms_settings
 
 def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
@@ -131,6 +131,18 @@ def default_image_renderer(img):
                                                                    img.image.description,
                                                                    img.width,
                                                                    img.height)
+    elif cms_settings.DUMMY_IMAGE_SOURCE and img.geometry:
+        width, height = (img.geometry.split('x') + [''])[:2]
+        
+        # if only one dimension is supplied, return a square
+        placeholder = cms_settings.DUMMY_IMAGE_SOURCE % {
+            'width': width or height,
+            'height': height or width,
+        }
+        return '<img src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
+                                                                   'Placeholder image',
+                                                                   width or height,
+                                                                   height or width)
     else:
         return ''
 
