@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import functools
 
 from django import template
@@ -125,25 +126,29 @@ class RenderedImage:
         return self.get_image_attr('height')
 
 
+def get_dummy_image(geometry):
+    # geometry can be of the form 'XxY', 'X' or 'xY'. if only one dimension is supplied, 
+    # return a square
+    width, height = (geometry.split('x') + [''])[:2]
+    placeholder = cms_settings.DUMMY_IMAGE_SOURCE % {
+        'width': width or height,
+        'height': height or width,
+    }
+    return '<img class="placeholder" '\
+                'src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
+                                                               'Placeholder image',
+                                                               width or height,
+                                                               height or width)
+
 def default_image_renderer(img):
-    if img.url:
+    if cms_settings.DUMMY_IMAGE_SOURCE and img.geometry and \
+       (not img.image.file or not os.path.exists(img.image.file.path)):
+        return get_dummy_image(img.geometry)
+    elif img.url:
         return '<img src="%s" alt="%s" width="%s" height="%s">' % (img.url, 
                                                                    img.image.description,
                                                                    img.width,
                                                                    img.height)
-    elif cms_settings.DUMMY_IMAGE_SOURCE and img.geometry:
-        width, height = (img.geometry.split('x') + [''])[:2]
-        
-        # if only one dimension is supplied, return a square
-        placeholder = cms_settings.DUMMY_IMAGE_SOURCE % {
-            'width': width or height,
-            'height': height or width,
-        }
-        return '<img class="placeholder" '\
-                    'src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
-                                                                   'Placeholder image',
-                                                                   width or height,
-                                                                   height or width)
     else:
         return ''
 
