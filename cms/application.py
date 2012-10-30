@@ -139,7 +139,8 @@ def default_image_renderer(img):
             'width': width or height,
             'height': height or width,
         }
-        return '<img src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
+        return '<img class="placeholder" '\
+                    'src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
                                                                    'Placeholder image',
                                                                    width or height,
                                                                    height or width)

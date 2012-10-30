@@ -55,7 +55,7 @@
 		    var img = $(block).find('img');
 		    // TODO ajaxify this
 			$('#cms-imageform form').attr('action', save_url);
-			if ($(block).find('img').length) {
+			if (img.length && !img.hasClass('placeholder')) {
 				$('#cms-imageform h2').html('Change image');
 				$('#cms-imageform div.current img').attr('src', img.attr('src'));
 				$('#cms-imageform div.current').css({'visibility': 'visible'});
