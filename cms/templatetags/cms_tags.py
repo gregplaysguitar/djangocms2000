@@ -138,7 +138,7 @@ except ImportError:
 
 
 class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='html', alias=None):
+    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='', colorspace='', alias=None):
         self.label = label
         self.content_object = content_object
         self.constraint = constraint
@@ -146,6 +146,7 @@ class CMSImageNode(template.Node):
         self.crop = crop
         self.editable = editable
         self.format = format
+        self.colorspace = colorspace
         self.alias = alias
 
     def render(self, context):
@@ -171,6 +172,11 @@ class CMSImageNode(template.Node):
             format = template.Variable(self.format).resolve(context)
         else:
             format = 'html'
+        
+        if self.colorspace:
+            colorspace = template.Variable(self.colorspace).resolve(context)
+        else:
+            colorspace = ''
         
         label = self.label.resolve(context)
         
@@ -199,6 +205,7 @@ class CMSImageNode(template.Node):
             'image': image,
             'constraint': constraint,
             'crop': crop,
+            'colorspace': colorspace,
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
             'content_object': content_object,
@@ -236,26 +243,26 @@ class CMSImageNode(template.Node):
 
 @register.tag
 @easy_tag
-def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 

@@ -1,4 +1,4 @@
-var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+    var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
@@ -242,11 +242,11 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 		$('.cms-image').each(function () {
 		    // if there's no image and we're cropping, size the placeholder the same as
 		    // the image so as not to break layouts.
-		    if (!$(this).find('img').length && $(this).attr('crop') && $(this).attr('constraint')) {
-				var bits = $(this).attr('constraint').match(/(\d+)x(\d+)/);
+		    if (!$(this).find('img').length && $(this).attr('constraint')) {
+				var bits = $(this).attr('constraint').split('x');
                 $(this).css({
-                    width: bits[1] + 'px',
-                    height: bits[2] + 'px',
+                    width: bits[0] ? bits[0] + 'px' : 'auto',
+                    height: bits[1] ? bits[1] + 'px' : 'auto',
                     lineHeight: bits[2] + 'px',
                     display: 'inline-block'
                 });
