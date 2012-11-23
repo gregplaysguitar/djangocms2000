@@ -78,7 +78,9 @@ class CMSBlockNode(template.Node):
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
                        
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           editable and cms_settings.EDIT_IN_PLACE:
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -202,13 +204,12 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           cms_settings.EDIT_IN_PLACE and editable:
             data['editable'] = True
         
         
-        
-
-
         if hasattr(sorl, "NullHandler"):
             # assume up-to-date sorl
             if format == 'url':
