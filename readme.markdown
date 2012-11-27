@@ -61,7 +61,7 @@ you're finished.
 - Rename templates/djangocms2000 -> templates/cms
 - Rename djangocms2000 db tables
 - Replace `cms_page` template names
-- Modify djangocms2000 entries in `django_content_type` db table, i.e. `UPDATE `django_content_type` SET app_label='cms' WHERE app_label='djangocms2000';`
+- Modify djangocms2000 entries in `django_content_type` db table, i.e. `UPDATE django_content_type SET app_label='cms' WHERE app_label='djangocms2000';`
 - If you are using [haystack](http://haystacksearch.org/) with the cms, you'll need to rename your search template folder from `djangocms2000` to `cms`
 
 URL/URI MIGRATION:
