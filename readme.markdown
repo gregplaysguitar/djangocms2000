@@ -42,4 +42,24 @@ Usage
    [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the
    original image will be displayed.
 
+Upgrading from 1.x to 2.x
+-------------------------
+1. First make sure you are running the latest 1.x series tag (v1.0.1 at time of writing).
+   Refer to notes.markdown for pre-1.0 migration instructions.
+2. If you're using [South](http://south.aeracode.org/), you'll need to fake the first 
+   migration, ie.
+       
+       ./manage.py migrate cms 0001_initial --fake
+       
+   (If not using South, you'll need to modify your db to match the new schema by hand.)
+3. The `{% cmsextra %}` tag becomes `{% cmseditor %}`, and now requires a separate import,
+   `{% load cms_editor %}`.
+4. The `'markdown'` block format has been removed, and the default is now `'plain'`.
+   `format` is also now a keyword argument, e.g. `{% cmsblock 'text' format='html' %}`.
+5. The `format` argument has been removed from `{% cmsimage ... %}` and its variants, 
+   since the new extended syntax renders it obsolete.
+   
+
+
+
 See reference.markdown for more info
