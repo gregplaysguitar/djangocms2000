@@ -1,6 +1,9 @@
-{% include "cms/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
+<script type="text/javascript">
+    var cms_jQuery = jQuery.noConflict(true);
+</script>
 
 <div>
     <style scoped>

@@ -1,12 +1,13 @@
 {% load cms_tags %}
 
 <link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
-{% include "cms/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
 <script>
+var cms_jQuery = jQuery.noConflict(true);
 (function ($) {
 	 $.cookie('cms-edit_mode', 1, {path: '/'});
-})(jQuery); 
+})(cms_jQuery);
 </script>
 
 <div id="cms-menu">

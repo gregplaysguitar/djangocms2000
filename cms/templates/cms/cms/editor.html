@@ -2,7 +2,7 @@
 
 
 <link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
-{% include "cms/cms/jquery-include.html" %}
+<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/jquery.tinymce.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.color.js"></script>
@@ -11,10 +11,11 @@
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/cms.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
 <script type="text/javascript">
-if (!$.browser.msie) {
+var cms_jQuery = jQuery.noConflict(true);
+if (!cms_jQuery.browser.msie) {
 	function setupCMS () {
 	    cms(
-	        jQuery,
+	        cms_jQuery,
 	        "{{ cms_settings.HIGHLIGHT_COLOR }}",
 	        "{{ cms_settings.TINYMCE_BUTTONS }}",
 	        "{{ tinymce_content_css }}",
@@ -22,10 +23,10 @@ if (!$.browser.msie) {
 	        {{ cms_settings.POST_EDIT_CALLBACK|safe }}
 	    );
 	}
-	$(setupCMS);
+	cms_jQuery(setupCMS);
 }
 else {
-	$('#getarealbrowser').css({'display':'block'});
+	cms_jQuery('#getarealbrowser').css({'display':'block'});
 }
 </script>
 
