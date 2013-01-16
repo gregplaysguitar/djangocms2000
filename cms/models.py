@@ -192,6 +192,11 @@ def dummy_render(sender, **kwargs):
     if isinstance(kwargs['instance'], _CMSAbstractBaseModel):
         if getattr(kwargs['instance'], 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
+            
+            # NOTE: This will naively attempt to render the page using the *current*  django Site
+            # object, so if you're in the admin of one site editing pages on another, the dummy
+            # render will silently fail
+            
             c = Client()
             response = c.get(str(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
@@ -201,7 +206,7 @@ post_save.connect(dummy_render)
 
 class PageManager(models.Manager):
     def get_for_url(self, url):
-        return Page.objects.get_or_create(url=url)[0]
+        return Page.objects.get_or_create(url=url, site=settings.SITE_ID)[0]
 
 
 class LivePageManager(models.Manager):
@@ -211,7 +216,7 @@ class LivePageManager(models.Manager):
 
 
 class Page(_CMSAbstractBaseModel):
-    url = models.CharField(max_length=255, unique=True, verbose_name='URL', help_text='e.g. "/about/contact/"')
+    url = models.CharField(max_length=255, verbose_name='URL', help_text='e.g. "/about/contact/"')
     template = models.CharField(max_length=255, default='')
     site = models.ForeignKey(Site, default=1)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -222,6 +227,7 @@ class Page(_CMSAbstractBaseModel):
     
     class Meta:
         ordering = ('url',)
+        unique_together = ('url', 'site')
     
     history = AuditTrail(show_in_admin=False)
     
