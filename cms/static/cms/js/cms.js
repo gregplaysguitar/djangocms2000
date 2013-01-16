@@ -1,4 +1,4 @@
-var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
+    var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_object, filebrowser_url, buttons, tinymce_content_css, linklist_url, is_superuser, post_edit_callback) {
 	
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
@@ -237,18 +237,22 @@ var cms = function ($, highlight_start_color, highlight_end_color, tinymce_init_
 
 		$('.cms-form input.cancel').click(function() {
 			hideForm();
-		});	
-	
-		
-		$('.cms-block, .cms-image').each(function() {
-			var constraint;
-			if (constraint = $(this).attr('constraint')) {
-				var bits = constraint.match(/(\d+)x(\d+)/);
-				if (bits) {
-					$(this).width(bits[1]);
-					$(this).height(bits[2]);
-				}
+		});
+
+		$('.cms-image').each(function () {
+		    // if there's no image and we're cropping, size the placeholder the same as
+		    // the image so as not to break layouts.
+		    if (!$(this).find('img').length && $(this).attr('constraint')) {
+				var bits = $(this).attr('constraint').split('x');
+                $(this).css({
+                    width: bits[0] ? bits[0] + 'px' : 'auto',
+                    height: bits[1] ? bits[1] + 'px' : 'auto',
+                    lineHeight: bits[2] + 'px',
+                    display: 'inline-block'
+                });
 			}
+		});
+		$('.cms-block, .cms-image').each(function() {
 			$(this).append('<span class="editMarker"></span>');
 		}).mouseover(function() {
 			if (!currently_editing) {

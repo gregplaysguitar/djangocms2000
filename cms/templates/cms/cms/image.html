@@ -3,14 +3,14 @@
 
 
 {% if editable %}
-<div class='cms-image {% if not image.file %}placeholder{% endif %}' blocktype="image" label='{{ label }}' image_id='{{ image.id }}' constraint="{{constraint}}">
+<div class='cms-image {% if not image.file %}placeholder{% endif %}' blocktype="image" label='{{ label }}' image_id='{{ image.id }}' constraint="{{ constraint }}" crop="{{ crop }}">
 {% endif %}
 
 
 
 {% if image.file %}
     {% if constraint %}
-        {% thumbnail image.file constraint crop=crop as thumb %}
+        {% thumbnail image.file constraint crop=crop colorspace=colorspace as thumb %}
             <img src="{{ thumb.url }}" alt="{{ image.description }}" width="{{ thumb.width }}" height="{{ thumb.height }}">
         {% endthumbnail %}
     {% else %}
@@ -19,7 +19,7 @@
 {% else %}
     {% if defaultimage %}
         {% if constraint %}
-            {% thumbnail defaultimage constraint crop=crop as thumb %}
+            {% thumbnail defaultimage constraint crop=crop colorspace=colorspace as thumb %}
                 <img src="{{ thumb.url }}" alt="Default image" width="{{ thumb.width }}" height="{{ thumb.height }}">
             {% endthumbnail %}
         {% else %}

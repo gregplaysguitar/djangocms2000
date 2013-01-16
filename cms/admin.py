@@ -16,14 +16,15 @@ class BlockForm(forms.ModelForm):
     class Meta:
         model = Block
     def __init__(self, *args, **kwargs):
+        super(BlockForm, self).__init__(*args, **kwargs)
+
         # change the raw_content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
-            self.base_fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.base_fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
+            self.fields['raw_content'].widget.attrs['class'] = "%s cms cms-%s" % (self.fields['raw_content'].widget.attrs['class'], kwargs['instance'].format)
         
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.base_fields['raw_content'].required = required_cb(kwargs['instance'])
-        super(BlockForm, self).__init__(*args, **kwargs)
+            self.fields['raw_content'].required = required_cb(kwargs['instance'])
         
 
 class BlockFormSet(generic.generic_inlineformset_factory(Block)):
@@ -46,10 +47,11 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
     def __init__(self, *args, **kwargs):
+        super(ImageForm, self).__init__(*args, **kwargs)
+
         required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.base_fields['file'].required = required_cb(kwargs['instance'])
-        super(ImageForm, self).__init__(*args, **kwargs)
+            self.fields['file'].required = required_cb(kwargs['instance'])
         
 
 

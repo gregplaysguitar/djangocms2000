@@ -118,7 +118,7 @@ class Image(models.Model):
     
     #page = models.ForeignKey(Page)
     label = models.CharField(max_length=255)
-    file = ConstrainedImageField(upload_to=settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
+    file = ConstrainedImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True, max_dimensions=cms_settings.MAX_IMAGE_DIMENSIONS)
     description = models.CharField(max_length=255, blank=True)
     def __unicode__(self):
         return self.label
@@ -156,12 +156,14 @@ def get_templates_from_dir(dir, exclude=None):
 
 def template_choices():
     CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
-    OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
-    return (
-        ('', '---------'),
-        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
-        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
-    )
+    return [('', '---------')] + get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)
+
+    #OTHER_EXCLUDE_REGEX = re.compile('(?:^404\.html|^500\.html|^base\.html|^admin|^cms/|base\.html$)')
+#    return (
+#        ('', '---------'),
+#        ('Static Templates', get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)),
+#        ('Other Templates', get_templates_from_dir("", OTHER_EXCLUDE_REGEX)),
+#    )
     
 
 def get_child_pages(parent_url, qs=None):
@@ -239,15 +241,6 @@ class Page(_CMSAbstractBaseModel):
 def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
-        
-    if kwargs['instance'].template:
-        choices = []
-        for group in template_choices():
-            choices += [t[0] for t in group[1]]
-            
-        if not kwargs['instance'].template in choices:
-            kwargs['instance'].template = choices[0]
-    
 pre_save.connect(page_pre, sender=Page)
 
 

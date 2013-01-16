@@ -46,7 +46,7 @@ URL_DASH_REGEX = re.compile('--+')
 class PageForm(forms.ModelForm):
     template = forms.CharField(
         widget=forms.Select(choices=template_choices()),
-        help_text="Choose from Static Templates unless you're sure of what you're doing.",
+        #help_text="Choose from Static Templates unless you're sure of what you're doing.",
         required=False
     )
     def __init__(self, *args, **kwargs):
@@ -55,7 +55,7 @@ class PageForm(forms.ModelForm):
         # just in case a template has been added/changed since last server restart
         self.fields['template'].widget.choices = template_choices()
                 
-        # if the page is rendered by an actual django url, hide template and make url readonly
+        # if the page is rendered by an actual django url, make template and url read-only
         instance = kwargs.get('instance', None)
         if instance:
             try:
@@ -68,14 +68,14 @@ class PageForm(forms.ModelForm):
                 self.fields['url'].widget = ReadonlyInput()
                 self.fields['url'].help_text = ''
                 self.fields['template'].widget = ReadonlyInput()
-                self.fields['template'].help_text = ''
+                #self.fields['template'].help_text = ''
         
     class Meta:
         model = Page
     
     def clean(self):
         data = self.cleaned_data
-        if not data.get('template', None):
+        if not data.get('template', None) and data.get('url', None):
             try:
                 resolve(data['url'])
             except Resolver404, e:

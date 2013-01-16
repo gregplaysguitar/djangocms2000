@@ -23,8 +23,14 @@ class ConstrainedImageField(ImageField):
 
     def _constrain_image(self, instance=None, **kwargs):
         if getattr(instance, self.name) and self.max_dimensions:
-            filename = getattr(instance, self.name).path
-            self._resize_image(filename, self.max_dimensions)
+            try:
+                filename = getattr(instance, self.name).path
+            except NotImplementedError:
+                # must be using a backend that doesn't support absolute paths
+                # TODO implement resizing for these backends, or fail loudly on application start?
+                pass
+            else:
+                self._resize_image(filename, self.max_dimensions)
 
 
     def contribute_to_class(self, cls, name):
@@ -32,4 +38,18 @@ class ConstrainedImageField(ImageField):
         signals.post_save.connect(self._constrain_image, sender=cls)
 
 
+    def south_field_triple(self):
+        """Returns a suitable description of this field for South."""
+        # We'll just introspect the _actual_ field.
+        from south.modelsinspector import introspector
+        args, kwargs = introspector(ImageField)
+        return ('django.db.models.fields.files.ImageField', args, kwargs)
 
+    def south_field_triple(self):
+        "Returns a suitable description of this field for South."
+        # We'll just introspect the _actual_ field.
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.files.ImageField"
+        args, kwargs = introspector(self)
+        # That's our definition!
+        return (field_class, args, kwargs)

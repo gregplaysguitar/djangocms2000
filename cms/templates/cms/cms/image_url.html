@@ -3,7 +3,7 @@
 
 {% if image.file %}
     {% if constraint %}
-        {% thumbnail image.file constraint crop=crop as thumb %}
+        {% thumbnail image.file constraint crop=crop colorspace=colorspace as thumb %}
             {{ thumb.url }}
         {% endthumbnail %}
     {% else %}
@@ -12,7 +12,7 @@
 {% else %}
     {% if defaultimage %}
         {% if constraint %}
-            {% thumbnail defaultimage constraint crop=crop as thumb %}
+            {% thumbnail defaultimage constraint crop=crop colorspace=colorspace as thumb %}
                 {{ thumb.url }}
             {% endthumbnail %}
         {% else %}
