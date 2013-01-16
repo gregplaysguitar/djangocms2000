@@ -67,7 +67,7 @@ def node_factory(base_node, lookup_mixin):
     
     class _Node(base_node, lookup_mixin):
         pass
-            
+    
     return _Node
 
 
