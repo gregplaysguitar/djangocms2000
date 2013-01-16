@@ -89,7 +89,9 @@ class PageAdmin(CMSBaseAdmin):
     exclude = []
     
     
-if not cms_settings.USE_SITES_FRAMEWORK:
+if cms_settings.USE_SITES_FRAMEWORK:
+    PageAdmin.list_display.append('site')
+else:
     PageAdmin.exclude.append('site')
         
 admin.site.register(Page, PageAdmin)
@@ -130,7 +132,10 @@ class BlockAdmin(admin.ModelAdmin):
     class Media:
         js = cms_settings.ADMIN_JS
         css = cms_settings.ADMIN_CSS
-    
+
+if cms_settings.USE_SITES_FRAMEWORK:
+    BlockAdmin.list_display.append('content_object')
+
 admin.site.register(Block, BlockAdmin)
 
 
@@ -150,5 +155,8 @@ class ImageAdmin(admin.ModelAdmin):
     list_display = ['label_display',]
     form = ImageFormSite
     search_fields = ['label', ]
-    
+
+if cms_settings.USE_SITES_FRAMEWORK:
+    ImageAdmin.list_display.append('content_object')
+
 admin.site.register(Image, ImageAdmin)
