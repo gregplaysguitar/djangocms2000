@@ -136,7 +136,7 @@ post_save.connect(dummy_render)
 
 class PageManager(models.Manager):
     def get_for_url(self, url):
-        return Page.objects.get_or_create(url=url, site=settings.SITE_ID)[0]
+        return Page.objects.get_or_create(url=url, site_id=settings.SITE_ID)[0]
 
 
 class LivePageManager(models.Manager):
