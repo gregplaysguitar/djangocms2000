@@ -42,6 +42,7 @@ class BaseNode(template.Node):
     nodelist_content = template.NodeList()
     nodelist_empty = template.NodeList()
     optional_params = []
+    takes_request = False
     
     def __init__(self, parser, token):
         bits = token.split_contents()
@@ -97,6 +98,10 @@ class BaseNode(template.Node):
     
     def get_options(self, context):
         resolved_options = {}
+        
+        if self.takes_request:
+            resolved_options['request'] = context.get('request', None)            
+        
         for key, expr in self.options:
             noresolve = {u'1': True, u'0': False}
             value = noresolve.get(unicode(expr), expr.resolve(context))

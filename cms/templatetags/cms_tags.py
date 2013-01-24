@@ -38,34 +38,34 @@ class PageMixin(BaseNode):
     '''Works with blocks or images related to a Page object, which is determined via the 
        request. Requires an HttpRequest instance to be present in the template context.'''
     
-    def get_options(self, context):
-        options = {'request': context['request']}
-        options.update(super(PageMixin, self).get_options(context))
-        return options
+    takes_request = True
 
 
 class SiteMixin(BaseNode):
     '''Works with blocks or images related to a Site, which is determined via django 
        settings.'''
     
+    takes_request = True
+    
     def get_options(self, context):
-        options = {'site_id': settings.SITE_ID, 'request': context['request']}
+        options = {'site_id': settings.SITE_ID}
         options.update(super(SiteMixin, self).get_options(context))
         return options
         
         
-class GenericMixin:
+class GenericMixin(BaseNode):
     '''Works with blocks or images related to any model object, which should be passed
        in as an argument after 'label'.'''
 
     required_params = ('object', 'label',)
+    takes_request = True
 
 
 def node_factory(base_node, lookup_mixin):
     '''Shortcut to return a TemplateNode for the given base_node (corresponding to either
        Block or Image) and lookup mixin (page, site or generic)'''
     
-    class _Node(base_node, lookup_mixin):
+    class _Node(lookup_mixin, base_node):
         pass
     
     return _Node
