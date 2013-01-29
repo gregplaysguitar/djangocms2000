@@ -6,7 +6,7 @@ from django.core.urlresolvers import resolve, Resolver404
 from django.utils.safestring import mark_safe
 
 from models import Page, Block, Image, template_choices
-
+import settings as cms_settings
 
 class ReadonlyInput(forms.widgets.HiddenInput):
     is_hidden = False
@@ -89,7 +89,10 @@ class PageForm(forms.ModelForm):
         if settings.APPEND_SLASH and not url.endswith('/'):
             url = "%s/" % url
         
-        site_pages = Page.objects.filter(site=data['site'])
+        if cms_settings.USE_SITES_FRAMEWORK:
+            site_pages = Page.objects.filter(site=data['site'])
+        else:
+            site_pages = Page.objects.all()
         test_urls = [url.rstrip('/'), "%s/" % url.rstrip('/')]
         if site_pages.exclude(pk=self.instance and self.instance.pk).filter(url__in=test_urls):
             self._errors['url'] = self.error_class(['A page with this url already exists'])

@@ -147,7 +147,7 @@ class LivePageManager(models.Manager):
 class Page(_CMSAbstractBaseModel):
     url = models.CharField(max_length=255, verbose_name='URL', help_text='e.g. "/about/contact/"')
     template = models.CharField(max_length=255, default='')
-    site = models.ForeignKey(Site, default=1)
+    site = models.ForeignKey(Site, default=settings.SITE_ID)
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
