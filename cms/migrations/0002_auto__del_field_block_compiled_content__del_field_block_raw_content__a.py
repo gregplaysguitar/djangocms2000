@@ -8,6 +8,9 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Deleting model 'MenuItem'
+        db.delete_table('cms_menuitem')
+        
         # Deleting field 'Block.compiled_content'
         db.delete_column('cms_block', 'compiled_content')
 
@@ -17,6 +20,16 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Adding model 'MenuItem'
+        db.create_table('cms_menuitem', (
+            ('sort', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('text', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('page', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['cms.Page'])),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal('cms', ['MenuItem'])
+        
         # Adding field 'Block.compiled_content'
         db.add_column('cms_block', 'compiled_content',
                       self.gf('django.db.models.fields.TextField')(default='', blank=True),
