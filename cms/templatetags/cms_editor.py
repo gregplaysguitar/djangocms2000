@@ -3,6 +3,7 @@ import os
 from django import template
 from django.contrib.auth.forms import AuthenticationForm
 from django.template import RequestContext
+from django.conf import settings
 
 from cms.utils import is_editing
 from cms.models import Page
@@ -18,7 +19,7 @@ def cmseditor(context):
     if context['request'].user.has_module_perms("cms"):
         if is_editing(context['request']):
             try:
-                page = Page.objects.get(url=context['request'].path_info)
+                page = Page.objects.get(url=context['request'].path_info, site_id=settings.SITE_ID)
             except Page.DoesNotExist:
                 page = False
             
