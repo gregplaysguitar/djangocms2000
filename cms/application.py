@@ -6,6 +6,7 @@ import functools
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.utils.safestring import mark_safe
 
 from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
@@ -125,6 +126,9 @@ class RenderedImage:
     def height(self):
         return self.get_image_attr('height')
 
+    def as_tag(self):
+        return default_image_renderer(self)
+
 
 def get_dummy_image(geometry):
     # geometry can be of the form 'XxY', 'X' or 'xY'. if only one dimension is supplied, 
@@ -134,21 +138,21 @@ def get_dummy_image(geometry):
         'width': width or height,
         'height': height or width,
     }
-    return '<img class="placeholder" '\
+    return mark_safe('<img class="placeholder" '\
                 'src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
                                                                'Placeholder image',
                                                                width or height,
-                                                               height or width)
+                                                               height or width))
 
 def default_image_renderer(img):
     if cms_settings.DUMMY_IMAGE_SOURCE and img.geometry and \
        (not img.image.file or not os.path.exists(img.image.file.path)):
         return get_dummy_image(img.geometry)
     elif img.url:
-        return '<img src="%s" alt="%s" width="%s" height="%s">' % (img.url, 
+        return mark_safe('<img src="%s" alt="%s" width="%s" height="%s">' % (img.url, 
                                                                    img.image.description,
                                                                    img.width,
-                                                                   img.height)
+                                                                   img.height))
     else:
         return ''
 
