@@ -4,6 +4,7 @@ from django import template
 from django.conf import settings
 
 from cms.application import get_rendered_block, get_rendered_image
+from cms.utils import is_editing
 from base import BaseNode
 
 register = template.Library()
@@ -14,8 +15,9 @@ class BaseBlockNode(BaseNode):
     
     required_params = ('label',)
     
-    def is_empty(self, obj):
-        return not obj.content.strip()
+    def is_empty(self, obj, request):
+        editing = request and is_editing(request)
+        return not obj.display_content().strip() and (self.nodelist_empty or not editing)
     
     def render(self, context):
         return get_rendered_block(**self.get_options(context))
@@ -27,7 +29,7 @@ class BaseImageNode(BaseNode):
     required_params = ('label',)
     optional_params = ('geometry',)
     
-    def is_empty(self, obj):
+    def is_empty(self, obj, request):
         return not obj.image.file
     
     def render(self, context):

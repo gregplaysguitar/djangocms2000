@@ -83,14 +83,16 @@ def get_rendered_block(label, editable=None, renderer=None,
     if block.format != format:
         block.format = format
         block.save()
-        
+    
+    rendered_content = renderer(block)
+    
     if editing:
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
-            'rendered_content': renderer(block),
+            'rendered_content': rendered_content,
         })
     else:
-        return renderer(block)
+        return rendered_content
 
 
 class RenderedImage:
@@ -169,11 +171,13 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
     editing = editable and request and is_editing(request)
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
 
+    image = get_image(label, **lookup_kwargs)
+    rendered_content = renderer(RenderedImage(image, geometry, crop))
+    
     if editing:
-        image = get_image(label, **lookup_kwargs)
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,
-            'rendered_content': renderer(RenderedImage(image, geometry, crop)),
+            'rendered_content': rendered_content,
         })
     else:
-        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
+        return rendered_content

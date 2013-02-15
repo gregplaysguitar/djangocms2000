@@ -33,14 +33,14 @@ class BaseNode(template.Node):
     Optional:
     - optional_params
       tuple of optional params to come after required_params
-    - is_empty(self, obj) 
+    - is_empty(self, obj, request) 
       tests whether we should render the {% empty %} section
     '''
 
     #child_nodelists = ('nodelist_content', 'nodelist_empty') # this is in sorl, not sure what it does...?
     
     nodelist_content = template.NodeList()
-    nodelist_empty = template.NodeList()
+    nodelist_empty = None
     optional_params = []
     takes_request = False
     
@@ -116,8 +116,11 @@ class BaseNode(template.Node):
     def get_renderer(self, context):
         if self.varname:
             def renderer(obj):
-                if self.is_empty(obj):
-                    output = self.nodelist_empty.render(context)
+                if self.is_empty(obj, context['request']):
+                    if self.nodelist_empty:
+                        output = self.nodelist_empty.render(context)
+                    else:
+                        output = ''
                 else:
                     context.push()
                     context[self.varname] = obj
@@ -137,7 +140,7 @@ class BaseNode(template.Node):
         for node in self.nodelist_empty:
             yield node
     
-    def is_empty(self, obj):
+    def is_empty(self, obj, request):
         '''Override this in subclasses for smarter 'empty' behaviour'''
         return not obj
 
