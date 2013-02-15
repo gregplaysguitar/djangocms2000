@@ -30,7 +30,8 @@ class BaseImageNode(BaseNode):
     optional_params = ('geometry',)
     
     def is_empty(self, obj, request):
-        return not obj.image.file
+        editing = request and is_editing(request)
+        return not obj.image.file and (self.nodelist_empty or not editing)
     
     def render(self, context):
         return get_rendered_image(**self.get_options(context))
