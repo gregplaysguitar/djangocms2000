@@ -12,7 +12,6 @@ from forms import PageForm, ReadonlyInput
 from models import Page, Block, Image
 
 
-
 admin_js = (
     cms_settings.STATIC_URL + 'lib/jquery-1.4.2.min.js',
     cms_settings.STATIC_URL + 'tiny_mce/tiny_mce.js',
@@ -32,13 +31,14 @@ class BlockForm(forms.ModelForm):
 
         # change the content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
-            self.fields['content'].widget.attrs['class'] = "%s cms cms-%s" % (self.fields['content'].widget.attrs['class'], kwargs['instance'].format)
+            format = kwargs['instance'].format
+            if format == 'attr':
+                self.fields['content'].widget = forms.TextInput()                
+            self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
         
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.fields['content'].required = required_cb(kwargs['instance'])
-        
-
 
 
 class BlockInline(generic.GenericTabularInline):
@@ -46,8 +46,6 @@ class BlockInline(generic.GenericTabularInline):
     max_num = 0
     fields = ('content',)
     form = BlockForm
-
-
 
 
 class ImageForm(forms.ModelForm):
@@ -59,7 +57,6 @@ class ImageForm(forms.ModelForm):
         required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.fields['file'].required = required_cb(kwargs['instance'])
-        
 
 
 class ImageInline(generic.GenericTabularInline):
@@ -67,6 +64,7 @@ class ImageInline(generic.GenericTabularInline):
     max_num = 0
     exclude = ('label',)
     form = ImageForm
+
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
@@ -105,15 +103,12 @@ class PageAdmin(CMSBaseAdmin):
     form = PageForm
     exclude = []
     
-    
 if cms_settings.USE_SITES_FRAMEWORK:
     PageAdmin.list_display.append('site')
 else:
     PageAdmin.exclude.append('site')
         
 admin.site.register(Page, PageAdmin)
-
-
 
 
 # Block/Image admin - restrict to just "site" blocks to avoid confusing the user
@@ -154,6 +149,7 @@ class ImageFormSite(forms.ModelForm):
     class Meta:
         model = Image
     label = forms.CharField(widget=ReadonlyInput)
+
 
 class ImageAdmin(admin.ModelAdmin):
     def queryset(self, request):

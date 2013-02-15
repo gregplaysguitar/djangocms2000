@@ -21,10 +21,17 @@ from utils import generate_cache_key
 
 
 BLOCK_TYPE_CHOICES = (
+    ('attr', 'Attribute'),
     ('plain', 'Plain text'),
     ('html', 'HTML'),
 )
-
+ATTR_REPLACE_CHARS = (
+    ('&', '&amp;'),
+    ('"', '&quot;'),
+    ("'", '&#39;'),
+    ('<', '&lt;'),
+    ('>', '&gt;'),
+)
 class Block(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -38,6 +45,8 @@ class Block(models.Model):
         '''Returns content, marked safe if necessary'''
         if self.format == 'html':
             return mark_safe(self.content)
+        elif self.format == 'attr':
+            return reduce(lambda s, r: s.replace(*r), (self.content,) + ATTR_REPLACE_CHARS)
         else:
             return self.content
     
