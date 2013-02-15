@@ -18,7 +18,6 @@ DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
 SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
-CACHE_PREFIX = getattr(settings, 'CMS_CACHE_PREFIX', 'cms')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
 HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
 
