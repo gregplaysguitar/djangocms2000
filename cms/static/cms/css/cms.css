@@ -205,7 +205,8 @@
     font-size: inherit;
     text-align: inherit;
 	line-height: inherit;
-	letter-spacing: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
 	color: inherit;
 	background: none;
 	padding: 5px;
