@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.views import login as auth_login
 from django.views.decorators.csrf import csrf_protect
 from django.core.urlresolvers import resolve, Resolver404
+from django.core.exceptions import PermissionDenied
 
 from forms import PublicPageForm, BlockForm, ImageForm
 import settings as cms_settings
@@ -29,14 +30,17 @@ def login(request, *args, **kwargs):
     return auth_login(request, *args, **kwargs)
 
 
-@permission_required("cms.change_page")
 def savepage(request, page_pk=None):
     if not request.POST:
         return HttpResponseNotAllowed(['POST'])
     else:
         if page_pk:
+            if not request.user.has_perm('cms.change_page'):
+                raise PermissionDenied
             page = get_object_or_404(Page, pk=page_pk)
         else:
+            if not request.user.has_perm('cms.add_page'):
+                raise PermissionDenied
             page = None
         
         form = PublicPageForm(request.POST, instance=page, prefix=request.POST.get('prefix', None))
@@ -89,7 +93,7 @@ def get_page_content(base_request, page_url):
 
 BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
 
-@permission_required("cms.change_page")
+@permission_required("cms.change_block")
 def saveblock(request, block_id):
     block = get_object_or_404(Block, id=block_id)
     form = BlockForm(request.POST, instance=block, prefix=block.format)
@@ -113,7 +117,7 @@ def saveblock(request, block_id):
     }), mimetype='application/json')
 
     
-@permission_required("cms.change_page")
+@permission_required("cms.change_image")
 def saveimage(request, image_id):
     image = get_object_or_404(Image, id=image_id)
 
@@ -150,16 +154,16 @@ def render_page(request, url):
         },
         context_instance=RequestContext(request)
     )
-    
-    
-    
+
+
 # used to initialise django admin tinymce
-def page_admin_init(request):
+@permission_required("cms.change_block")
+def block_admin_init(request):
 
     css = cms_settings.TINYMCE_CONTENT_CSS
     tinymce_content_css = css if callable(css) else css
     
-    response = render_to_response('cms/cms/page_admin_init.js', {
+    response = render_to_response('cms/cms/block_admin_init.js', {
         'cms_settings': cms_settings,
         'tinymce_content_css': tinymce_content_css,
     }, context_instance=RequestContext(request))
@@ -167,7 +171,9 @@ def page_admin_init(request):
     response['Content-Type'] = 'application/javascript'
     return response
 
+
 # populate the tinymce link list popup
+@permission_required("cms.change_block")
 def linklist(request):
     response = render_to_response(
         'cms/cms/linklist.js',

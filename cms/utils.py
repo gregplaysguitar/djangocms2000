@@ -1,10 +1,17 @@
 import settings
 
 
-def is_editing(request):
-    '''test the request object to see if we're in edit mode'''
-    return ('cms-edit_mode' in request.COOKIES) and request.user.has_module_perms("cms")
-
+def is_editing(request, obj_type=None):
+    '''Test the request object to see if we're in edit mode'''
+    if ('cms-edit_mode' in request.COOKIES):
+        if obj_type =='block':
+            return request.user.has_perm("cms.change_block")
+        elif obj_type =='image':
+            return request.user.has_perm("cms.change_image")
+        else:
+            return request.user.has_module_perms("cms")
+    else:
+        return False
 
 
 def generate_cache_key(type, label=None, site_id=None, object=None, url=None):

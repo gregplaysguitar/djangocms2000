@@ -17,7 +17,7 @@ admin_js = (
     cms_settings.STATIC_URL + 'tiny_mce/tiny_mce.js',
     cms_settings.STATIC_URL + 'tiny_mce/jquery.tinymce.js',
     cms_settings.STATIC_URL + 'js/page_admin.js',
-    reverse_lazy('cms.views.page_admin_init'),
+    reverse_lazy('cms.views.block_admin_init'),
 )
 admin_css = {
     'all': (cms_settings.STATIC_URL + 'css/page_admin.css',),

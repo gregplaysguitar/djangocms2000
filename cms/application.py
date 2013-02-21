@@ -70,7 +70,7 @@ def get_rendered_block(label, editable=None, renderer=None,
     if editable == None:
         editable = (format != 'attr')
     
-    editing = editable and request and is_editing(request)
+    editing = editable and request and is_editing(request, 'block')
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
     
     if not renderer:
@@ -168,7 +168,7 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
 
-    editing = editable and request and is_editing(request)
+    editing = editable and request and is_editing(request, 'image')
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
 
     image = get_image(label, **lookup_kwargs)

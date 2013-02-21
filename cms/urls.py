@@ -13,6 +13,6 @@ urlpatterns = patterns('cms.views',
 	
 	(r'^login/$', 'login'),
 	(r'^logout/$', 'logout'),
-	(r'^page_admin_init.js$', 'page_admin_init'),
+	(r'^block_admin_init.js$', 'block_admin_init'),
     (r'^linklist.js$', 'linklist'),
 )

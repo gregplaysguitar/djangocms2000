@@ -45,8 +45,6 @@ def cmseditor(context):
             'login_form': AuthenticationForm(),
             'cms_settings': cms_settings,
         }))
-    elif 'cms-has_edited_before' in context['request'].COOKIES:
-        return "" #template.loader.render_to_string("cms/cms/persistent_link.html")
     else:
         return ''
 
