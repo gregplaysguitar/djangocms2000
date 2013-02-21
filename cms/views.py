@@ -95,6 +95,8 @@ BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
 
 @permission_required("cms.change_block")
 def saveblock(request, block_id):
+    '''Ajax-only view to save cms.block objects from the frontend editor'''
+
     block = get_object_or_404(Block, id=block_id)
     form = BlockForm(request.POST, instance=block, prefix=block.format)
     block = form.save()
@@ -119,6 +121,8 @@ def saveblock(request, block_id):
     
 @permission_required("cms.change_image")
 def saveimage(request, image_id):
+    '''Ajax-only view to save cms.image objects from the frontend editor'''
+    
     image = get_object_or_404(Image, id=image_id)
 
     if 'delete' in request.POST:
@@ -136,6 +140,8 @@ def saveimage(request, image_id):
 
 @csrf_protect
 def render_page(request, url):
+    '''Renders a cms.page object.'''
+    
     if request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
         qs = Page.objects
@@ -159,6 +165,8 @@ def render_page(request, url):
 # used to initialise django admin tinymce
 @permission_required("cms.change_block")
 def block_admin_init(request):
+    '''Dynamic javascript file; used to initialise tinymce controls etc
+       in the django admin.'''
 
     css = cms_settings.TINYMCE_CONTENT_CSS
     tinymce_content_css = css if callable(css) else css
@@ -172,7 +180,21 @@ def block_admin_init(request):
     return response
 
 
-# populate the tinymce link list popup
+@permission_required("cms.change_block")
+def linklist(request):
+    '''Used to populate the tinymce link list popup.'''
+    
+    response = render_to_response(
+        'cms/cms/linklist.js',
+        {
+            'page_list': Page.objects.all(),
+        },
+        context_instance=RequestContext(request)
+    )
+    response['Content-Type'] = 'application/javascript'
+    return response
+
+
 @permission_required("cms.change_block")
 def linklist(request):
     response = render_to_response(
