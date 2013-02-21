@@ -9,15 +9,19 @@ from django.template import RequestContext
 from django.conf import settings
 from django.contrib.auth.views import login as auth_login
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import never_cache 
 from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 
 from forms import PublicPageForm, BlockForm, ImageForm
 import settings as cms_settings
 from models import Block, Page, Image
+from utils import is_editing
 
 
 def logout(request):
+    '''Basic logout & redirect view.'''
+    
     logout_request(request)
     if 'from' in request.GET:
         return HttpResponseRedirect(request.GET['from'] or '/')
@@ -26,11 +30,16 @@ def logout(request):
         
 
 def login(request, *args, **kwargs):
+    '''Basic login view used by cms login forms.'''
+    
     kwargs['template_name'] = 'cms/cms/login.html'
     return auth_login(request, *args, **kwargs)
 
 
 def savepage(request, page_pk=None):
+    '''Ajax-only view to save cms.page objects from the frontend editor. Used to
+       change or add pages - requires change_page or add_page permission.'''
+    
     if not request.POST:
         return HttpResponseNotAllowed(['POST'])
     else:
@@ -60,6 +69,10 @@ def savepage(request, page_pk=None):
 
 
 def get_page_content(base_request, page_url):
+    '''Fakes a request to retrieve page content, used for updating content
+       by the frontend editor save views. Hacks and reuses the request 
+       to ensure page access is not denied.'''
+    
     try:
         urlmatch = resolve(page_url)
     except Resolver404, e:
@@ -185,7 +198,7 @@ def linklist(request):
     '''Used to populate the tinymce link list popup.'''
     
     response = render_to_response(
-        'cms/cms/linklist.js',
+    'cms/cms/linklist.js',
         {
             'page_list': Page.objects.all(),
         },
@@ -195,16 +208,52 @@ def linklist(request):
     return response
 
 
-@permission_required("cms.change_block")
-def linklist(request):
-    response = render_to_response(
-        'cms/cms/linklist.js',
-        {
-            'page_list': Page.objects.all(),
-        },
-        context_instance=RequestContext(request)
-    )
+@never_cache
+def editor_js(request):
+    '''Dynamic js file for frontend editing. Serves up a blank file, the full editor js,
+       or the edit-mode switcher button depending on the user's cookies and permissions.'''
+       
+    if not request.user.has_module_perms('cms'):
+        response = HttpResponse('')
+    else:
+        if is_editing(request):
+            css = cms_settings.TINYMCE_CONTENT_CSS
+            tinymce_content_css = css() if callable(css) else css
+    
+            response = render_to_response('cms/cms/editor.js', {
+                'cms_settings': cms_settings,
+                'tinymce_content_css': tinymce_content_css,
+            }, context_instance=RequestContext(request))
+        else:
+            response = render_to_response('cms/cms/edit-mode-switcher.js', {
+                'cms_settings': cms_settings,
+            }, context_instance=RequestContext(request))
+    
     response['Content-Type'] = 'application/javascript'
+    return response
+
+
+@never_cache
+def editor_html(request):
+    '''Provides html bits for the editor js - downloaded and injected via ajax.'''
+    
+    if not request.user.has_module_perms('cms'):
+        response = HttpResponse('')
+    else:
+        try:
+            page = Page.objects.get(url=request.GET.get('page', None), site_id=settings.SITE_ID)
+        except Page.DoesNotExist:
+            page = False
+            
+        response = render_to_response('cms/cms/editor.html', {
+            'page': page,
+            'cms_settings': cms_settings,
+            'editor_form': BlockForm(prefix='plain'),
+            'html_editor_form': BlockForm(prefix='html'),
+            'image_form': ImageForm(),
+            'page_form': page and PublicPageForm(instance=page) or None,
+            'new_page_form': PublicPageForm(prefix='new'),
+        }, context_instance=RequestContext(request))
     return response
 
 

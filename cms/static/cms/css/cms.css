@@ -270,5 +270,24 @@
 	z-index: 200;
 }
 
+#cms-logged_in {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: auto;
+    background: transparent url(../images/overlay.png);
+    color: #fff;
+    padding: 5px 10px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    z-index: 200;
+}
+#cms-logged_in a {
+    cursor: pointer;
+    padding: 0 5px;
+    color: #aaa;
+}
+
 
 .clear { clear: both; }

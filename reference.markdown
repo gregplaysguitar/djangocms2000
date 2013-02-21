@@ -135,9 +135,9 @@ blank. Use a callable to avoid reversing urls etc at runtime.
 
 #### `CMS_POST_EDIT_CALLBACK`
 
-Javascript code to execute after a front-end edit - default is blank. Example usage:  
+Javascript function to execute after a front-end edit - default is blank. Example usage:  
 
-    CMS_POST_EDIT_CALLBACK = 'Cufon.refresh()'
+    CMS_POST_EDIT_CALLBACK = 'function() { ... }'
     
 
 #### `CMS_MAX_IMAGE_DIMENSIONS`

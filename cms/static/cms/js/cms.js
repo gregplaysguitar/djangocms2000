@@ -1,5 +1,4 @@
-    var cms = function ($, highlight_color, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
-	
+var cms = function ($, highlight_color, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
 	
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false,
@@ -28,6 +27,11 @@
 			relative_urls: false
 		};
 	
+	$('.edit-switcher').click(function() {
+	    $.cookie('cms-edit_mode', null, {path: '/'});
+	    location.reload();
+	    return false;
+	});
 	
 	function edit(block) {
 		var save_url = $(block).attr('save_url');
@@ -91,7 +95,6 @@
                         if (typeof post_edit_callback === 'function') {
                             post_edit_callback(block);
                         }
-                        
                     },
                     beforeSubmit: function() {
                         $(block).removeClass("placeholder");
@@ -165,99 +168,93 @@
                         $(this).parents('form').eq(0).submit();
                     });
                 }
-                
-                
             }
         }
-		
 		
 		currently_editing = true;
 	};
 	
-	
-	$(function() {
-	
-		$('#id_html-content').tinymce(tinymce_init_object);
+	$('#id_html-content').tinymce(tinymce_init_object);
 
-		$('.cms-form input.cancel').click(function() {
-			hideForm();
-		});
-
-		$('.cms-image').each(function () {
-		    // if there's no image and we're cropping, size the placeholder the same as
-		    // the image so as not to break layouts.
-		    if (!$(this).find('img').length && $(this).attr('constraint')) {
-				var bits = $(this).attr('constraint').split('x');
-                $(this).css({
-                    width: bits[0] ? bits[0] + 'px' : 'auto',
-                    height: bits[1] ? bits[1] + 'px' : 'auto',
-                    lineHeight: bits[2] + 'px',
-                    display: 'inline-block'
-                });
-			}
-		});
-		$('.cms-block, .cms-image').each(function() {
-			$(this).append('<span class="editMarker"></span>');
-		}).mouseover(function() {
-			if (!currently_editing) {
-				$(this).addClass('hovered').find('span.editMarker').css({'display': 'block'});
-			}
-		}).mouseout(function() {
-			$(this).removeClass('hovered').find('span.editMarker').css({'display': 'none'});
-		}).click(function(e){
-		    if (!e.originalTarget || e.originalTarget.tagName.toLowerCase() != 'a') {
-    			edit(this);
-	    		return false;
-		    }
-		}).find('span.editMarker').click(function(){
-			edit(this.parentNode);
-			return false;
-		});
-		
-		$('#cms-menu .page-options').click(function() {
-    		showForm('page');
-    		return false;
-	    });	
-		$('#cms-menu .new-page').click(function() {
-    		showForm('newpage');
-	        return false;
-	    });
-	    
-	    $('#cms-pageform form, #cms-newpageform form').ajaxForm({
-            'success': function(data, status, form) {
-                var wrap = $(form).find('.wrap').eq(0);
-                wrap.find('.error').remove();
-                wrap.find('p').removeClass('haserrors');
-                wrap.find('.message').remove();
-                
-                if (data.success) {
-                    wrap.append($('<div>').addClass('message').html(data.message || 'Page saved'));
-                    setTimeout(function() {
-                        window.location = data.url;
-                    }, 300);
-                }
-                else {
-                    var input;
-                    for (key in data.errors) {
-                        input = wrap.find('*[id$=' + key + ']');
-                        input.parent().addClass('haserrors').prepend($('<span>' + data.errors[key] + '</span>').addClass('error'));
-                    }
-                }
-            },
-            'beforeSubmit': function(data, status, form) {
-                var wrap = $(form).find('.wrap').eq(0);
-                wrap.find('.message').remove();
-                wrap.append($('<div>').addClass('message').html('Page saved'));
-            },
-            'dataType': 'json'
-        });
-        
-        $('#cms-imageform form').submit(function() {
-            $(this).find('.wrap').append($('<div>').addClass('message').html('Saving...'));
-        });
-	    
-		
+	$('.cms-form input.cancel').click(function() {
+		hideForm();
 	});
+
+	$('.cms-image').each(function () {
+		// if there's no image and we're cropping, size the placeholder the same as
+		// the image so as not to break layouts.
+		if (!$(this).find('img').length && $(this).attr('constraint')) {
+			var bits = $(this).attr('constraint').split('x');
+            $(this).css({
+                width: bits[0] ? bits[0] + 'px' : 'auto',
+                height: bits[1] ? bits[1] + 'px' : 'auto',
+                lineHeight: bits[2] + 'px',
+                display: 'inline-block'
+            });
+		}
+	});
+	$('.cms-block, .cms-image').each(function() {
+		$(this).append('<span class="editMarker"></span>');
+	}).mouseover(function() {
+		if (!currently_editing) {
+			$(this).addClass('hovered').find('span.editMarker').css({'display': 'block'});
+		}
+	}).mouseout(function() {
+		$(this).removeClass('hovered').find('span.editMarker').css({'display': 'none'});
+	}).click(function(e){
+		if (!e.originalTarget || e.originalTarget.tagName.toLowerCase() != 'a') {
+    		edit(this);
+	    	return false;
+		}
+	}).find('span.editMarker').click(function(){
+		edit(this.parentNode);
+		return false;
+	});
+	
+	$('#cms-menu .page-options').click(function() {
+    	showForm('page');
+    	return false;
+	});	
+	$('#cms-menu .new-page').click(function() {
+    	showForm('newpage');
+	    return false;
+	});
+	
+	$('#cms-pageform form, #cms-newpageform form').ajaxForm({
+        'success': function(data, status, form) {
+            var wrap = $(form).find('.wrap').eq(0);
+            wrap.find('.error').remove();
+            wrap.find('p').removeClass('haserrors');
+            wrap.find('.message').remove();
+            
+            if (data.success) {
+                wrap.append($('<div>').addClass('message').html(data.message || 'Page saved'));
+                setTimeout(function() {
+                    window.location = data.url;
+                }, 300);
+            }
+            else {
+                var input;
+                for (key in data.errors) {
+                    input = wrap.find('*[id$=' + key + ']');
+                    input.parent().addClass('haserrors').prepend($('<span>' + data.errors[key] + '</span>').addClass('error'));
+                }
+            }
+        },
+        'beforeSubmit': function(data, status, form) {
+            var wrap = $(form).find('.wrap').eq(0);
+            wrap.find('.message').remove();
+            wrap.append($('<div>').addClass('message').html('Page saved'));
+        },
+        'dataType': 'json'
+    });
+    
+    $('#cms-imageform form').submit(function() {
+        $(this).find('.wrap').append($('<div>').addClass('message').html('Saving...'));
+    });
+	
+	
+
 	
 	function highlightBlock(block) {
 		$(block).css({

@@ -1,57 +1,34 @@
 {% load url from future %}
 
 
-<link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}tiny_mce/jquery.tinymce.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.color.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.form.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/cms.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
-<script type="text/javascript">
-var cms_jQuery = jQuery.noConflict(true);
-if (!cms_jQuery.browser.msie) {
-	function setupCMS () {
-	    cms(
-	        cms_jQuery,
-	        "{{ cms_settings.HIGHLIGHT_COLOR }}",
-	        "{{ cms_settings.TINYMCE_BUTTONS }}",
-	        "{{ tinymce_content_css }}",
-	        "{% url 'cms.views.linklist' %}",
-	        {{ cms_settings.POST_EDIT_CALLBACK|safe }}
-	    );
-	}
-	cms_jQuery(setupCMS);
-}
-else {
-	cms_jQuery('#getarealbrowser').css({'display':'block'});
-}
-</script>
+<div id="cms-menu">
+    <div>
+        <span class="status">
+            {% if request.user.first_name %}
+                You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
+            {% endif %}
+                &nbsp;
+            {% if page_form and perms.cms.change_page %}
+                <a class="page-options"href="{% url 'admin:cms_page_change' page.pk %}">Page options</a> /
+            {% endif %}
+            {% if perms.cms.add_page %}
+                <a class="new-page" href="{% url 'admin:cms_page_add' %}">New page</a> /
+            {% endif %}
+            <a class="edit-switcher off">Stop editing</a> /
+            <a href="{% url 'cms.views.logout' %}?from={{ page.get_absolute_url }}">Log me out</a>
+        </span>
 
-<div id="cms-htmloverlay" class="cms-overlay">
-	
-	<div id="cms-htmlform" class="cms-form">
-		<form action="" method="post">
-        {% csrf_token %}
-		<h2>Edit text</h2>
-		{% for el in html_editor_form %}
-		{{ el }}
-		{% endfor %}
-
-		<input type="submit" name="submit" value="Save" class="save">
-		<input type="button" value="Cancel" class="cancel">
-
-		</form>
-		<div class="clear"></div>
-	</div>
-
+        {% if page and not page.is_live %}
+            This page is a draft - 
+            <a href="{% url 'admin:cms_page_change' page.pk %}" class="page-options">click here</a>
+            to make it live.
+        {% endif %}
+    </div>
 </div>
+
 
 {% if page_form %}
 <div id="cms-pageoverlay" class="cms-overlay">
-    
     <div id="cms-pageform" class="cms-form">
         <form action="{% url 'cms.views.savepage' page.pk %}" method="post">
         {% csrf_token %}
@@ -61,7 +38,7 @@ else {
         <div class="wrap">
             {{ page_form.as_p }}
         </div>
-        
+
         <input type="submit" name="submit" value="Save" class="save">
         <input type="button" value="Cancel" class="cancel">
         </form>
@@ -69,6 +46,8 @@ else {
     </div>
 </div>
 {% endif %}
+
+
 <div id="cms-newpageoverlay" class="cms-overlay">
     <div id="cms-newpageform" class="cms-form">
         <form action="{% url 'cms.views.savepage' %}" method="post">
@@ -79,7 +58,7 @@ else {
         <div class="wrap">
             {{ new_page_form.as_p }}
         </div>
-        
+
         <input type="submit" name="submit" value="Save" class="save">
         <input type="button" value="Cancel" class="cancel">
         </form>
@@ -88,82 +67,62 @@ else {
 </div>
 
 
-<div id="cms-menu">
-	<div>
-		<span class="status">
-			{% if request.user.first_name %}
-			You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
-			{% endif %}
-			&nbsp;
-			{% if page_form and perms.cms.change_page %}
-			<a class="page-options"href="{% url 'admin:cms_page_change' page.pk %}">Page options</a>
-			/
-			{% endif %}
-			{% if perms.cms.add_page %}
-			<a class="new-page" href="{% url 'admin:cms_page_add' %}">New page</a>
-			/
-			{% endif %}
-			<a class="edit-switcher off">Stop editing</a>
-			/
-			<a href="{% url 'cms.views.logout' %}?from={{ request.path_info }}">Log me out</a>
-		</span>
+<div id="cms-htmloverlay" class="cms-overlay">
+    <div id="cms-htmlform" class="cms-form">
+        <form action="" method="post">
+        {% csrf_token %}
+        <h2>Edit text</h2>
+        {% for el in html_editor_form %}
+        {{ el }}
+        {% endfor %}
 
-		{% if page and not page.is_live %}
-        This page is a draft - <a href="{% url 'admin:cms_page_change' page.pk %}" class="page-options">click here</a> to make it live.
-        {% endif %}
-        
-		{% comment %}
-		{% if page %}
-		This page is editable. 
-		{% else %}
-		This page has no editable regions.
-		{% endif %}
-		{% endcomment %}
-	</div>
-	<div id="getarealbrowser">
-		Sorry, Microsoft Internet Explorer is not supported. Please download <a href="http://getfirefox.com">Firefox</a> in order to use the editor. Alternately, you can edit this page in the <a href="/admin/">Admin site.</a> 
-	</div>
+        <input type="submit" name="submit" value="Save" class="save">
+        <input type="button" value="Cancel" class="cancel">
+
+        </form>
+        <div class="clear"></div>
+    </div>
+
 </div>
+
 
 <div id="cms-textform" class="cms-form">
-	<form action="" method="post">
-	{% csrf_token %}
-	{% for el in editor_form %}
-	{{ el }}
-	{% endfor %}
-	<input type="submit" name="submit" value="Save" class="save">
-	<input type="button" value="Cancel" class="cancel">
-	</form>
-	<div class="clear"></div>
+    <form action="" method="post">
+    {% csrf_token %}
+    {% for el in editor_form %}
+    {{ el }}
+    {% endfor %}
+    <input type="submit" name="submit" value="Save" class="save">
+    <input type="button" value="Cancel" class="cancel">
+    </form>
+    <div class="clear"></div>
 </div>
-
 
 
 <div id="cms-imageoverlay" class="cms-overlay">
-	
-	<div id="cms-imageform" class="cms-form">
-		<form action="" method="post" enctype="multipart/form-data">
-		{% csrf_token %}
-		<input type="hidden" name="redirect_to" value="{{ request.path_info }}">
-		<h2>Add image</h2>
-		<hr>
-		<div class="wrap">
+    <div id="cms-imageform" class="cms-form">
+        <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="redirect_to" value="{{ page.get_absolute_url }}">
+        <h2>Add image</h2>
+        <hr>
+        <div class="wrap">
             <div class="current">
                 <h4>Currently:</h4>
                 <img src="">
                 <input type="submit" name="delete" value="Delete current" class="delete">
             </div>
-            
+
             <div class="form">
                 {{ image_form.as_p }}
             </div>	
 
-    		<div class="clear"></div>
+            <div class="clear"></div>
         </div>
-        
-		<input type="submit" name="submit" value="Save" class="save">
-		<input type="button" value="Cancel" class="cancel">
-		</form>
-		<div class="clear"></div>
-	</div>
+
+        <input type="submit" name="submit" value="Save" class="save">
+        <input type="button" value="Cancel" class="cancel">
+        </form>
+        <div class="clear"></div>
+    </div>
 </div>
