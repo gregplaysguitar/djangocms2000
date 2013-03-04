@@ -139,7 +139,11 @@ def dummy_render(sender, **kwargs):
             # render will silently fail
             
             c = Client()
-            response = c.get(str(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
+            site = Site.objects.current()
+            response = c.get(str(kwargs['instance'].get_absolute_url()),
+                             {'cms_dummy_render': cms_settings.SECRET_KEY},
+                             HTTP_COOKIE='',
+                             HTTP_HOST=site.domain)   
 post_save.connect(dummy_render)
 
 
