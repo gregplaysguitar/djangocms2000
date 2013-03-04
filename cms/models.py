@@ -139,7 +139,7 @@ def dummy_render(sender, **kwargs):
             # render will silently fail
             
             c = Client()
-            site = Site.objects.current()
+            site = Site.objects.get_current()
             response = c.get(str(kwargs['instance'].get_absolute_url()),
                              {'cms_dummy_render': cms_settings.SECRET_KEY},
                              HTTP_COOKIE='',
