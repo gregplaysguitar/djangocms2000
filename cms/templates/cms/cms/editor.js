@@ -17,7 +17,7 @@ yepnope({
             // collect html bits from the server, and inject them into the page, then initialise
             var url = ('' + window.location.href).replace(/https?:\/\/[^\/]+/, '')
             cms_jQuery.get('{% url "cms.views.editor_html" %}?page=' + url, function(editor_html) {
-                $('body').append(editor_html);
+                cms_jQuery('body').append(editor_html);
                 
                 // init function from cms.js
                 cms(cms_jQuery,

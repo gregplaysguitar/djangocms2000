@@ -1,4 +1,5 @@
 {% load cms_tags %}
+{% load url from future %}
 
 <link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js"></script>
@@ -13,7 +14,7 @@ var cms_jQuery = jQuery.noConflict(true);
 <div id="cms-menu">
 	<div>
 		
-		<form method="post" action="{% url cms.views.login %}">
+		<form method="post" action="{% url 'cms.views.login' %}">
 		{% csrf_token %}
 		
 		<p>
