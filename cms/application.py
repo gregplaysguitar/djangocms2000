@@ -12,13 +12,14 @@ from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
 import settings as cms_settings
 
-def get_block_or_image(model_cls, label, url=None, site_id=None, object=None):
+
+def get_block_or_image(model_cls, label, url=None, site_id=None, object=None, cached=True):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
     
     key = generate_cache_key(model_cls._meta.module_name, label, url=url, site_id=site_id, object=object)
     
     obj = cache.get(key)
-    if obj == None:
+    if obj == None or not cached:
         if url:
             ctype = ContentType.objects.get_for_model(Page)
             object_id = Page.objects.get_for_url(url).pk
@@ -76,23 +77,21 @@ def get_rendered_block(label, editable=None, renderer=None,
     if not renderer:
         renderer = functools.partial(default_block_renderer, filters=filters)
     
-    block = get_block(label, **lookup_kwargs)
-        
-    # This step naively assumes that the same block is not defined somewhere
-    # else with a different format (which would be idiotic anyway.)
-    if block.format != format:
-        block.format = format
-        block.save()
-    
-    rendered_content = renderer(block)
-    
     if editing:
+        block = get_block(label, cached=False, **lookup_kwargs)
+            
+        # This step naively assumes that the same block is not defined somewhere
+        # else with a different format (which would be idiotic anyway.)
+        if block.format != format:
+            block.format = format
+            block.save()
+    
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
-            'rendered_content': rendered_content,
+            'rendered_content': renderer(block),
         })
     else:
-        return rendered_content
+        return renderer(get_block(label, **lookup_kwargs))
 
 
 class RenderedImage:
@@ -171,13 +170,13 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
     editing = editable and request and is_editing(request, 'image')
     lookup_kwargs = get_lookup_kwargs(site_id, object, request)
 
-    image = get_image(label, **lookup_kwargs)
-    rendered_content = renderer(RenderedImage(image, geometry, crop))
-    
     if editing:
+        image = get_image(label, cached=False, **lookup_kwargs)
+        rendered_content = renderer(RenderedImage(image, geometry, crop))
+    
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,
             'rendered_content': rendered_content,
         })
     else:
-        return rendered_content
+        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
