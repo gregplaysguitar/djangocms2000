@@ -8,7 +8,7 @@ var switcher_html = '<div id="cms-logged_in">' +
 
 yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 yepnope({
-    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js',
+    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.9.1.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js',],
     complete: function() {
         var cms_jQuery = jQuery.noConflict(true),

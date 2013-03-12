@@ -174,7 +174,10 @@ var cms = function ($, highlight_color, buttons, tinymce_content_css, linklist_u
 		currently_editing = true;
 	};
 	
-	$('#id_html-content').tinymce(tinymce_init_object);
+	tinyMCE.init($.extend(tinymce_init_object, {
+    	mode: 'exact',
+    	elements: 'id_html-content'
+	}));
 
 	$('.cms-form input.cancel').click(function() {
 		hideForm();

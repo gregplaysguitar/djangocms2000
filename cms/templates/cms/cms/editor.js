@@ -7,14 +7,14 @@ yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 yepnope.injectJs('{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js');
 
 yepnope({
-    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js',
+    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.9.1.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.color.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.form.js',
            '{{ cms_settings.STATIC_URL }}js/cms.js',],
     complete: function() {
         var cms_jQuery = jQuery.noConflict(true),
-            browser_supported = !cms_jQuery.browser.msie; // TODO
+            browser_supported = true; // TODO
 
         if (browser_supported) {
             // collect html bits from the server, and inject them into the page, then initialise

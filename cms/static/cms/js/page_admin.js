@@ -7,7 +7,9 @@ var cmsAdmin = function($, linklist_url, tinymce_content_css, buttons) {
 
     if (id_list.length) {
 
-        $('#' + id_list.join(', #')).tinymce({
+        tinyMCE.init({
+            mode: 'exact',
+            elements: id_list.join(','),
 			paste_text_sticky_default: true,
             paste_text_sticky: true,
             paste_text_linebreaktype: 'combined',
@@ -21,7 +23,6 @@ var cmsAdmin = function($, linklist_url, tinymce_content_css, buttons) {
             directionality: "ltr",
             theme: "advanced",
             strict_loading_mode: 1,
-            mode: "exact",
             plugins: "paste,inlinepopups",
             heading_clear_tag: "p",
 			theme_advanced_buttons1: buttons,
