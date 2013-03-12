@@ -1,10 +1,13 @@
 {% load url from future %}
 
 yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
+
+// I don't know why, but tinymce fails subtly and infuriatingly if
+// loaded along with the rest of the scripts. This fixes it.
+yepnope.injectJs('{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js');
+
 yepnope({
     load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.7.2.js',
-           '{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js',
-           '{{ cms_settings.STATIC_URL }}tiny_mce/jquery.tinymce.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.color.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.form.js',
