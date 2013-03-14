@@ -44,7 +44,7 @@ Usage
 
 Upgrading from 1.x to 2.x
 -------------------------
-1. First make sure you are running the latest 1.x series tag (v1.0.1 at time of writing).
+1. First make sure you are running the latest 1.x series tag (see [here](https://github.com/gregplaysguitar/djangocms2000/tags)).
    Refer to notes.markdown for pre-1.0 migration instructions.
 2. If you're using [South](http://south.aeracode.org/), you'll need to fake the first 
    migration, ie.
