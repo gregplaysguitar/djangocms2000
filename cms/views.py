@@ -1,7 +1,11 @@
 import re, os, copy
+try:
+    import json
+except ImportError:
+    # python 2.5 fallback
+    from django.utils import simplejson as json
 
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
-from django.utils import simplejson
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
 from django.shortcuts import render_to_response, get_object_or_404
@@ -56,13 +60,13 @@ def savepage(request, page_pk=None):
             
         if form.is_valid():
             saved_page = form.save()
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(json.dumps({
                 'success': True,
                 'url': saved_page.get_absolute_url(),
                 'message': page and 'Page saved' or 'Page created... redirecting'
             }), mimetype='application/json')
         else:
-            return HttpResponse(simplejson.dumps({
+            return HttpResponse(json.dumps({
                 'success': False,
                 'errors': form.errors,
             }), mimetype='application/json')
@@ -126,7 +130,7 @@ def saveblock(request, block_id):
         # no <body> tag, so assume an ajax response containing only a page fragment
         page_content = page_response.content
         
-    return HttpResponse(simplejson.dumps({
+    return HttpResponse(json.dumps({
         'page_content': page_content,
         'content': block.content,
     }), mimetype='application/json')
