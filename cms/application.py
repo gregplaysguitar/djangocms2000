@@ -61,12 +61,24 @@ def default_block_renderer(block, filters=None):
     return content
 
 
+def set_block_format(block, format):
+    '''Sets block format, naively assuming that the same block is not defined
+       elsewhere with a different format (which would be idiotic anyway.)'''
+    
+    if block.format != format:
+        block.format = format
+        block.save()
+
+
 def get_rendered_block(label, editable=None, renderer=None, 
                        site_id=None, object=None, request=None, 
                        format='plain', filters=None):
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
        for the block.'''
+    
+    if format not in [t[0] for t in Block.FORMAT_CHOICES]:
+       raise LookupError('%s is not a valid block format.' % format)
     
     if editable == None:
         editable = (format != 'attr')
@@ -79,19 +91,15 @@ def get_rendered_block(label, editable=None, renderer=None,
     
     if editing:
         block = get_block(label, cached=False, **lookup_kwargs)
-            
-        # This step naively assumes that the same block is not defined somewhere
-        # else with a different format (which would be idiotic anyway.)
-        if block.format != format:
-            block.format = format
-            block.save()
-    
+        set_block_format(block, format)
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
             'rendered_content': renderer(block),
         })
     else:
-        return renderer(get_block(label, **lookup_kwargs))
+        block = get_block(label, **lookup_kwargs)
+        set_block_format(block, format)
+        return renderer(block)
 
 
 class RenderedImage:

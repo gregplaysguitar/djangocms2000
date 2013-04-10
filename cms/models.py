@@ -20,11 +20,7 @@ import settings as cms_settings
 from utils import generate_cache_key
 
 
-BLOCK_TYPE_CHOICES = (
-    ('attr', 'Attribute'),
-    ('plain', 'Plain text'),
-    ('html', 'HTML'),
-)
+
 ATTR_REPLACE_CHARS = (
     ('&', '&amp;'),
     ('"', '&quot;'),
@@ -33,14 +29,23 @@ ATTR_REPLACE_CHARS = (
     ('>', '&gt;'),
 )
 class Block(models.Model):
+    FORMAT_ATTR = 'attr'
+    FORMAT_PLAIN = 'plain'
+    FORMAT_HTML = 'html'
+    FORMAT_CHOICES = (
+        (FORMAT_ATTR, 'Attribute'),
+        (FORMAT_PLAIN, 'Plain text'),
+        (FORMAT_HTML, 'HTML'),
+    )
+    
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     label = models.CharField(max_length=255)
-    format = models.CharField(max_length=10, choices=BLOCK_TYPE_CHOICES, default='plain', blank=False)
+    format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default=FORMAT_PLAIN)
     content = models.TextField(blank=True, default='')
-        
+    
     def display_content(self):
         '''Returns content, marked safe if necessary'''
         if self.format == 'html':
