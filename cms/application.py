@@ -105,12 +105,15 @@ def get_rendered_block(label, editable=None, renderer=None,
 class RenderedImage:
     '''A wrapper class for Image which can optionally be resized, via the geometry and 
        crop arguments. If these are given, the url, height and width are derived from a 
-       generated sorl thumbnail; otherwise the original image is used.'''
+       generated sorl thumbnail; otherwise the original image is used. The height and
+       width are also divided by the scale argument, if provided, to enable retina
+       images.'''
     
-    def __init__(self, image, geometry=None, crop=None):
+    def __init__(self, image, geometry=None, crop=None, scale=1):
         self.image = image
         self.geometry = geometry
         self.crop = crop
+        self.scale = scale
         
     def get_thumbnail(self):
         if self.geometry:
@@ -132,11 +135,11 @@ class RenderedImage:
     
     @property
     def width(self):
-        return self.get_image_attr('width')
+        return self.get_image_attr('width') / self.scale
     
     @property
     def height(self):
-        return self.get_image_attr('height')
+        return self.get_image_attr('height') / self.scale
 
     def as_tag(self):
         return default_image_renderer(self)
@@ -170,7 +173,7 @@ def default_image_renderer(img):
 
 def get_rendered_image(label, editable=True, renderer=default_image_renderer, 
                        site_id=None, object=None, request=None, 
-                       geometry=None, crop=None):
+                       geometry=None, crop=None, scale=1):
     '''Get the rendered html for an image, wrapped in editing bits if appropriate.
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
@@ -180,11 +183,11 @@ def get_rendered_image(label, editable=True, renderer=default_image_renderer,
 
     if editing:
         image = get_image(label, cached=False, **lookup_kwargs)
-        rendered_content = renderer(RenderedImage(image, geometry, crop))
+        rendered_content = renderer(RenderedImage(image, geometry, crop, scale))
     
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,
             'rendered_content': rendered_content,
         })
     else:
-        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop))
+        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop, scale))
