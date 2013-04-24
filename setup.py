@@ -10,7 +10,7 @@ setup(
     author='Greg Brown',
     author_email='greg@gregbrown.co.nz',
     url='https://github.com/gregplaysguitar/djangocms2000',
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    packages=['cms'],
     platforms='any',
     zip_safe=False,
     classifiers=[
