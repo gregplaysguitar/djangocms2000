@@ -78,7 +78,9 @@ class CMSBlockNode(template.Node):
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
                        
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           editable and cms_settings.EDIT_IN_PLACE:
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -136,7 +138,7 @@ except ImportError:
 
 
 class CMSImageNode(template.Node):
-    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='html', alias=None):
+    def __init__(self, label, content_object=False, constraint=None, crop="", defaultimage=False, editable=True, format='', colorspace='', alias=None):
         self.label = label
         self.content_object = content_object
         self.constraint = constraint
@@ -144,6 +146,7 @@ class CMSImageNode(template.Node):
         self.crop = crop
         self.editable = editable
         self.format = format
+        self.colorspace = colorspace
         self.alias = alias
 
     def render(self, context):
@@ -169,6 +172,11 @@ class CMSImageNode(template.Node):
             format = template.Variable(self.format).resolve(context)
         else:
             format = 'html'
+        
+        if self.colorspace:
+            colorspace = template.Variable(self.colorspace).resolve(context)
+        else:
+            colorspace = ''
         
         label = self.label.resolve(context)
         
@@ -197,18 +205,18 @@ class CMSImageNode(template.Node):
             'image': image,
             'constraint': constraint,
             'crop': crop,
+            'colorspace': colorspace,
             'defaultimage': defaultimage,
             'sitewide': isinstance(content_object, Site),
             'content_object': content_object,
         }
         #print self.editable
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           cms_settings.EDIT_IN_PLACE and editable:
             data['editable'] = True
         
         
-        
-
-
         if hasattr(sorl, "NullHandler"):
             # assume up-to-date sorl
             if format == 'url':
@@ -235,26 +243,26 @@ class CMSImageNode(template.Node):
 
 @register.tag
 @easy_tag
-def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, False, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmsgenericimage(_tag, label, content_object_variable, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
-    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object_variable, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
 @register.tag
 @easy_tag
-def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, _as='', alias=None, **kwargs):
+def cmssiteimage(_tag, label, constraint=None, crop="", defaultimage=False, editable=True, format=None, colorspace='', _as='', alias=None, **kwargs):
     label = kwargs['parser'].compile_filter(label)
     content_object = Site.objects.get(pk=settings.SITE_ID)
-    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, alias)
+    return CMSImageNode(label, content_object, constraint, crop, defaultimage, editable, format, colorspace, alias)
 
 
 
@@ -324,7 +332,7 @@ class CmsSiteMapNode(template.Node):
 
         try:
             base_url = self.base_url and template.Variable(self.base_url).resolve(context) or '/'
-            page = page_qs.get(url=base_url)
+            page = page_qs.get(url=base_url, site=settings.SITE_ID)
         except Page.DoesNotExist:
             return ''
 
@@ -396,7 +404,7 @@ class CMSCrumbtrailNode(template.Node):
                 current_url += url_part + '/'
                 name = url_part.replace('-', ' ').replace(':', ': ').title()
                 try:
-                    page = Page.objects.get(url=current_url)
+                    page = Page.objects.get(url=current_url, site=settings.SITE_ID)
                 except Page.DoesNotExist:
                     page = None
                 crumbtrail.append({
@@ -425,7 +433,7 @@ class CMSExtraNode(template.Node):
             if context['request'].user.has_module_perms("cms"):
                 if is_editing(context['request']):
                     try:
-                        page = Page.objects.get(url=context['request'].path_info)
+                        page = Page.objects.get(url=context['request'].path_info, site=settings.SITE_ID)
                     except Page.DoesNotExist:
                         page = False
 
