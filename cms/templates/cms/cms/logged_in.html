@@ -1,3 +1,4 @@
+{% load url from future %}
 {% include "cms/cms/jquery-include.html" %}
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
 <script type="text/javascript" src="{{ cms_settings.STATIC_URL }}js/edit-mode-switcher.js"></script>
@@ -27,6 +28,6 @@
     <div id="cms-logged_in">
         <a class="edit-switcher on">Edit</a>
         /
-        <a href="{% url cms.views.logout %}?from={{ request.path_info }}">Logout</a>
+        <a href="{% url 'cms.views.logout' %}?from={{ request.path_info }}">Logout</a>
     </div>
 </div>

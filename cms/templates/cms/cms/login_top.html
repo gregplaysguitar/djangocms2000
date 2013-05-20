@@ -1,3 +1,4 @@
+{% load url from future %}
 {% load cms_tags %}
 
 <link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
@@ -12,7 +13,7 @@
 <div id="cms-menu">
 	<div>
 		
-		<form method="post" action="{% url cms.views.login %}">
+		<form method="post" action="{% url 'cms.views.login' %}">
 		{% csrf_token %}
 		
 		<p>
