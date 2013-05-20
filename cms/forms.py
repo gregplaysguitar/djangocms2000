@@ -93,6 +93,7 @@ class PageForm(forms.ModelForm):
             site_pages = Page.objects.filter(site=data['site'])
         else:
             site_pages = Page.objects.all()
+
         test_urls = [url.rstrip('/'), "%s/" % url.rstrip('/')]
         if site_pages.exclude(pk=self.instance and self.instance.pk).filter(url__in=test_urls):
             self._errors['url'] = self.error_class(['A page with this url already exists'])
