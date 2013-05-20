@@ -67,18 +67,9 @@ class ImageInline(generic.GenericTabularInline):
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines=[BlockInline,ImageInline,]
-    list_display=['get_title',]
+    list_display=['url',]
     save_on_top = True
     
-    def get_title(self, obj):
-        try:
-            return strip_tags(obj.blocks.get(label="title").content)
-        except Block.DoesNotExist:
-            try:
-                return strip_tags(obj.blocks.get(label="name").content)
-            except Block.DoesNotExist:
-                return obj.url
-                
     class Media:
         js = admin_js
         css = admin_css
@@ -87,8 +78,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
 
     
 class PageAdmin(CMSBaseAdmin):
-    list_display=['get_title', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
-    list_display_links=['get_title', 'url', ]
+    list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
+    list_display_links=['__unicode__', 'url', ]
 
     list_filter=['site', 'template', 'is_live', 'creation_date',]
     
