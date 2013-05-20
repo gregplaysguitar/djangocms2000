@@ -20,7 +20,6 @@ import settings as cms_settings
 from utils import generate_cache_key
 
 
-
 ATTR_REPLACE_CHARS = (
     ('&', '&amp;'),
     ('"', '&quot;'),
@@ -128,10 +127,15 @@ def get_child_pages(parent_url, qs=None):
 class _CMSAbstractBaseModel(models.Model):
     class Meta:
         abstract = True
-
+    
     blocks = generic.GenericRelation(Block)
     images = generic.GenericRelation(Image)
-        
+    
+    def __unicode__(self):
+        try:
+            return self.blocks.exclude(content='').get(label='title').content
+        except Block.DoesNotExist:
+            return self.url
 
 # add blocks on save via dummy render
 def dummy_render(sender, **kwargs):
@@ -178,10 +182,7 @@ class Page(_CMSAbstractBaseModel):
     
     def get_children(self, qs=None):
         return get_child_pages(self.url, qs)
-
-    def __unicode__(self):
-        return self.url
-
+    
     def get_absolute_url(self):
         return self.url
 
@@ -190,7 +191,6 @@ def page_pre(sender, **kwargs):
     if not kwargs['instance'].site:
         kwargs['instance'].site = Site.objects.all()[0]
 pre_save.connect(page_pre, sender=Page)
-
 
 
 class CMSBaseModel(_CMSAbstractBaseModel):
