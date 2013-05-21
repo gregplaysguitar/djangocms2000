@@ -1,6 +1,6 @@
 var cmsAdmin = function($, linklist_url, tinymce_content_css, buttons) {
 
-    id_list = [];
+    var id_list = [];
     $('textarea.cms-html').each(function(i, item) {
         id_list.push(item.id);
     });
