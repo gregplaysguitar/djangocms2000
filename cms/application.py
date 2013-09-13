@@ -7,7 +7,6 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
-from django.conf import settings
 
 from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
@@ -27,9 +26,9 @@ def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=
         elif site_id:
             ctype = ContentType.objects.get(app_label='sites', model='site')
             object_id = site_id
-        elif object:
+        elif related_object:
             ctype = ContentType.objects.get_for_model(related_object)
-            object_id = object.id
+            object_id = related_object.id
         else:
             raise TypeError(u'One of url, site_id or related_object is required')
         
@@ -45,9 +44,7 @@ get_image = functools.partial(get_block_or_image, Image)
 
 def get_lookup_kwargs(site_id=None, related_object=None, request=None):
     '''Converts arguments passed through from a template into a dict of 
-       arguments suitable for passing to the get_block_or_image function.
-       Defaults to current site instance if not passed anything, and 
-       the sites framework is installed.'''
+       arguments suitable for passing to the get_block_or_image function.'''
        
     if request:
         return {'url': request.path_info}
@@ -55,11 +52,8 @@ def get_lookup_kwargs(site_id=None, related_object=None, request=None):
         return {'related_object': related_object}
     elif site_id:
         return {'site_id': site_id}
-    elif hasattr(settings, 'SITE_ID'):
-        return {'site_id': settings.SITE_ID}
     else:
-        raise TypeError(u"If you're not using the sites framework, you must "
-                         "provide one of request, site_id or related_object.")
+        raise TypeError(u"You must provide one of request, site_id or related_object.")
         
 
 def default_block_renderer(block, filters=None):
