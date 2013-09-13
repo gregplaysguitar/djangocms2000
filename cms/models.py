@@ -92,7 +92,7 @@ class Image(models.Model):
 
 def clear_cache(sender, instance, **kwargs):
     key = generate_cache_key(instance._meta.module_name, instance.label,
-                             object=instance.content_object)
+                             related_object=instance.content_object)
     cache.delete(key)
 post_save.connect(clear_cache, sender=Block)
 post_save.connect(clear_cache, sender=Image)

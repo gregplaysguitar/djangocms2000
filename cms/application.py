@@ -14,10 +14,10 @@ from utils import is_editing, generate_cache_key
 import settings as cms_settings
 
 
-def get_block_or_image(model_cls, label, url=None, site_id=None, object=None, cached=True):
+def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=None, cached=True):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
     
-    key = generate_cache_key(model_cls._meta.module_name, label, url=url, site_id=site_id, object=object)
+    key = generate_cache_key(model_cls._meta.module_name, label, url=url, site_id=site_id, related_object=related_object)
     
     obj = cache.get(key)
     if obj == None or not cached:
@@ -28,10 +28,10 @@ def get_block_or_image(model_cls, label, url=None, site_id=None, object=None, ca
             ctype = ContentType.objects.get(app_label='sites', model='site')
             object_id = site_id
         elif object:
-            ctype = ContentType.objects.get_for_model(object)
+            ctype = ContentType.objects.get_for_model(related_object)
             object_id = object.id
         else:
-            raise TypeError(u'One of url, site_id or object is required')
+            raise TypeError(u'One of url, site_id or related_object is required')
         
         obj = model_cls.objects.get_or_create(label=label, content_type=ctype,
                                            object_id=object_id)[0]
@@ -43,7 +43,7 @@ get_block = functools.partial(get_block_or_image, Block)
 get_image = functools.partial(get_block_or_image, Image)
 
 
-def get_lookup_kwargs(site_id=None, object=None, request=None):
+def get_lookup_kwargs(site_id=None, related_object=None, request=None):
     '''Converts arguments passed through from a template into a dict of 
        arguments suitable for passing to the get_block_or_image function.
        Defaults to current site instance if not passed anything, and 
@@ -51,15 +51,15 @@ def get_lookup_kwargs(site_id=None, object=None, request=None):
        
     if request:
         return {'url': request.path_info}
-    elif object:
-        return {'object': object}
+    elif related_object:
+        return {'related_object': related_object}
     elif site_id:
         return {'site_id': site_id}
     elif hasattr(settings, 'SITE_ID'):
         return {'site_id': settings.SITE_ID}
     else:
         raise TypeError(u"If you're not using the sites framework, you must "
-                         "provide one of request, site_id or object.")
+                         "provide one of request, site_id or related_object.")
         
 
 def default_block_renderer(block, filters=None):
@@ -80,7 +80,7 @@ def set_block_format(block, format):
 
 
 def get_rendered_block(label, editable=None, renderer=None, 
-                       site_id=None, object=None, request=None, 
+                       site_id=None, related_object=None, request=None, 
                        format='plain', filters=None):
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
@@ -93,7 +93,7 @@ def get_rendered_block(label, editable=None, renderer=None,
         editable = (format != 'attr')
     
     editing = editable and request and is_editing(request, 'block')
-    lookup_kwargs = get_lookup_kwargs(site_id, object, request)
+    lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
     
     if not renderer:
         renderer = functools.partial(default_block_renderer, filters=filters)
@@ -181,14 +181,14 @@ def default_image_renderer(img):
         return ''
 
 def get_rendered_image(label, editable=True, renderer=default_image_renderer, 
-                       site_id=None, object=None, request=None, 
+                       site_id=None, related_object=None, request=None, 
                        geometry=None, crop=None, scale=1):
     '''Get the rendered html for an image, wrapped in editing bits if appropriate.
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
 
     editing = editable and request and is_editing(request, 'image')
-    lookup_kwargs = get_lookup_kwargs(site_id, object, request)
+    lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
 
     if editing:
         image = get_image(label, cached=False, **lookup_kwargs)
