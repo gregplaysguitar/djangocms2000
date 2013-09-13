@@ -1,7 +1,7 @@
-from django import template
 from django.contrib.auth.forms import AuthenticationForm
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django import template
 
 from cms.utils import is_editing
 from cms import settings as cms_settings
@@ -10,8 +10,10 @@ from cms import settings as cms_settings
 register = template.Library()
 
 
-@register.simple_tag(takes_context=True)
 def cmseditor(context):
+    '''Lazily loads the cms editor. This should be called at the bottom of an html document to
+       allow frontend editing. '''
+    
     if 'edit' in context['request'].GET:
         return render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
             'login_form': AuthenticationForm(),
@@ -22,7 +24,6 @@ def cmseditor(context):
             'cms_settings': cms_settings,
         }))
 
+register.simple_tag(cmseditor, takes_context=True)
 
-@register.assignment_tag(takes_context=True)
-def cmsediting(context):
-    return is_editing(context['request'])
+register.assignment_tag(is_editing)
