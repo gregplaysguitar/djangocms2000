@@ -7,6 +7,7 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
 from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
@@ -43,14 +44,22 @@ get_image = functools.partial(get_block_or_image, Image)
 
 
 def get_lookup_kwargs(site_id=None, object=None, request=None):
-    if site_id:
-        return {'site_id': site_id}
+    '''Converts arguments passed through from a template into a dict of 
+       arguments suitable for passing to the get_block_or_image function.
+       Defaults to current site instance if not passed anything, and 
+       the sites framework is installed.'''
+       
+    if request:
+        return {'url': request.path_info}
     elif object:
         return {'object': object}
-    elif request:
-        return {'url': request.path_info}
+    elif site_id:
+        return {'site_id': site_id}
+    elif hasattr(settings, 'SITE_ID'):
+        return {'site_id': settings.SITE_ID}
     else:
-        raise TypeError('One of site_id, object or request is required.')
+        raise TypeError(u"If you're not using the sites framework, you must "
+                         "provide one of request, site_id or object.")
         
 
 def default_block_renderer(block, filters=None):
