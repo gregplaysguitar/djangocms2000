@@ -46,12 +46,12 @@ def get_lookup_kwargs(site_id=None, related_object=None, request=None):
     '''Converts arguments passed through from a template into a dict of 
        arguments suitable for passing to the get_block_or_image function.'''
        
-    if request:
-        return {'url': request.path_info}
-    elif related_object:
+    if related_object:
         return {'related_object': related_object}
     elif site_id:
         return {'site_id': site_id}
+    elif request:
+        return {'url': request.path_info}
     else:
         raise TypeError(u"You must provide one of request, site_id or related_object.")
         
