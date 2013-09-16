@@ -13,7 +13,7 @@ from models import Page, Block, Image
 
 
 admin_js = (
-    cms_settings.STATIC_URL + 'lib/jquery-1.9.1.js',
+    cms_settings.STATIC_URL + 'lib/jquery-1.10.2.min.js',
     cms_settings.STATIC_URL + 'tiny_mce/tiny_mce.js',
     cms_settings.STATIC_URL + 'js/page_admin.js',
     reverse_lazy('cms.views.block_admin_init'),

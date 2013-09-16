@@ -7,7 +7,7 @@ yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 yepnope.injectJs('{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js');
 
 yepnope({
-    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.9.1.js',
+    load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.10.2.min.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.color.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.form.js',
