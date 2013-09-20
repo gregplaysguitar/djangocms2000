@@ -113,6 +113,9 @@ class RenderedImage:
        images.'''
     
     def __init__(self, image, geometry=None, crop=None, scale=1):
+        if type(geometry) == int:
+            geometry = str(geometry)
+        
         self.image = image
         self.geometry = geometry
         self.crop = crop
