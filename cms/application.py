@@ -73,9 +73,9 @@ def set_block_format(block, format):
         block.save()
 
 
-def get_rendered_block(label, editable=None, renderer=None, 
-                       site_id=None, related_object=None, request=None, 
-                       format='plain', filters=None):
+def get_rendered_block(label, format='plain', related_object=None, filters=None,
+                       editable=None, renderer=None, site_id=None,
+                       request=None):
     '''Get the rendered html for a block, wrapped in editing bits if appropriate.
        `renderer` is a callable taking a block object and returning rendered html
        for the block.'''
@@ -177,9 +177,9 @@ def default_image_renderer(img):
     else:
         return ''
 
-def get_rendered_image(label, editable=True, renderer=default_image_renderer, 
-                       site_id=None, related_object=None, request=None, 
-                       geometry=None, crop=None, scale=1):
+def get_rendered_image(label, geometry=None, related_object=None, crop=None,
+                       editable=True, renderer=default_image_renderer,
+                       site_id=None, request=None, scale=1):
     '''Get the rendered html for an image, wrapped in editing bits if appropriate.
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
