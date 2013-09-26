@@ -15,7 +15,7 @@
                 <a class="new-page" href="{% url 'admin:cms_page_add' %}">New page</a> /
             {% endif %}
             <a class="edit-switcher off">Stop editing</a> /
-            <a href="{% url 'cms.views.logout' %}?from={{ page.get_absolute_url }}">Log me out</a>
+            <a href="{% url 'cms.views.logout' %}?from={{ request.GET.page }}">Log me out</a>
         </span>
 
         {% if page and not page.is_live %}
@@ -103,7 +103,7 @@
     <div id="cms-imageform" class="cms-form">
         <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="hidden" name="redirect_to" value="{{ page.get_absolute_url }}">
+        <input type="hidden" name="redirect_to" value="{{ request.GET.page }}">
         <h2>Add image</h2>
         <hr>
         <div class="wrap">
