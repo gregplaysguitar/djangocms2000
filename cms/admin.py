@@ -10,6 +10,7 @@ from django.utils.text import truncate_words
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
 from models import Page, Block, Image
+from admin_filters import ContentTypeFilter
 
 
 admin_js = (
@@ -101,21 +102,15 @@ else:
 admin.site.register(Page, PageAdmin)
 
 
-# Block/Image admin - restrict to just "site" blocks to avoid confusing the user
-# Note - end users should only be given change permissions on these
-
 class BlockFormSite(BlockForm):
     label = forms.CharField(widget=ReadonlyInput)
 
 class BlockAdmin(admin.ModelAdmin):
-    def queryset(self, request):
-        '''TODO: this is a bit hacky, and might cause confusion - perhaps revisit?'''
-        return Block.objects.filter(content_type=ContentType.objects.get_for_model(Site))
-
     form = BlockFormSite
     fields = ['label', 'content',]
-    list_display = ['label_display', 'format', 'content_snippet',]
+    list_display = ['label_display', 'content_object', 'format', 'content_snippet', ]
     search_fields = ['label', ]
+    list_filter = [ContentTypeFilter]
     
     def label_display(self, obj):
         return obj.label.replace('-', ' ').replace('_', ' ').capitalize()
@@ -129,9 +124,6 @@ class BlockAdmin(admin.ModelAdmin):
         js = admin_js
         css = admin_css
 
-if cms_settings.USE_SITES_FRAMEWORK:
-    BlockAdmin.list_display.append('content_object')
-
 admin.site.register(Block, BlockAdmin)
 
 
@@ -140,20 +132,11 @@ class ImageFormSite(forms.ModelForm):
         model = Image
     label = forms.CharField(widget=ReadonlyInput)
 
-
 class ImageAdmin(admin.ModelAdmin):
-    def queryset(self, request):
-        if False and request.user.is_superuser:
-            return Image.objects.all()
-        else:
-            return Image.objects.filter(content_type=ContentType.objects.get_for_model(Site))
-
     fields = ['label', 'file', 'description', ]
-    list_display = ['label_display',]
+    list_display = ['label_display', 'content_object', 'file', 'description', ]
     form = ImageFormSite
     search_fields = ['label', ]
-
-if cms_settings.USE_SITES_FRAMEWORK:
-    ImageAdmin.list_display.append('content_object')
+    list_filter = [ContentTypeFilter]
 
 admin.site.register(Image, ImageAdmin)
