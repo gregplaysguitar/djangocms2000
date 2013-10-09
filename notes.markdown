@@ -45,26 +45,20 @@ Example SQL for the above migrations:
 TODO
 ====
 
-- Upgrade tinymce and jquery, fix the way we load jquery (load own non-clashing version?)
-- give non-standard cms block attrs a data- prefix, and use jquery's .data() to access them
 - plain text needs to somehow distinguish between single line stuff and multi line for admin
-- incorporate tim's new designs
-- Markdown editing weirdness
 - The "click to add" text should be added if the only thing present is tags, i.e. the content is <p></p> etc
-- It's not really happy about editable blocks when there's no CMSPage
-  e.g. when all blocks are 'generic'
-- z-indexes e.g. editable fields above panel at top of window.
-- editing a plain text block before the page has fully loaded opens up the html editor as well as the plain text editor
-- ability to tab through cms blocks on a page, hitting enter to edit the currently highlighted block
-- upgrade tinymce
-- Bind ESC key to cancel when editing inline
-- Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
 - The test for urlconf-rendered vs middleware-rendered pages fails when the url resolves, but the view returns a 404. Fix this, or perhaps just document? See forms.py, line 62
-- With extended syntax, just wrap the block content and not the whole thing in editing bits...? Might need a new RenderedBlock object and to revamp the `renderer` system somewhat.
+
 
 TODONE
 ======
 
+- upgrade tinymce
+- With extended syntax, just wrap the block content and not the whole thing in editing bits...? Might need a new RenderedBlock object and to revamp the `renderer` system somewhat.
+- editing a plain text block before the page has fully loaded opens up the html editor as well as the plain text editor
+- z-indexes e.g. editable fields above panel at top of window.
+- Upgrade tinymce and jquery, fix the way we load jquery (load own non-clashing version?)
+- Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
 - When editing "plain" fields (I think) the field is always populated 
   with what was its content on page load, even if it's been changed 
   since then, e.g.:
