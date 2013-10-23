@@ -77,7 +77,9 @@ class CMSBlockNode(template.Node):
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
                        
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and editable and cms_settings.EDIT_IN_PLACE and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           editable and cms_settings.EDIT_IN_PLACE:
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -208,13 +210,12 @@ class CMSImageNode(template.Node):
             'content_object': content_object,
         }
         #print self.editable
-        if 'request' in context and context['request'].user.has_perm("cms.change_page") and cms_settings.EDIT_IN_PLACE and editable and is_editing(context['request']):
+        if 'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page") and \
+           cms_settings.EDIT_IN_PLACE and editable:
             data['editable'] = True
         
         
-        
-
-
         if hasattr(sorl, "NullHandler"):
             # assume up-to-date sorl
             if format == 'url':
@@ -330,7 +331,7 @@ class CmsSiteMapNode(template.Node):
 
         try:
             base_url = self.base_url and template.Variable(self.base_url).resolve(context) or '/'
-            page = page_qs.get(url=base_url)
+            page = page_qs.get(url=base_url, site=settings.SITE_ID)
         except Page.DoesNotExist:
             html = ''
         else:
@@ -401,7 +402,7 @@ class CMSCrumbtrailNode(template.Node):
                 current_url += url_part + '/'
                 name = url_part.replace('-', ' ').replace(':', ': ').title()
                 try:
-                    page = Page.objects.get(url=current_url)
+                    page = Page.objects.get(url=current_url, site=settings.SITE_ID)
                 except Page.DoesNotExist:
                     page = None
                 crumbtrail.append({
@@ -430,7 +431,7 @@ class CMSExtraNode(template.Node):
             if context['request'].user.has_module_perms("cms"):
                 if is_editing(context['request']):
                     try:
-                        page = Page.objects.get(url=context['request'].path_info)
+                        page = Page.objects.get(url=context['request'].path_info, site=settings.SITE_ID)
                     except Page.DoesNotExist:
                         page = False
 

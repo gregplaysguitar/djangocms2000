@@ -137,7 +137,7 @@ def render_page(request, url=None):
     # url resolved elsewhere in the project)
     qs = qs.exclude(template='')
     
-    page = get_object_or_404(qs, url=url)
+    page = get_object_or_404(qs, url=url, site=settings.SITE_ID)
     
     if not page_is_authorised(request, page):
         if request.user.is_authenticated():
@@ -153,9 +153,7 @@ def render_page(request, url=None):
             context_instance=RequestContext(request)
         )
 
-    
-    
-    
+
 # used to initialise django admin tinymce
 def page_admin_init(request):
     response = render_to_response(

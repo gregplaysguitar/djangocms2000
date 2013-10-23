@@ -61,7 +61,7 @@ you're finished.
 - Rename templates/djangocms2000 -> templates/cms
 - Rename djangocms2000 db tables
 - Replace `cms_page` template names
-- Modify djangocms2000 entries in `django_content_type` db table (change app_label to 'cms')
+- Modify djangocms2000 entries in `django_content_type` db table, i.e. `UPDATE django_content_type SET app_label='cms' WHERE app_label='djangocms2000';`
 - If you are using [haystack](http://haystacksearch.org/) with the cms, you'll need to rename your search template folder from `djangocms2000` to `cms`
 
 URL/URI MIGRATION:
@@ -101,7 +101,7 @@ TODO
 - Bind ESC key to cancel when editing inline
 - Handle the readonly template and url for auto-created django url pages better (currently a hidden/readonly input, should just remove from form)
 - The test for urlconf-rendered vs middleware-rendered pages fails when the url resolves, but the view returns a 404. Fix this, or perhaps just document? See forms.py, line 62
-
+- New syntax for blocks, with default eg. {% cmsblock "title" %}Default title here{% endcmsblock %}
 
 TODONE
 ======

@@ -72,8 +72,16 @@ class PageForm(forms.ModelForm):
     class Meta:
         model = Page
     
-    def clean_url(self):
-        url = URL_STRIP_REGEX.sub('', self.cleaned_data['url'].replace(' ', '-')).lower()
+    def clean(self):
+        data = self.cleaned_data
+        if not data.get('template', None) and data.get('url', None):
+            try:
+                resolve(data['url'])
+            except Resolver404, e:
+                self._errors['template'] = self.error_class(['This field is required for admin-created pages.'])
+        
+        # validate url/site uniqueness
+        url = URL_STRIP_REGEX.sub('', data['url'].replace(' ', '-')).lower()
         url = URL_DASH_REGEX.sub('-', url).strip('-')
         
         url = ("/%s" % (url.lstrip('/'))).replace('//', '/')
@@ -81,10 +89,18 @@ class PageForm(forms.ModelForm):
         if settings.APPEND_SLASH and url[-1] != '/':
             url = "%s/" % url
         
-        if Page.objects.exclude(pk=self.instance and self.instance.pk).filter(url__in=[url.rstrip('/'), "%s/" % url.rstrip('/')]):
-            raise forms.ValidationError('A page with this url already exists')
+        site = data.get('site', self.instance and self.instance.site)
+        site_pages = Page.objects.all()
+        if site:
+            site_pages = site_pages.filter(site=site)
+        test_urls = [url.rstrip('/'), "%s/" % url.rstrip('/')]
+        if site_pages.exclude(pk=self.instance and self.instance.pk).filter(url__in=test_urls):
+            self._errors['url'] = self.error_class(['A page with this url already exists'])
         
-        return url
+        data['url'] = url
+        
+        return data
+        
 
 
 
