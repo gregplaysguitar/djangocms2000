@@ -10,7 +10,7 @@ from cms import settings as cms_settings
 register = template.Library()
 
 
-def cmseditor(context):
+def cms_editor(context):
     '''Lazily loads the cms editor. This should be called at the bottom of an html document to
        allow frontend editing. '''
     
@@ -24,7 +24,7 @@ def cmseditor(context):
             'cms_settings': cms_settings,
         }))
 
-register.simple_tag(cmseditor, takes_context=True)
+register.simple_tag(cms_editor, takes_context=True)
 
 
 

@@ -28,7 +28,7 @@ Installation
    cms images
 7. Optional: add `'cms.middleware.CMSFallbackMiddleware'` to your middleware classes if 
    you want to be able to add new pages via Django's admin.
-8. Optional: add `{% cmseditor %}` to the bottom of your base template to enable sitewide
+8. Optional: add `{% cms_editor %}` to the bottom of your base template to enable sitewide
    in-place editing (use `{% load cms_editor %}` to load)
 
 Usage
@@ -52,7 +52,7 @@ Upgrading from 1.x to 2.x
        ./manage.py migrate cms 0001_initial --fake
        
    (If not using South, you'll need to modify your db to match the new schema by hand.)
-3. The `{% cmsextra %}` tag becomes `{% cmseditor %}`, and now requires a separate import,
+3. The `{% cmsextra %}` tag becomes `{% cms_editor %}`, and now requires a separate import,
    `{% load cms_editor %}`.
 4. The `'markdown'` block format has been removed, and the default is now `'plain'`.
    `format` is also now a keyword argument, e.g. `{% cmsblock 'text' format='html' %}`.
