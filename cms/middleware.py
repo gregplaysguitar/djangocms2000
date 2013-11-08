@@ -10,7 +10,7 @@ class CMSFallbackMiddleware(object):
             return response # No need to check for a page for non-404 responses.
         else:
             # append slash if required (only if the slash-appended url is valid)
-            if settings.APPEND_SLASH and not re.match(r'/$', request.path_info) and Page.objects.exclude(template='').filter(url="%s/" % request.path_info, site=settings.SITE_ID).count():
+            if settings.APPEND_SLASH and not re.match(r'/$', request.path_info) and Page.objects.exclude(template='').filter(url="%s/" % request.path_info, sites__id=settings.SITE_ID).count():
                 return HttpResponseRedirect("%s/" % request.path_info)
             else:
                 try:

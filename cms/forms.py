@@ -75,10 +75,13 @@ class PageForm(forms.ModelForm):
     def clean(self):
         data = self.cleaned_data
         if not data.get('template', None) and data.get('url', None):
+            # TODO: this may fail if creating a page for a different site with
+            # different urls
             try:
                 resolve(data['url'])
             except Resolver404, e:
-                self._errors['template'] = self.error_class(['This field is required for admin-created pages.'])
+                err = 'This field is required for admin-created pages.'
+                self._errors['template'] = self.error_class([err])
         
         # validate url/site uniqueness
         url = URL_STRIP_REGEX.sub('', data['url'].replace(' ', '-')).lower()
@@ -86,19 +89,29 @@ class PageForm(forms.ModelForm):
         
         url = ("/%s" % (url.lstrip('/'))).replace('//', '/')
         
+        # WARNING: this assumes the APPEND_SLASH setting is common across sites
         if settings.APPEND_SLASH and not url.endswith('/'):
             url = "%s/" % url
         
         if cms_settings.USE_SITES_FRAMEWORK:
-            site_pages = Page.objects.filter(site=data['site'])
+            site_pages = Page.objects.filter(sites__in=data['sites'])
         else:
             site_pages = Page.objects.all()
-
+        
+        if self.instance:
+            site_pages = site_pages.exclude(pk=self.instance.pk)
+                
+        # for the purposes of uniqueness, test both slashed and non-slashed urls
         test_urls = [url.rstrip('/'), "%s/" % url.rstrip('/')]
-        if site_pages.exclude(pk=self.instance and self.instance.pk).filter(url__in=test_urls):
-            self._errors['url'] = self.error_class(['A page with this url already exists'])
+        clashes = site_pages.filter(url__in=test_urls)
+        if clashes:
+            sites = clashes.values_list('sites__domain', flat=True)
+            err = 'A page with this url already exists for %s.' % ', '.join(sites)
+            self._errors['url'] = self.error_class([err])
         
         data['url'] = url
+        
+        #raise Exception
         
         return data
         

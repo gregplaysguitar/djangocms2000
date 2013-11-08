@@ -119,6 +119,14 @@ so effectively a site-wide block. Example
 
 Turns on integration with django.contrib.sites - default is `False`.
 
+##### Caveats
+
+Care must be taken when using the sites framework, because the cms can't detect
+what the urls and settings are for each site. To avoid pain, make sure that the
+`APPEND_SLASH` setting is the same for each site in use with the cms, and 
+beware that the cms may confuse admin-created and url-defined pages in the 
+admin if your sites have different urlconfs.
+
 
 #### `CMS_TINYMCE_BUTTONS`
 

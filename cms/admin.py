@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 from django.utils.text import truncate_words
+from django.conf import settings
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
@@ -82,22 +83,39 @@ class PageAdmin(CMSBaseAdmin):
     list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
     list_display_links=['__unicode__', 'url', ]
 
-    list_filter=['site', 'template', 'is_live', 'creation_date',]
+    list_filter=['sites', 'template', 'is_live', 'creation_date',]
     
     def view_on_site(self, instance):
-        return '<a href="%s" target="_blank">view page</a>' % (instance.get_absolute_url())
+        url = instance.get_absolute_url()
+
+        if instance.sites.count():
+            try:
+                site = instance.sites.get(id=settings.SITE_ID)
+            except Site.DoesNotExist:
+                site = instance.sites.all()[0]
+        else:
+            site = None
+        
+        if site:
+            url = 'http://%s%s' % (site.domain, url)
+        
+        return '<a href="%s" target="_blank">view page</a>' % url
     view_on_site.allow_tags = True
     view_on_site.short_description = ' '
     
+    def get_sites(self, obj):
+        return ', '.join([unicode(s) for s in obj.sites.all()])
+    get_sites.short_description = 'sites'
+    get_sites.admin_order_field = 'sites'
     
     search_fields = ['url', 'blocks__content', 'template',]
     form = PageForm
     exclude = []
     
 if cms_settings.USE_SITES_FRAMEWORK:
-    PageAdmin.list_display.append('site')
+    PageAdmin.list_display.append('get_sites')
 else:
-    PageAdmin.exclude.append('site')
+    PageAdmin.exclude.append('sites')
         
 admin.site.register(Page, PageAdmin)
 

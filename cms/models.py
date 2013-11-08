@@ -1,6 +1,7 @@
 import re, os, sys, datetime
 
 from django.db import models
+from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +13,7 @@ from django.utils.encoding import force_unicode
 from django.utils.html import strip_tags
 from django.utils.text import truncate_words
 from django.utils.safestring import mark_safe
-from django.db.models.signals import class_prepared, post_save, pre_save
+from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
 from django.test.client import Client
 
@@ -136,29 +137,40 @@ class _CMSAbstractBaseModel(models.Model):
             return self.blocks.exclude(content='').get(label='title').content
         except Block.DoesNotExist:
             return self.url
-
-# add blocks on save via dummy render
-def dummy_render(sender, **kwargs):
-    if isinstance(kwargs['instance'], _CMSAbstractBaseModel):
-        if getattr(kwargs['instance'], 'get_absolute_url', False):
+    
+    def save(self, *args, **kwargs):
+        dummy_render = kwargs.pop('dummy_render', True)
+        
+        super(_CMSAbstractBaseModel, self).save(*args, **kwargs)
+        
+        if dummy_render and self.pk and getattr(self, 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
-            
+
             # NOTE: This will naively attempt to render the page using the *current*  django Site
             # object, so if you're in the admin of one site editing pages on another, the dummy
             # render will silently fail
-            
+
             c = Client()
             site = Site.objects.get_current()
-            response = c.get(str(kwargs['instance'].get_absolute_url()),
+            response = c.get(str(self.get_absolute_url()),
                              {'cms_dummy_render': cms_settings.SECRET_KEY},
                              HTTP_COOKIE='',
                              HTTP_HOST=site.domain)   
-post_save.connect(dummy_render)
 
 
 class PageManager(models.Manager):
     def get_for_url(self, url):
-        return Page.objects.get_or_create(url=url, site_id=settings.SITE_ID)[0]
+    	current_site = Site.objects.get_current()
+    	pages = Page.objects.filter(sites=current_site)
+    	try:
+        	page = pages.get(url=url)
+        except Page.DoesNotExist:
+        	page = Page(url=url)
+        	# dummy rendering fails if there's no attached site
+        	page.save(dummy_render=False)
+        	page.sites.add(current_site)
+        	page.save()
+        return page
 
 
 class LivePageManager(models.Manager):
@@ -169,7 +181,7 @@ class LivePageManager(models.Manager):
 class Page(_CMSAbstractBaseModel):
     url = models.CharField(max_length=255, verbose_name='URL', help_text='e.g. "/about/contact/"')
     template = models.CharField(max_length=255, default='')
-    site = models.ForeignKey(Site, default=settings.SITE_ID)
+    sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
@@ -178,7 +190,6 @@ class Page(_CMSAbstractBaseModel):
     
     class Meta:
         ordering = ('url',)
-        unique_together = ('url', 'site')
     
     def get_children(self, qs=None):
         return get_child_pages(self.url, qs)
@@ -186,11 +197,18 @@ class Page(_CMSAbstractBaseModel):
     def get_absolute_url(self):
         return self.url
 
-
-def page_pre(sender, **kwargs):
-    if not kwargs['instance'].site:
-        kwargs['instance'].site = Site.objects.all()[0]
-pre_save.connect(page_pre, sender=Page)
+def page_sanity_check(sender, **kwargs):
+    ''''Validate uniqueness of page url and sites - can't be a unique_together
+        because sites is a ManyToMany field, and can't go in a model validate
+        method because model validation occurs before m2m fields are saved'''
+    
+    page = kwargs['instance']
+    if kwargs['action'] == 'pre_add':
+        for site_id in kwargs['pk_set']:
+            if Page.objects.filter(url=page.url, sites__id=site_id):
+                raise IntegrityError('Sites and url must be unique.')
+        
+m2m_changed.connect(page_sanity_check, sender=Page.sites.through)
 
 
 class CMSBaseModel(_CMSAbstractBaseModel):

@@ -169,7 +169,7 @@ def render_page(request, url):
     # url resolved elsewhere in the project)
     qs = qs.exclude(template='')
     
-    page = get_object_or_404(qs, url=url, site=settings.SITE_ID)
+    page = get_object_or_404(qs, url=url, sites__id=settings.SITE_ID)
     return render_to_response(
         page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
         {
@@ -245,7 +245,7 @@ def editor_html(request):
         response = HttpResponse('')
     else:
         try:
-            page = Page.objects.get(url=request.GET.get('page', None), site_id=settings.SITE_ID)
+            page = Page.objects.get(url=request.GET.get('page', None), sites__id=settings.SITE_ID)
         except Page.DoesNotExist:
             page = False
             
