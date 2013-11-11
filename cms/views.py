@@ -151,7 +151,7 @@ def saveimage(request, image_id):
         form = ImageForm(request.POST, request.FILES, instance=image)
         image = form.save()
     
-    return HttpResponseRedirect(request.POST['redirect_to'])
+    return HttpResponseRedirect(request.POST.get('redirect_to', '/'))
     
     
 
