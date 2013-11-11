@@ -102,10 +102,20 @@ class BaseNode(template.Node):
         if self.takes_request:
             resolved_options['request'] = context.get('request', None)            
         
+        count = 0
         for key, expr in self.options:
             noresolve = {u'1': True, u'0': False}
             value = noresolve.get(unicode(expr), expr.resolve(context))
+            if count < len(self.required_params) and not value:
+                # TODO currently assuming that falsy values are invalid here; 
+                # ideally we'd raise a VariableDoesNotExist only if the expr 
+                # doesn't resolve, but django doesn't seem to want to let us 
+                # when using parser.compile_filter(...) instead of 
+                # template.Variable(...)
+                raise template.VariableDoesNotExist('No value supplied for argument %s' % key)
+                
             resolved_options[key] = value
+            count += 1
         
         renderer = self.get_renderer(context)
         if renderer:
