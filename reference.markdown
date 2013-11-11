@@ -81,8 +81,8 @@ respectively. Examples:
 
 Format:
 
-    {% cmsgenericblock label object [format='plain' editable=1 as alias] %}
-    {% cmsgenericimage label object [geometry='' crop='' editable=1 as alias] %}
+    {% cmsgenericblock object label [format='plain' editable=1 as alias] %}
+    {% cmsgenericimage object label [geometry='' crop='' editable=1 as alias] %}
 
 Like `cmsblock` and `cmsimage`, but attached to a generic `django.db.models.Model` 
 object instead of a cms page. The additional `object` argument is required and should 
@@ -90,9 +90,9 @@ be the relevant instance. Example usage:
 
     {% for article in articles %}
         <article>
-            <h1>{% cmsgenericblock 'title' article %}</h1>
-            {% cmsgenericblock 'text' article format='html' %}
-            {% cmsgenericimage 'text' article geometry='400x300' %}
+            <h1>{% cmsgenericblock article 'title' %}</h1>
+            {% cmsgenericblock article 'text' format='html' %}
+            {% cmsgenericimage article 'text' geometry='400x300' %}
         </article>
     {% endfor %}
 

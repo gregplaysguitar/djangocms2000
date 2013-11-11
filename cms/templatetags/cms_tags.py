@@ -60,7 +60,7 @@ class GenericMixin(BaseNode):
     '''Works with blocks or images related to any model object, which should be passed
        in as an argument after 'label'.'''
 
-    required_params = ('object', 'label',)
+    required_params = ('related_object', 'label',)
     takes_request = True
 
 
