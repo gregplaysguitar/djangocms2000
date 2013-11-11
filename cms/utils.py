@@ -35,7 +35,9 @@ def generate_cache_key(type, label=None, site_id=None, related_object=None, url=
     if site_id:
         key_bits.append('site_id:%s' % site_id)
     elif url:
-        key_bits.append('url:%s' % url)
+        # include site id, because there could be two pages with the same url
+        # but attached to different sites
+        key_bits.append('url:%s,%s' % (url, settings.SITE_ID)) 
     else:
         # must be a related_object present, otherwise we wouldn't have got this far
         key_bits.append('object_pk:%s' % related_object.pk)
