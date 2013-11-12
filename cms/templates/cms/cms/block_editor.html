@@ -4,6 +4,10 @@
 	<input type="hidden" name="content" value="{{ block.content }}">
 	
 	<span class="cms-inner">
-        {% firstof rendered_content 'Click to add text' %}
+		{% if block.content %}
+			{{ rendered_content }}
+		{% else %}
+			Click to add text
+		{% endif %}
 	</span>
 </span>
