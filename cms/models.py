@@ -11,7 +11,6 @@ from django.template.loader import get_template
 from django import template
 from django.utils.encoding import force_unicode
 from django.utils.html import strip_tags
-from django.utils.text import truncate_words
 from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
