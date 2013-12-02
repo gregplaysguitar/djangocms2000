@@ -61,7 +61,7 @@ def default_block_renderer(block, filters=None):
     if filters and content:
         for f in filters.split('|'):
             content = getattr(template.defaultfilters, f)(content)
-    return content
+    return mark_safe(content)
 
 
 def set_block_format(block, format):
