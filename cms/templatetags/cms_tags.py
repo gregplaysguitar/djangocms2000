@@ -77,10 +77,12 @@ class CMSBlockNode(template.Node):
         
         if block.format != 'plain':
             filtered_content = mark_safe(filtered_content)
-                       
-        if 'request' in context and is_editing(context['request']) and \
-           context['request'].user.has_perm("cms.change_page") and \
-           editable and cms_settings.EDIT_IN_PLACE:
+        
+        # ordered for maximum efficiency - in particular we should avoid accessing
+        # request.user at all costs
+        if cms_settings.EDIT_IN_PLACE and editable and \
+           'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page"):
             returnval = mark_safe(template.loader.render_to_string("cms/cms/block.html", {
                 'format': format,
                 'filters': ','.join(filters),
@@ -203,10 +205,12 @@ class CMSImageNode(template.Node):
             'sitewide': isinstance(content_object, Site),
             'content_object': content_object,
         }
-        #print self.editable
-        if 'request' in context and is_editing(context['request']) and \
-           context['request'].user.has_perm("cms.change_page") and \
-           cms_settings.EDIT_IN_PLACE and editable:
+        
+        # ordered for maximum efficiency - in particular we should avoid accessing
+        # request.user at all costs
+        if cms_settings.EDIT_IN_PLACE and editable and \
+           'request' in context and is_editing(context['request']) and \
+           context['request'].user.has_perm("cms.change_page"):
             data['editable'] = True
         
         
