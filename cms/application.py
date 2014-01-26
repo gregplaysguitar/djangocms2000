@@ -147,9 +147,6 @@ class RenderedImage:
     def height(self):
         return self.get_image_attr('height') / self.scale
 
-    def as_tag(self):
-        return default_image_renderer(self)
-
 
 def get_dummy_image(geometry):
     # geometry can be of the form 'XxY', 'X' or 'xY'. if only one dimension is supplied, 
@@ -188,8 +185,9 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
 
     if editing:
-        image = get_image(label, cached=False, **lookup_kwargs)
-        rendered_content = renderer(RenderedImage(image, geometry, crop, scale))
+        image_obj = get_image(label, cached=False, **lookup_kwargs)
+        image = RenderedImage(image_obj, geometry, crop, scale)
+        rendered_content = renderer(image)
     
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,

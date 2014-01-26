@@ -1,6 +1,8 @@
 {% load url from future %}
 
-<span class='cms-image {% if not image.file %}placeholder{% endif %}' label='{{ image.label }}' save_url='{% url 'cms.views.saveimage' image.id %}'>
+<span class='cms-image {% if not image.image.file %}placeholder{% endif %}'
+      label='{{ image.label }}' 
+      save_url='{% url 'cms.views.saveimage' image.image.id %}'>
 	
 	<span class="cms-inner">
         {% firstof rendered_content 'Click to add image' %}
