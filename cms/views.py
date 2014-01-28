@@ -115,7 +115,14 @@ def saveblock(request, block_id):
     '''Ajax-only view to save cms.block objects from the frontend editor'''
 
     block = get_object_or_404(Block, id=block_id)
-    form = BlockForm(request.POST, instance=block, prefix=block.format)
+    
+    # html has its own form, so it uses a prefix
+    if block.format == 'html':
+        prefix = 'html'
+    else:
+        prefix = None
+    
+    form = BlockForm(request.POST, instance=block, prefix=prefix)
     block = form.save()
     
     # render the page to get the updated content
@@ -252,7 +259,7 @@ def editor_html(request):
         response = render_to_response('cms/cms/editor.html', {
             'page': page,
             'cms_settings': cms_settings,
-            'editor_form': BlockForm(prefix='plain'),
+            'editor_form': BlockForm(),
             'html_editor_form': BlockForm(prefix='html'),
             'image_form': ImageForm(),
             'page_form': page and PublicPageForm(instance=page) or None,
