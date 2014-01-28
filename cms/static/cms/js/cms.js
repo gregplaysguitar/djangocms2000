@@ -1,30 +1,19 @@
-var cms = function ($, highlight_color, buttons, tinymce_content_css, linklist_url, post_edit_callback) {
-	
+var cms = function ($, highlight_color, buttons, tinymce_content_css, post_edit_callback) {
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false,
 		tinymce_init_object = {
-            paste_text_sticky_default: true,
-            paste_text_sticky: true,
-            paste_text_linebreaktype: 'combined',
-            paste_auto_cleanup_on_paste: true,
-			language: "en",
-			directionality: "ltr",
-			theme: "advanced",
-			strict_loading_mode: 1,
-			mode: "exact",
-			height: "400px",
-			width: "760px",
+			plugins: "paste link code",
+			paste_as_text: true,
+			relative_urls: false,
+			theme: "modern",
+	        menubar : false,
+			block_formats: "Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;Quote=blockquote;Paragraph=p",
+			toolbar: buttons,
 			content_css: tinymce_content_css,
-			external_link_list_url: linklist_url,
-			theme_advanced_toolbar_location: "top",
-			theme_advanced_toolbar_align: "left",
-			theme_advanced_buttons1: buttons,
-			theme_advanced_buttons2: "",
-			theme_advanced_buttons3: "",
-            theme_advanced_statusbar_location: "bottom",
-            theme_advanced_resizing: true,
-			plugins: "paste,inlinepopups",
-			relative_urls: false
+			height: 400,
+			width: 760,
+			link_list: cms_tinymce_linklist, // created by cms.views.linklist
+
 		};
 	
 	$('.edit-switcher').click(function() {

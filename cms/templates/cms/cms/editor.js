@@ -4,13 +4,14 @@ yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 
 // I don't know why, but tinymce fails subtly and infuriatingly if
 // loaded along with the rest of the scripts. This fixes it.
-yepnope.injectJs('{{ cms_settings.STATIC_URL }}tiny_mce/tiny_mce.js');
+yepnope.injectJs('{{ cms_settings.STATIC_URL }}tinymce/js/tinymce/tinymce.min.js');
 
 yepnope({
     load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.10.2.min.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.color.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js',
            '{{ cms_settings.STATIC_URL }}lib/jquery.form.js',
+           '{% url "cms.views.linklist" %}',
            '{{ cms_settings.STATIC_URL }}js/cms.js',],
     complete: function() {
         var cms_jQuery = jQuery.noConflict(true),
@@ -27,7 +28,6 @@ yepnope({
                     "{{ cms_settings.HIGHLIGHT_COLOR }}",
                     "{{ cms_settings.TINYMCE_BUTTONS }}",
                     "{{ tinymce_content_css }}",
-                    "{% url 'cms.views.linklist' %}",
                     {{ cms_settings.POST_EDIT_CALLBACK|safe }});
             });
         }
