@@ -128,17 +128,15 @@ beware that the cms may confuse admin-created and url-defined pages in the
 admin if your sites have different urlconfs.
 
 
-#### `CMS_TINYMCE_BUTTONS`
+#### `CMS_TINYMCE_CONFIG`
 
-Buttons to include in tinymce editor - defaults to
+Config overrides for the tinymce editor - can be a dict or a callable returning
+one. Use a callable to avoid reversing urls etc at runtime. For example:
 
-    "formatselect,bold,italic,|,undo,redo,|,link,|,blockquote,bullist,numlist,|,pastetext,code"
-
-
-#### `CMS_TINYMCE_CONTENT_CSS`
-
-Path, or callable returning a path, to css file for styling tinymce editor. Default is
-blank. Use a callable to avoid reversing urls etc at runtime.
+    CMS_TINYMCE_CONFIG = {
+        'toolbar': "bold,italic,link",
+        'content_css': ['/static/c/site.css'],
+    }
 
 
 #### `CMS_POST_EDIT_CALLBACK`

@@ -1,20 +1,19 @@
-var cms = function ($, buttons, tinymce_content_css, post_edit_callback) {
+var cms = function ($, tinymce_config, post_edit_callback) {
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false,
-		tinymce_init_object = {
+		tinymce_init_object = $.extend({
 			plugins: "paste link code",
 			paste_as_text: true,
 			relative_urls: false,
 			theme: "modern",
 	        menubar : false,
 			block_formats: "Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;Quote=blockquote;Paragraph=p",
-			toolbar: buttons,
-			content_css: tinymce_content_css,
+			toolbar: "formatselect bold italic | undo redo | link | " +
+			         "blockquote bullist numlist | pastetext code",
 			height: 400,
 			width: 760,
-			link_list: cms_tinymce_linklist, // created by cms.views.linklist
-
-		};
+			link_list: cms_tinymce_linklist // created by cms.views.linklist
+		}, tinymce_config);
 	
 	$('.edit-switcher').click(function() {
 	    $.cookie('cms-edit_mode', null, {path: '/'});
@@ -284,6 +283,6 @@ var cms = function ($, buttons, tinymce_content_css, post_edit_callback) {
 	};
 
 
-}; //init done inline so settings can be passed in - see templates/editor.html
+}; // init done inline so settings can be passed in - see templates/cms/cms/editor.js
 
 

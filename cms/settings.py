@@ -5,11 +5,7 @@ from django.conf import settings
 # Customisable settings - see reference.markdown
 
 USE_SITES_FRAMEWORK = getattr(settings, 'CMS_USE_SITES_FRAMEWORK', False)
-TINYMCE_BUTTONS = getattr(settings, 
-                          'CMS_TINYMCE_BUTTONS',
-                          'formatselect bold italic | undo redo | link | '
-                          'blockquote bullist numlist | pastetext code')
-TINYMCE_CONTENT_CSS = getattr(settings, 'CMS_TINYMCE_CONTENT_CSS', "")
+TINYMCE_CONFIG = getattr(settings, 'CMS_TINYMCE_CONFIG', {})
 POST_EDIT_CALLBACK = getattr(settings, 'CMS_POST_EDIT_CALLBACK', '""')
 MAX_IMAGE_DIMENSIONS = getattr(settings, 'CMS_MAX_IMAGE_DIMENSIONS', (1920, 1200))
 BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK', None)

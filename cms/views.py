@@ -186,18 +186,22 @@ def render_page(request, url):
     )
 
 
+def tinymce_config_json():
+    '''Return tinymce overrides from settings, as a json string for js.'''
+    tinymce_config = cms_settings.TINYMCE_CONFIG
+    if callable(tinymce_config):
+        tinymce_config = tinymce_config()
+    return json.dumps(tinymce_config)
+
+
 # used to initialise django admin tinymce
 @permission_required("cms.change_block")
 def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc
        in the django admin.'''
-
-    css = cms_settings.TINYMCE_CONTENT_CSS
-    tinymce_content_css = css if callable(css) else css
     
     response = render_to_response('cms/cms/block_admin_init.js', {
-        'cms_settings': cms_settings,
-        'tinymce_content_css': tinymce_content_css,
+        'tinymce_config_json': tinymce_config_json(),
     }, context_instance=RequestContext(request))
     
     response['Content-Type'] = 'application/javascript'
@@ -228,12 +232,9 @@ def editor_js(request):
         response = HttpResponse('')
     else:
         if is_editing(request):
-            css = cms_settings.TINYMCE_CONTENT_CSS
-            tinymce_content_css = css() if callable(css) else css
-    
             response = render_to_response('cms/cms/editor.js', {
                 'cms_settings': cms_settings,
-                'tinymce_content_css': tinymce_content_css,
+                'tinymce_config_json': tinymce_config_json(),
             }, context_instance=RequestContext(request))
         else:
             response = render_to_response('cms/cms/edit-mode-switcher.js', {

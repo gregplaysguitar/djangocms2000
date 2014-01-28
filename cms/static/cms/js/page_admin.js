@@ -1,29 +1,26 @@
-var cmsAdmin = function($, tinymce_content_css, buttons) {
+var cmsAdmin = function($, tinymce_config) {
 
     var id_list = [];
     $('textarea.cms-html').each(function(i, item) {
-        id_list.push(item.id);
+        id_list.push('#' + item.id);
     });
-
+    
     if (id_list.length) {
-
-        tinyMCE.init({
-        	elements: id_list.join(','),
-        	plugins: "paste link code",
-			paste_as_text: true,
-			relative_urls: false,
-			theme: "modern",
-	        menubar : false,
-			block_formats: "Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;Quote=blockquote;Paragraph=p",
-			toolbar: buttons,
-			content_css: tinymce_content_css,
-			height: 400,
-			width: 760,
-			link_list: cms_tinymce_linklist, // created by cms.views.linklist
-        
-        
-        
-        });
+        tinyMCE.init($.extend({
+            selector: id_list.join(','),
+            plugins: "paste link code",
+            paste_as_text: true,
+            relative_urls: false,
+            theme: "modern",
+            menubar : false,
+            block_formats: "Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;" + 
+                           "Quote=blockquote;Paragraph=p",
+            toolbar: "formatselect bold italic | undo redo | link | " +
+                     "blockquote bullist numlist | pastetext code",
+            height: 400,
+            width: 760,
+            link_list: cms_tinymce_linklist // created by cms.views.linklist
+        }, tinymce_config));
     }
 
 
