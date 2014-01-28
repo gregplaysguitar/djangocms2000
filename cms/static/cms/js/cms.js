@@ -1,4 +1,4 @@
-var cms = function ($, highlight_color, buttons, tinymce_content_css, post_edit_callback) {
+var cms = function ($, buttons, tinymce_content_css, post_edit_callback) {
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false,
 		tinymce_init_object = {
@@ -245,28 +245,16 @@ var cms = function ($, highlight_color, buttons, tinymce_content_css, post_edit_
         $(this).find('.wrap').append($('<div>').addClass('message').html('Saving...'));
     });
 	
-	
-
-	
 	function highlightBlock(block) {
-		$(block).css({
-		    backgroundColor: highlight_color		    
-		});
+		$(block).addClass('cms-highlight');
+		
 		setTimeout(function() {
-            $(block).css({
-                '-moz-transition': 'all 500ms',
-                '-webkit-transition': 'all 500ms',
-                transition: 'all 500ms',
-                backgroundColor: ''
-            });
-            setTimeout(function() {
-                $(block).css({
-                    '-moz-transition': 'none',
-                    '-webkit-transition': 'none',
-                    transition: 'none'
-                });
-            }, 500);
-        }, 1);
+            $(block).addClass('cms-highlight-animate');
+            $(block).removeClass('cms-highlight');
+        }, 200);
+        setTimeout(function() {
+            $(block).removeClass('cms-highlight-animate');
+		}, 700);
 	};
 
 	function showForm(which) {

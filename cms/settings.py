@@ -22,7 +22,6 @@ DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
 SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
-HIGHLIGHT_COLOR = getattr(settings, 'CMS_HIGHLIGHT_COLOR', "#ff0")
 SITE_ID = getattr(settings, 'SITE_ID', 1)
 
 # let's be *really* careful not to display content from another site using the same cache

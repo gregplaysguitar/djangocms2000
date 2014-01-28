@@ -32,6 +32,16 @@
 	background: #D1F0FF;
 	background: rgba(0, 127, 255, 0.3);
 }
+.cms-block.cms-highlight {
+    background: #ff0;
+}
+.cms-block.cms-highlight-animate {
+    -webkit-transition: background 500ms;
+    -moz-transition: background 500ms;
+    -ms-transition: background 500ms;
+    -o-transition: background 500ms;
+    transition: background 500ms;
+}
 
 .cms-image span.editMarker,
 .cms-block span.editMarker {

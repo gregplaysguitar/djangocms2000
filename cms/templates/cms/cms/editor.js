@@ -25,7 +25,6 @@ yepnope({
                 
                 // init function from cms.js
                 cms(cms_jQuery,
-                    "{{ cms_settings.HIGHLIGHT_COLOR }}",
                     "{{ cms_settings.TINYMCE_BUTTONS }}",
                     "{{ tinymce_content_css }}",
                     {{ cms_settings.POST_EDIT_CALLBACK|safe }});
