@@ -117,11 +117,19 @@ class PageAdmin(CMSBaseAdmin):
     form = PageForm
     exclude = []
     
+    def save_related(self, request, form, formsets, change):
+        super(PageAdmin, self).save_related(request, form, formsets, change)
+        
+        # If the sites field is hidden, and no site is set, add the default one
+        if not cms_settings.USE_SITES_FRAMEWORK and not form.instance.sites.count():
+            form.instance.sites.add(Site.objects.get_current())
+    
 if cms_settings.USE_SITES_FRAMEWORK:
     PageAdmin.list_display.append('get_sites')
 else:
     PageAdmin.exclude.append('sites')
-        
+
+     
 admin.site.register(Page, PageAdmin)
 
 
