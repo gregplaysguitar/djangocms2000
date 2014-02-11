@@ -71,6 +71,7 @@ class PageForm(forms.ModelForm):
         
     class Meta:
         model = Page
+        exclude = ()
     
     def clean(self):
         data = self.cleaned_data

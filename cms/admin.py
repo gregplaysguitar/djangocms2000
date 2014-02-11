@@ -28,6 +28,8 @@ admin_css = {
 class BlockForm(forms.ModelForm):
     class Meta:
         model = Block
+        exclude = ()
+    
     def __init__(self, *args, **kwargs):
         super(BlockForm, self).__init__(*args, **kwargs)
 
@@ -53,6 +55,8 @@ class BlockInline(generic.GenericTabularInline):
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
+        exclude = ()
+    
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
 
@@ -149,6 +153,8 @@ admin.site.register(Block, BlockAdmin)
 class ImageFormSite(forms.ModelForm):
     class Meta:
         model = Image
+        exclude = ()
+    
     label = forms.CharField(widget=ReadonlyInput)
 
 class ImageAdmin(admin.ModelAdmin):
