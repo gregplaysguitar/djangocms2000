@@ -145,13 +145,13 @@ class _CMSAbstractBaseModel(models.Model):
         if dummy_render and self.pk and getattr(self, 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
 
-            # NOTE: This will naively attempt to render the page using the *current*  django Site
-            # object, so if you're in the admin of one site editing pages on another, the dummy
-            # render will silently fail
-
+            # NOTE: This will naively attempt to render the page using the 
+            # *current*  django Site object, so if you're in the admin of one 
+            # site editing pages on another, the dummy render will silently fail
+            
             c = Client()
             site = Site.objects.get_current()
-            response = c.get(str(self.get_absolute_url()),
+            response = c.get(unicode(self.get_absolute_url()),
                              {'cms_dummy_render': cms_settings.SECRET_KEY},
                              HTTP_COOKIE='',
                              HTTP_HOST=site.domain)   
