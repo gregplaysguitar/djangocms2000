@@ -48,6 +48,15 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('cms', ['Page'])
 
+        # Adding model 'MenuItem'
+        db.create_table('cms_menuitem', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('page', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['cms.Page'])),
+            ('text', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('sort', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
+        ))
+        db.send_create_signal('cms', ['MenuItem'])
 
 
     def backwards(self, orm):
@@ -65,6 +74,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Page'
         db.delete_table('cms_page')
+
+        # Deleting model 'MenuItem'
+        db.delete_table('cms_menuitem')
 
 
     models = {
@@ -95,6 +107,14 @@ class Migration(SchemaMigration):
             'site': ('django.db.models.fields.related.ForeignKey', [], {'default': '1', 'to': "orm['sites.Site']"}),
             'template': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             'url': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
+        },
+        'cms.menuitem': {
+            'Meta': {'ordering': "('sort', 'id')", 'object_name': 'MenuItem'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'page': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cms.Page']"}),
+            'text': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'sort': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
         },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
