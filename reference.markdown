@@ -171,8 +171,8 @@ Identical to `BLOCK_REQUIRED_CALLBACK` but takes an Image instance as its argume
 
 #### `CMS_DUMMY_IMAGE_SOURCE`
 
-If set, and DEBUG is True, empty cms images will be filled with a placeholder from 
-the given source. Format is borrowed from
+If set, and DEBUG is True, empty cms images will be filled with a placeholder 
+from the given source. Format is borrowed from
 [sorl](http://sorl-thumbnail.readthedocs.org/en/latest/reference/settings.html),
 and should contain `%(width)s` and `%(height)s` placeholders, i.e.
 
@@ -180,3 +180,11 @@ and should contain `%(width)s` and `%(height)s` placeholders, i.e.
     'http://placekitten.com/%(width)s/%(height)s'
 
 Defaults value is `None`.
+
+
+#### `CMS_TEMPLATE_RENDERER`
+
+Full path to the function used to render pages by the fallback middleware, 
+defaults to `'django.shortcuts.render_to_response`'. If you're using Coffin and
+Jinja2, for example, you may want to set this to 
+`'coffin.shortcuts.render_to_response`'

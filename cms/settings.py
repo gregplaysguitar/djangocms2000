@@ -12,6 +12,8 @@ MAX_IMAGE_DIMENSIONS = getattr(settings, 'CMS_MAX_IMAGE_DIMENSIONS',
 BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK', None)
 IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK', None)
 DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
+TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER', 
+                            'django.shortcuts.render_to_response')
 
 
 # The following are for internal use and shouldn't need to be customised

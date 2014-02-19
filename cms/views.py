@@ -1,4 +1,5 @@
 import re, os, copy
+import importlib
 try:
     import json
 except ImportError:
@@ -179,13 +180,18 @@ def render_page(request, url):
     qs = qs.exclude(template='')
     
     page = get_object_or_404(qs, url=url, sites__id=settings.SITE_ID)
-    return render_to_response(
-        page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
-        {
-            'page': page,
-        },
-        context_instance=RequestContext(request)
-    )
+    
+    # Render function - by default, django.shortcuts.render_to_response, but 
+    # could be coffins version, or custom
+    bits = cms_settings.TEMPLATE_RENDERER.split('.')
+    renderer_module = importlib.import_module('.'.join(bits[:-1]))
+    renderer = getattr(renderer_module, bits[-1])
+    
+    template = page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1)
+    
+    return renderer(template, {
+        'page': page,
+    }, context_instance=RequestContext(request))
 
 
 def tinymce_config_json():
