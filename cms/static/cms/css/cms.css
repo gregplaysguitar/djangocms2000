@@ -77,10 +77,11 @@
 	height: 100%;
 	background: transparent url(../images/overlay.png);
 	opacity: 1;
+	overflow: auto;
 	
 }
 .cms-overlay .cms-form {
-	margin: 100px auto;
+	margin: 20px auto;
 	width: 760px;
 }
 .cms-overlay .cms-form .wrap {

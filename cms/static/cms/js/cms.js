@@ -257,7 +257,16 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	};
 
 	function showForm(which) {
-	     $('#cms-' + which + 'overlay').stop().css({opacity: 0, display: 'block'}).animate({opacity: 1}, 300)[0].visible = true;
+		var overlay = $('#cms-' + which + 'overlay'),
+			form = overlay.children('.cms-form');
+		overlay.stop().css({
+			opacity: 0,
+			display: 'block'
+		}).animate({opacity: 1}, 300)[0].visible = true;
+		var margin = (overlay.height() - form.outerHeight()) / 2;
+		form.css({
+			marginTop: Math.max(20, margin) + 'px'
+		});
 	};
 	function hideForm(which, animate) {
 	    if (which) {
