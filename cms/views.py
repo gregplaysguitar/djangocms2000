@@ -56,14 +56,16 @@ def savepage(request, page_pk=None):
                 raise PermissionDenied
             page = None
         
-        form = PublicPageForm(request.POST, instance=page, prefix=request.POST.get('prefix', None))
+        form = PublicPageForm(request.POST, instance=page, 
+                              prefix=request.POST.get('prefix', None))
             
         if form.is_valid():
             saved_page = form.save()
             return HttpResponse(json.dumps({
                 'success': True,
                 'url': saved_page.get_absolute_url(),
-                'message': page and 'Page saved' or 'Page created... redirecting'
+                'message': page and 'Page saved' or \
+                                    'Page created... redirecting'
             }), mimetype='application/json')
         else:
             return HttpResponse(json.dumps({
@@ -86,8 +88,8 @@ def get_page_content(base_request, page_url):
         # must be a django-created page, rendered by a urlconf
         page_func = lambda r: urlmatch.func(r, *urlmatch.args, **urlmatch.kwargs)
     
-    # reuse the request to avoid having to fake sessions etc, but it'll have to be hacked
-    # a little so it has the right url and doesn't trigger a POST
+    # reuse the request to avoid having to fake sessions etc, but it'll have to
+    # be hacked a little so it has the right url and doesn't trigger a POST
     request = copy.copy(base_request)
     request.path = request.path_info = page_url
     request.META['REQUEST_METHOD'] = request.method = 'GET'
@@ -172,8 +174,8 @@ def render_page(request, url):
     else:
         qs = Page.live
     
-    # don't try to render pages with no template (e.g. those who hold content for a
-    # url resolved elsewhere in the project)
+    # don't try to render pages with no template (e.g. those who hold content
+    # for a url resolved elsewhere in the project)
     qs = qs.exclude(template='')
     
     page = get_object_or_404(qs, url=url, sites__id=settings.SITE_ID)
@@ -194,7 +196,6 @@ def tinymce_config_json():
     return json.dumps(tinymce_config)
 
 
-# used to initialise django admin tinymce
 @permission_required("cms.change_block")
 def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc

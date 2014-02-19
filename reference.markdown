@@ -40,10 +40,11 @@ more than one place, ie the window title and page title). Example template code:
 Format: `{% cmsimage label [geometry='' crop='' editable=1 as alias] %}`
 
 Basic image block - use as with `cmsblock`. The `geometry` and `crop` arguments
-correspond to sorl's [geometry](http://thumbnail.sorl.net/template.html#geometry) and 
-[crop](http://thumbnail.sorl.net/template.html#crop) options, and can be of the format
-'XxY', 'X', or 'xY', for constraining width and height, just width, and just height, 
-respectively. Examples:
+correspond to sorl's 
+[geometry](http://thumbnail.sorl.net/template.html#geometry) and 
+[crop](http://thumbnail.sorl.net/template.html#crop) options, and can be of the
+format 'XxY', 'X', or 'xY', for constraining width and height, just width, and 
+just height, respectively. Examples:
 
     {# render image as uploaded, no resizing #}
     {% cmsimage "image" %}
@@ -84,9 +85,9 @@ Format:
     {% cmsgenericblock object label [format='plain' editable=1 as alias] %}
     {% cmsgenericimage object label [geometry='' crop='' editable=1 as alias] %}
 
-Like `cmsblock` and `cmsimage`, but attached to a generic `django.db.models.Model` 
-object instead of a cms page. The additional `object` argument is required and should 
-be the relevant instance. Example usage:
+Like `cmsblock` and `cmsimage`, but attached to a generic 
+`django.db.models.Model` object instead of a cms page. The additional `object` 
+argument is required and should be the relevant instance. Example usage:
 
     {% for article in articles %}
         <article>
@@ -104,8 +105,8 @@ Format:
     {% cmssiteblock label [format='plain' editable=1 as alias] %}
     {% cmssiteimage label [geometry='' crop='' editable=1 as alias] %}
 
-Like a `cmsgenericblock` that is automatically attached to the current site instance, 
-so effectively a site-wide block. Example
+Like a `cmsgenericblock` that is automatically attached to the current site 
+instance, so effectively a site-wide block. Example
 
     <title>{% block title %}{% endblock %} | {% cmssiteblock "base-title" editable=0 %}</title>
     
@@ -141,7 +142,8 @@ one. Use a callable to avoid reversing urls etc at runtime. For example:
 
 #### `CMS_POST_EDIT_CALLBACK`
 
-Javascript function to execute after a front-end edit - default is blank. Example usage:  
+Javascript function to execute after a front-end edit - default is blank. 
+Example usage:  
 
     CMS_POST_EDIT_CALLBACK = 'function() { ... }'
     
@@ -154,8 +156,8 @@ will be resized before save. Default is `(1920, 1200)`
 
 #### `CMS_BLOCK_REQUIRED_CALLBACK`
 
-A python function to determine whether a block is required - takes the Block instance 
-in question as its sole argument. Default is `None`. Example:
+A python function to determine whether a block is required - takes the Block 
+instance in question as its sole argument. Default is `None`. Example:
 
     def required_cb(block):
         return block.label in ('title', 'main',)
