@@ -193,7 +193,7 @@ def dummy_render(sender, **kwargs):
         if getattr(kwargs['instance'], 'get_absolute_url', False):
             # dummy-render the object's absolute url to generate blocks
             c = Client()
-            response = c.get(str(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
+            response = c.get(unicode(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
 post_save.connect(dummy_render)
 
 
