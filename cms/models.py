@@ -12,7 +12,6 @@ from django.utils.html import escape, strip_tags
 from django.utils.text import truncate_words
 from django.db.models.signals import class_prepared, post_save, pre_save
 from django.utils.functional import curry
-from django.test.client import Client
 from django.template import defaultfilters
 
 import markdown2, gfm
@@ -186,22 +185,6 @@ class _CMSAbstractBaseModel(models.Model):
                 return strip_tags(self.blocks.get(label="name").compiled_content)
             except Block.DoesNotExist:
                 return self.url
-
-# add blocks on save via dummy render
-def dummy_render(sender, **kwargs):
-    if isinstance(kwargs['instance'], _CMSAbstractBaseModel):
-        if getattr(kwargs['instance'], 'get_absolute_url', False):
-            # dummy-render the object's absolute url to generate blocks
-            
-            # NOTE: This will naively attempt to render the page using the *current*  django Site
-            # object, so if you're in the admin of one site editing pages on another, the dummy
-            # render will silently fail
-            
-            c = Client()
-            response = c.get(unicode(kwargs['instance'].get_absolute_url()), {'cms_dummy_render': cms_settings.SECRET_KEY}, HTTP_COOKIE='')   
-post_save.connect(dummy_render)
-
-
 
 
 class PageManager(models.Manager):
