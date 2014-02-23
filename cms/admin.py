@@ -3,6 +3,7 @@ from django.contrib.contenttypes import generic
 from django import forms
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
+from django.test.client import Client
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
@@ -70,8 +71,24 @@ class CMSBaseAdmin(admin.ModelAdmin):
         css = cms_settings.ADMIN_CSS
     class Meta:
         abstract=True
+        
+    def save_model(self, request, obj, form, change):
+        '''Save model, then add blocks/images via dummy rendering.
+           
+           NOTE: This will naively attempt to render the page using the 
+           *current*  django Site object, so if you're in the admin of one site
+           editing pages on another, the dummy render will silently fail.
+        
+        '''
+        returnval = super(PageAdmin, self).save(request, obj, form, change)
+        
+        if getattr(obj, 'get_absolute_url', None):
+            c = Client()
+            response = c.get(unicode(obj.get_absolute_url()), 
+                             {'cms_dummy_render': cms_settings.SECRET_KEY},
+                             HTTP_COOKIE='')
 
-    
+
 class PageAdmin(CMSBaseAdmin):
     list_display=['page_title', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
     list_display_links=['page_title', 'url', ]
