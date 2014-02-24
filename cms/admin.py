@@ -80,13 +80,14 @@ class CMSBaseAdmin(admin.ModelAdmin):
            editing pages on another, the dummy render will silently fail.
         
         '''
-        returnval = super(PageAdmin, self).save(request, obj, form, change)
+        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, change)
         
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
             response = c.get(unicode(obj.get_absolute_url()), 
                              {'cms_dummy_render': cms_settings.SECRET_KEY},
                              HTTP_COOKIE='')
+        return returnval
 
 
 class PageAdmin(CMSBaseAdmin):
