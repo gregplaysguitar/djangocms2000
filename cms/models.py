@@ -14,7 +14,6 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
-from django.test.client import Client
 
 import settings as cms_settings
 from utils import generate_cache_key
@@ -136,25 +135,6 @@ class _CMSAbstractBaseModel(models.Model):
             return self.blocks.exclude(content='').get(label='title').content
         except Block.DoesNotExist:
             return self.url
-    
-    def save(self, *args, **kwargs):
-        dummy_render = kwargs.pop('dummy_render', True)
-        
-        super(_CMSAbstractBaseModel, self).save(*args, **kwargs)
-        
-        if dummy_render and self.pk and getattr(self, 'get_absolute_url', False):
-            # dummy-render the object's absolute url to generate blocks
-
-            # NOTE: This will naively attempt to render the page using the 
-            # *current*  django Site object, so if you're in the admin of one 
-            # site editing pages on another, the dummy render will silently fail
-            
-            c = Client()
-            site = Site.objects.get_current()
-            response = c.get(unicode(self.get_absolute_url()),
-                             {'cms_dummy_render': cms_settings.SECRET_KEY},
-                             HTTP_COOKIE='',
-                             HTTP_HOST=site.domain)   
 
 
 class PageManager(models.Manager):

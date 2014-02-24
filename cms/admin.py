@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.conf import settings
+from django.test.client import Client
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
@@ -82,8 +83,25 @@ class CMSBaseAdmin(admin.ModelAdmin):
         css = admin_css
     class Meta:
         abstract=True
+        
+    def save_model(self, request, obj, form, change):
+        '''Save model, then add blocks/images via dummy rendering.
+           
+           NOTE: This will naively attempt to render the page using the 
+           *current*  django Site object, so if you're in the admin of one site
+           editing pages on another, the dummy render will silently fail.
+        
+        '''
+        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, change)
+        
+        if getattr(obj, 'get_absolute_url', None):
+            c = Client()
+            response = c.get(unicode(obj.get_absolute_url()), 
+                             {'cms_dummy_render': cms_settings.SECRET_KEY},
+                             HTTP_COOKIE='')
+        return returnval
 
-    
+
 class PageAdmin(CMSBaseAdmin):
     list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
     list_display_links=['__unicode__', 'url', ]
