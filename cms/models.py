@@ -153,6 +153,10 @@ class PageManager(models.Manager):
 
 
 class LivePageManager(models.Manager):
+    def get_queryset(self):
+        return super(LivePageManager, self).get_queryset().filter(is_live=True)
+    
+    # For backwards-compatibility
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
 
