@@ -19,11 +19,11 @@ TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER',
 # The following are for internal use and shouldn't need to be customised
 
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
-SECRET_KEY = getattr(settings, 'SECRET_KEY', 'just in case?')
+SECRET_KEY = getattr(settings, 'SECRET_KEY')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
 SITE_ID = getattr(settings, 'SITE_ID', 1)
 
 # let's be *really* careful not to display content from another site using
 # the same cache
-CACHE_PREFIX = 'cms-%s' % hashlib.sha1(settings.SECRET_KEY).hexdigest()[:5]
+CACHE_PREFIX = 'cms-%s' % hashlib.sha1(SECRET_KEY).hexdigest()[:5]
 

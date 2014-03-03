@@ -1,3 +1,5 @@
+import hashlib
+
 import settings
 
 
@@ -43,3 +45,11 @@ def generate_cache_key(type, label=None, site_id=None, related_object=None, url=
         key_bits.append('object_pk:%s' % related_object.pk)
                 
     return '|'.join(key_bits)
+
+
+def public_key():
+    '''Returns a consistent hash of the secret key which can be used in a
+       public context, i.e. as a GET parameter.'''
+    
+    return hashlib.sha1(settings.SECRET_KEY).hexdigest()[:10]
+

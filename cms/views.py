@@ -21,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from forms import PublicPageForm, BlockForm, ImageForm
 import settings as cms_settings
 from models import Block, Page, Image
-from utils import is_editing
+from utils import is_editing, public_key
 
 
 def logout(request):
@@ -170,7 +170,7 @@ def render_page(request, url):
     '''Renders a cms.page object.'''
     
     if request.user.has_module_perms("cms") or \
-       request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
+       request.GET.get('cms_dummy_render', None) == public_key():
         qs = Page.objects
     else:
         qs = Page.live

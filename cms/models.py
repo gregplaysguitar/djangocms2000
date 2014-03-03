@@ -145,8 +145,7 @@ class PageManager(models.Manager):
         	page = pages.get(url=url)
         except Page.DoesNotExist:
         	page = Page(url=url)
-        	# dummy rendering fails if there's no attached site
-        	page.save(dummy_render=False)
+        	page.save()
         	page.sites.add(current_site)
         	page.save()
         return page

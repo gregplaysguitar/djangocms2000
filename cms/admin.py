@@ -13,6 +13,7 @@ import settings as cms_settings
 from forms import PageForm, ReadonlyInput
 from models import Page, Block, Image
 from admin_filters import ContentTypeFilter
+from utils import public_key
 
 
 admin_js = (
@@ -97,7 +98,7 @@ class CMSBaseAdmin(admin.ModelAdmin):
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
             response = c.get(unicode(obj.get_absolute_url()), 
-                             {'cms_dummy_render': cms_settings.SECRET_KEY},
+                             {'cms_dummy_render': public_key()},
                              HTTP_COOKIE='')
         return returnval
 
