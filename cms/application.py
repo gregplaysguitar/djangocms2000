@@ -169,10 +169,9 @@ def get_dummy_image(geometry):
                                                                height or width))
 
 def default_image_renderer(img):
-    if cms_settings.DUMMY_IMAGE_SOURCE and img.geometry and \
-       (not img.image.file or not os.path.exists(img.image.file.path)):
-        return get_dummy_image(img.geometry)
-    elif img.url:
+    '''Renders a RenderedImage object as html for display on the site.'''
+    
+    if img.url:
         return mark_safe('<img src="%s" alt="%s" width="%s" height="%s">' % (img.url, 
                                                                    img.image.description,
                                                                    img.width,
@@ -189,15 +188,17 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
 
     editing = editable and request and is_editing(request, 'image')
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
-
-    if editing:
-        image_obj = get_image(label, cached=False, **lookup_kwargs)
-        image = RenderedImage(image_obj, geometry, crop, scale)
-        rendered_content = renderer(image)
     
+    image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
+    image = RenderedImage(image_obj, geometry, crop, scale)
+    
+    if editing:
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,
-            'rendered_content': rendered_content,
+            'rendered_content': renderer(image),
         })
+    elif cms_settings.DUMMY_IMAGE_SOURCE and image.geometry and \
+         (not image.image.file or not os.path.exists(image.image.file.path)):
+        return get_dummy_image(image.geometry)
     else:
-        return renderer(RenderedImage(get_image(label, **lookup_kwargs), geometry, crop, scale))
+        return renderer(image)
