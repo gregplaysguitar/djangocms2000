@@ -1,4 +1,5 @@
 import re, os, copy
+import importlib
 try:
     import json
 except ImportError:
@@ -20,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from forms import PublicPageForm, BlockForm, ImageForm
 import settings as cms_settings
 from models import Block, Page, Image
-from utils import is_editing
+from utils import is_editing, public_key
 
 
 def logout(request):
@@ -56,14 +57,16 @@ def savepage(request, page_pk=None):
                 raise PermissionDenied
             page = None
         
-        form = PublicPageForm(request.POST, instance=page, prefix=request.POST.get('prefix', None))
+        form = PublicPageForm(request.POST, instance=page, 
+                              prefix=request.POST.get('prefix', None))
             
         if form.is_valid():
             saved_page = form.save()
             return HttpResponse(json.dumps({
                 'success': True,
                 'url': saved_page.get_absolute_url(),
-                'message': page and 'Page saved' or 'Page created... redirecting'
+                'message': page and 'Page saved' or \
+                                    'Page created... redirecting'
             }), mimetype='application/json')
         else:
             return HttpResponse(json.dumps({
@@ -86,8 +89,8 @@ def get_page_content(base_request, page_url):
         # must be a django-created page, rendered by a urlconf
         page_func = lambda r: urlmatch.func(r, *urlmatch.args, **urlmatch.kwargs)
     
-    # reuse the request to avoid having to fake sessions etc, but it'll have to be hacked
-    # a little so it has the right url and doesn't trigger a POST
+    # reuse the request to avoid having to fake sessions etc, but it'll have to
+    # be hacked a little so it has the right url and doesn't trigger a POST
     request = copy.copy(base_request)
     request.path = request.path_info = page_url
     request.META['REQUEST_METHOD'] = request.method = 'GET'
@@ -167,23 +170,28 @@ def render_page(request, url):
     '''Renders a cms.page object.'''
     
     if request.user.has_module_perms("cms") or \
-       request.GET.get('cms_dummy_render', None) == cms_settings.SECRET_KEY:
+       request.GET.get('cms_dummy_render', None) == public_key():
         qs = Page.objects
     else:
         qs = Page.live
     
-    # don't try to render pages with no template (e.g. those who hold content for a
-    # url resolved elsewhere in the project)
+    # don't try to render pages with no template (e.g. those who hold content
+    # for a url resolved elsewhere in the project)
     qs = qs.exclude(template='')
     
     page = get_object_or_404(qs, url=url, sites__id=settings.SITE_ID)
-    return render_to_response(
-        page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1),
-        {
-            'page': page,
-        },
-        context_instance=RequestContext(request)
-    )
+    
+    # Render function - by default, django.shortcuts.render_to_response, but 
+    # could be coffins version, or custom
+    bits = cms_settings.TEMPLATE_RENDERER.split('.')
+    renderer_module = importlib.import_module('.'.join(bits[:-1]))
+    renderer = getattr(renderer_module, bits[-1])
+    
+    template = page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1)
+    
+    return renderer(template, {
+        'page': page,
+    }, context_instance=RequestContext(request))
 
 
 def tinymce_config_json():
@@ -194,7 +202,6 @@ def tinymce_config_json():
     return json.dumps(tinymce_config)
 
 
-# used to initialise django admin tinymce
 @permission_required("cms.change_block")
 def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc

@@ -14,7 +14,6 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
-from django.test.client import Client
 
 import settings as cms_settings
 from utils import generate_cache_key
@@ -136,25 +135,6 @@ class _CMSAbstractBaseModel(models.Model):
             return self.blocks.exclude(content='').get(label='title').content
         except Block.DoesNotExist:
             return self.url
-    
-    def save(self, *args, **kwargs):
-        dummy_render = kwargs.pop('dummy_render', True)
-        
-        super(_CMSAbstractBaseModel, self).save(*args, **kwargs)
-        
-        if dummy_render and self.pk and getattr(self, 'get_absolute_url', False):
-            # dummy-render the object's absolute url to generate blocks
-
-            # NOTE: This will naively attempt to render the page using the *current*  django Site
-            # object, so if you're in the admin of one site editing pages on another, the dummy
-            # render will silently fail
-
-            c = Client()
-            site = Site.objects.get_current()
-            response = c.get(str(self.get_absolute_url()),
-                             {'cms_dummy_render': cms_settings.SECRET_KEY},
-                             HTTP_COOKIE='',
-                             HTTP_HOST=site.domain)   
 
 
 class PageManager(models.Manager):
@@ -165,14 +145,17 @@ class PageManager(models.Manager):
         	page = pages.get(url=url)
         except Page.DoesNotExist:
         	page = Page(url=url)
-        	# dummy rendering fails if there's no attached site
-        	page.save(dummy_render=False)
+        	page.save()
         	page.sites.add(current_site)
         	page.save()
         return page
 
 
 class LivePageManager(models.Manager):
+    def get_queryset(self):
+        return super(LivePageManager, self).get_queryset().filter(is_live=True)
+    
+    # For backwards-compatibility
     def get_query_set(self):
         return super(LivePageManager, self).get_query_set().filter(is_live=True)
 

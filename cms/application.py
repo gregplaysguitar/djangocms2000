@@ -16,7 +16,13 @@ import settings as cms_settings
 def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=None, cached=True):
     '''Get a page, site or generic block/image, based on any one of the optional arguments.'''
     
-    key = generate_cache_key(model_cls._meta.module_name, label, url=url, site_id=site_id, related_object=related_object)
+    if hasattr(model_cls._meta, 'model_name'):
+        model_name = model_cls._meta.model_name
+    else:
+        # Django 1.4 compatibility
+        model_name = model_cls._meta.module_name
+    
+    key = generate_cache_key(model_name, label, url=url, site_id=site_id, related_object=related_object)
     
     obj = cache.get(key)
     if obj == None or not cached:

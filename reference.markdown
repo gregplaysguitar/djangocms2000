@@ -40,10 +40,11 @@ more than one place, ie the window title and page title). Example template code:
 Format: `{% cmsimage label [geometry='' crop='' editable=1 as alias] %}`
 
 Basic image block - use as with `cmsblock`. The `geometry` and `crop` arguments
-correspond to sorl's [geometry](http://thumbnail.sorl.net/template.html#geometry) and 
-[crop](http://thumbnail.sorl.net/template.html#crop) options, and can be of the format
-'XxY', 'X', or 'xY', for constraining width and height, just width, and just height, 
-respectively. Examples:
+correspond to sorl's 
+[geometry](http://thumbnail.sorl.net/template.html#geometry) and 
+[crop](http://thumbnail.sorl.net/template.html#crop) options, and can be of the
+format 'XxY', 'X', or 'xY', for constraining width and height, just width, and 
+just height, respectively. Examples:
 
     {# render image as uploaded, no resizing #}
     {% cmsimage "image" %}
@@ -84,9 +85,9 @@ Format:
     {% cmsgenericblock object label [format='plain' editable=1 as alias] %}
     {% cmsgenericimage object label [geometry='' crop='' editable=1 as alias] %}
 
-Like `cmsblock` and `cmsimage`, but attached to a generic `django.db.models.Model` 
-object instead of a cms page. The additional `object` argument is required and should 
-be the relevant instance. Example usage:
+Like `cmsblock` and `cmsimage`, but attached to a generic 
+`django.db.models.Model` object instead of a cms page. The additional `object` 
+argument is required and should be the relevant instance. Example usage:
 
     {% for article in articles %}
         <article>
@@ -104,8 +105,8 @@ Format:
     {% cmssiteblock label [format='plain' editable=1 as alias] %}
     {% cmssiteimage label [geometry='' crop='' editable=1 as alias] %}
 
-Like a `cmsgenericblock` that is automatically attached to the current site instance, 
-so effectively a site-wide block. Example
+Like a `cmsgenericblock` that is automatically attached to the current site 
+instance, so effectively a site-wide block. Example
 
     <title>{% block title %}{% endblock %} | {% cmssiteblock "base-title" editable=0 %}</title>
     
@@ -141,7 +142,8 @@ one. Use a callable to avoid reversing urls etc at runtime. For example:
 
 #### `CMS_POST_EDIT_CALLBACK`
 
-Javascript function to execute after a front-end edit - default is blank. Example usage:  
+Javascript function to execute after a front-end edit - default is blank. 
+Example usage:  
 
     CMS_POST_EDIT_CALLBACK = 'function() { ... }'
     
@@ -154,8 +156,8 @@ will be resized before save. Default is `(1920, 1200)`
 
 #### `CMS_BLOCK_REQUIRED_CALLBACK`
 
-A python function to determine whether a block is required - takes the Block instance 
-in question as its sole argument. Default is `None`. Example:
+A python function to determine whether a block is required - takes the Block 
+instance in question as its sole argument. Default is `None`. Example:
 
     def required_cb(block):
         return block.label in ('title', 'main',)
@@ -169,8 +171,8 @@ Identical to `BLOCK_REQUIRED_CALLBACK` but takes an Image instance as its argume
 
 #### `CMS_DUMMY_IMAGE_SOURCE`
 
-If set, and DEBUG is True, empty cms images will be filled with a placeholder from 
-the given source. Format is borrowed from
+If set, and DEBUG is True, empty cms images will be filled with a placeholder 
+from the given source. Format is borrowed from
 [sorl](http://sorl-thumbnail.readthedocs.org/en/latest/reference/settings.html),
 and should contain `%(width)s` and `%(height)s` placeholders, i.e.
 
@@ -178,3 +180,11 @@ and should contain `%(width)s` and `%(height)s` placeholders, i.e.
     'http://placekitten.com/%(width)s/%(height)s'
 
 Defaults value is `None`.
+
+
+#### `CMS_TEMPLATE_RENDERER`
+
+Full path to the function used to render pages by the fallback middleware, 
+defaults to `'django.shortcuts.render_to_response`'. If you're using Coffin and
+Jinja2, for example, you may want to set this to 
+`'coffin.shortcuts.render_to_response`'

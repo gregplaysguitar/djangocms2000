@@ -7,11 +7,13 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.conf import settings
+from django.test.client import Client
 
 import settings as cms_settings
 from forms import PageForm, ReadonlyInput
 from models import Page, Block, Image
 from admin_filters import ContentTypeFilter
+from utils import public_key
 
 
 admin_js = (
@@ -28,6 +30,8 @@ admin_css = {
 class BlockForm(forms.ModelForm):
     class Meta:
         model = Block
+        exclude = ()
+    
     def __init__(self, *args, **kwargs):
         super(BlockForm, self).__init__(*args, **kwargs)
 
@@ -53,6 +57,8 @@ class BlockInline(generic.GenericTabularInline):
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
+        exclude = ()
+    
     def __init__(self, *args, **kwargs):
         super(ImageForm, self).__init__(*args, **kwargs)
 
@@ -78,8 +84,25 @@ class CMSBaseAdmin(admin.ModelAdmin):
         css = admin_css
     class Meta:
         abstract=True
+        
+    def save_model(self, request, obj, form, change):
+        '''Save model, then add blocks/images via dummy rendering.
+           
+           NOTE: This will naively attempt to render the page using the 
+           *current*  django Site object, so if you're in the admin of one site
+           editing pages on another, the dummy render will silently fail.
+        
+        '''
+        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, change)
+        
+        if getattr(obj, 'get_absolute_url', None):
+            c = Client()
+            response = c.get(unicode(obj.get_absolute_url()), 
+                             {'cms_dummy_render': public_key()},
+                             HTTP_COOKIE='')
+        return returnval
 
-    
+
 class PageAdmin(CMSBaseAdmin):
     list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
     list_display_links=['__unicode__', 'url', ]
@@ -113,11 +136,19 @@ class PageAdmin(CMSBaseAdmin):
     form = PageForm
     exclude = []
     
+    def save_related(self, request, form, formsets, change):
+        super(PageAdmin, self).save_related(request, form, formsets, change)
+        
+        # If the sites field is hidden, and no site is set, add the default one
+        if not cms_settings.USE_SITES_FRAMEWORK and not form.instance.sites.count():
+            form.instance.sites.add(Site.objects.get_current())
+    
 if cms_settings.USE_SITES_FRAMEWORK:
     PageAdmin.list_display.append('get_sites')
 else:
     PageAdmin.exclude.append('sites')
-        
+
+     
 admin.site.register(Page, PageAdmin)
 
 
@@ -149,6 +180,8 @@ admin.site.register(Block, BlockAdmin)
 class ImageFormSite(forms.ModelForm):
     class Meta:
         model = Image
+        exclude = ()
+    
     label = forms.CharField(widget=ReadonlyInput)
 
 class ImageAdmin(admin.ModelAdmin):
