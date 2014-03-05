@@ -143,11 +143,13 @@ class RenderedImage:
     
     @property
     def width(self):
-        return self.get_image_attr('width') / self.scale
+        img_width = self.get_image_attr('width')
+        return (img_width / self.scale) if img_width else None
     
     @property
     def height(self):
-        return self.get_image_attr('height') / self.scale
+        img_height = self.get_image_attr('height')
+        return (img_height / self.scale) if img_height else None
 
 
 def get_dummy_image(geometry):
