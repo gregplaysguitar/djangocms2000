@@ -57,6 +57,8 @@ def get_lookup_kwargs(site_id=None, related_object=None, request=None):
         
 
 def default_block_renderer(block, filters=None):
+    '''Renders a cms.block as html for display on the site.'''
+    
     content = block.display_content()
     if filters and content:
         for f in filters.split('|'):
@@ -149,8 +151,10 @@ class RenderedImage:
 
 
 def get_dummy_image(geometry):
-    # geometry can be of the form 'XxY', 'X' or 'xY'. if only one dimension is supplied, 
-    # return a square
+    '''Generate a dummy image using the dummy image source from settings, and 
+       supplied geometry. Geometry can be of the form 'XxY', 'X' or 'xY' - if
+       only one dimension is supplied, a square is returned.'''
+    
     width, height = (geometry.split('x') + [''])[:2]
     placeholder = cms_settings.DUMMY_IMAGE_SOURCE % {
         'width': width or height,
