@@ -5,6 +5,10 @@
       save_url='{% url 'cms.views.saveimage' image.image.id %}'>
 	
 	<span class="cms-inner">
-        {% firstof rendered_content 'Click to add image' %}
+    {% if rendered_content.strip %}
+      {{ rendered_content }}
+    {% else %}
+      Click to add image
+    {% endif %}
 	</span>
 </span>
