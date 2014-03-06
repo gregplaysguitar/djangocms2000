@@ -187,9 +187,7 @@ def render_page(request, url):
     renderer_module = importlib.import_module('.'.join(bits[:-1]))
     renderer = getattr(renderer_module, bits[-1])
     
-    template = page.template.replace("/%s/" % settings.TEMPLATE_DIRS[0], "", 1)
-    
-    return renderer(template, {
+    return renderer(page.template, {
         'page': page,
     }, context_instance=RequestContext(request))
 
