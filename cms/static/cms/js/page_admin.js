@@ -30,12 +30,4 @@ var cmsAdmin = function($, tinymce_config) {
         $('input[type=submit][name=_continue]').attr('value', 'Create and continue to next step');
         $('input[type=submit][name!=_continue]').remove();
     }
-    else {
-        $('div.inline-group').each(function() {
-            if ($(this).find('table tr').length <= 1) {
-                $(this).hide();
-            }
-        });
-    }
-
 };

@@ -52,6 +52,9 @@ class BlockInline(generic.GenericTabularInline):
     max_num = 0
     fields = ('content',)
     form = BlockForm
+    
+    def has_add_permission(self, request):
+        return False
 
 
 class ImageForm(forms.ModelForm):
@@ -72,6 +75,9 @@ class ImageInline(generic.GenericTabularInline):
     max_num = 0
     exclude = ('label',)
     form = ImageForm
+    
+    def has_add_permission(self, request):
+        return False
 
 
 class CMSBaseAdmin(admin.ModelAdmin):
