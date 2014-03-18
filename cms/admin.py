@@ -106,7 +106,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
             site = Site.objects.get_current()
             response = c.get(unicode(obj.get_absolute_url()), 
                              {'cms_dummy_render': public_key()},
-                             HTTP_COOKIE='', HTTP_HOST=site.domain)
+                             HTTP_HOST=site.domain,
+                             follow=True)
         return returnval
 
 
