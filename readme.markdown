@@ -10,6 +10,7 @@ Requirements
 2. [simplejson](pypi.python.org/pypi/simplejson/)
 3. [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) version 10+ (optional, 
    required for automatically resizing cms images)
+4. [importlib](https://pypi.python.org/pypi/importlib), for python < 2.7
 
 Installation
 ------------
