@@ -198,13 +198,17 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
     image = RenderedImage(image_obj, geometry, crop, scale)
     
+    if cms_settings.DUMMY_IMAGE_SOURCE and \
+       (not image.image.file or not os.path.exists(image.image.file.path)):
+        # arbitrary small image if no geometry supplied
+        rendered = get_dummy_image(image.geometry or '100x100')
+    else:
+        rendered = renderer(image)
+        
     if editing:
         return template.loader.render_to_string("cms/cms/image_editor.html", {
             'image': image,
-            'rendered_content': renderer(image),
+            'rendered_content': rendered,
         })
-    elif cms_settings.DUMMY_IMAGE_SOURCE and image.geometry and \
-         (not image.image.file or not os.path.exists(image.image.file.path)):
-        return get_dummy_image(image.geometry)
     else:
-        return renderer(image)
+        return rendered
