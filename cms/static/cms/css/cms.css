@@ -258,9 +258,11 @@
 }
 #cms-menu > div span.status {
 	float: right;
+	min-width: 400px;
 }
 #cms-menu a {
 	color: #aaa;
+	display: inline-block;
 }
 #cms-menu input {
 	width: auto;
