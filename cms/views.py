@@ -207,6 +207,7 @@ def block_admin_init(request):
     
     response = render_to_response('cms/cms/block_admin_init.js', {
         'tinymce_config_json': tinymce_config_json(),
+        'cms_settings': cms_settings,
     }, context_instance=RequestContext(request))
     
     response['Content-Type'] = 'application/javascript'
