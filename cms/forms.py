@@ -49,7 +49,8 @@ class ImageForm(forms.ModelForm):
 
 
 URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
-URL_DASH_REGEX = re.compile('--+')
+URL_DASH_REGEX = re.compile('-+')
+URL_SLASH_REGEX = re.compile('\/+')
 class PageForm(forms.ModelForm):
     template = forms.CharField(
         widget=forms.Select(choices=template_choices()),
@@ -85,7 +86,7 @@ class PageForm(forms.ModelForm):
         # normalise url
         url = URL_STRIP_REGEX.sub('', data['url'].replace(' ', '-')).lower()
         url = URL_DASH_REGEX.sub('-', url).strip('-')
-        url = ("/%s" % (url.lstrip('/'))).replace('//', '/')
+        url = URL_SLASH_REGEX.sub('/', "/%s" % (url.lstrip('/')))
         
         # check uniqueness of url/site
         if cms_settings.USE_SITES_FRAMEWORK:
