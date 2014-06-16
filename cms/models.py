@@ -90,7 +90,13 @@ class Image(models.Model):
     
 
 def clear_cache(sender, instance, **kwargs):
-    key = generate_cache_key(instance._meta.module_name, instance.label,
+    try:
+        model_name = instance._meta.model_name
+    except AttributeError:
+        # Django < 1.7 fallback
+        model_name = instance._meta.module_name
+    
+    key = generate_cache_key(model_name, instance.label,
                              related_object=instance.content_object)
     cache.delete(key)
 post_save.connect(clear_cache, sender=Block)

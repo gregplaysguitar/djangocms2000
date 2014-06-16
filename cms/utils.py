@@ -26,11 +26,17 @@ def generate_cache_key(type, label=None, site_id=None, related_object=None, url=
     
     if related_object:
         app_label = related_object._meta.app_label
-        module_name = related_object._meta.module_name
-        if app_label == 'sites' and module_name == 'site':
+        
+        try:
+            model_name = related_object._meta.model_name
+        except AttributeError:
+            # Django < 1.7 fallback
+            model_name = related_object._meta.module_name
+            
+        if app_label == 'sites' and model_name == 'site':
             # must actually be a site block, being referenced by the sites.Site object
             site_id = related_object.pk
-        elif app_label == 'cms' and module_name == 'page':
+        elif app_label == 'cms' and model_name == 'page':
             # must be a cms.Page, ditto
             url = related_object.url
         
