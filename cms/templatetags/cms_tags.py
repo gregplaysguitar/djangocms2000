@@ -17,7 +17,8 @@ class BaseBlockNode(BaseNode):
     
     def is_empty(self, obj, request):
         editing = request and is_editing(request)
-        return not obj.display_content().strip() and (self.nodelist_empty or not editing)
+        return not obj.display_content().strip() and \
+               (self.nodelist_empty or not editing)
     
     def render(self, context):
         return get_rendered_block(**self.get_options(context))
@@ -38,15 +39,16 @@ class BaseImageNode(BaseNode):
 
 
 class PageMixin(BaseNode):
-    '''Works with blocks or images related to a Page object, which is determined via the 
-       request. Requires an HttpRequest instance to be present in the template context.'''
+    '''Works with blocks or images related to a Page object, which is 
+       determined via the request. Requires an HttpRequest instance to be 
+       present in the template context.'''
     
     takes_request = True
 
 
 class SiteMixin(BaseNode):
-    '''Works with blocks or images related to a Site, which is determined via django 
-       settings.'''
+    '''Works with blocks or images related to a Site, which is determined via 
+       django settings.'''
     
     takes_request = True
     
@@ -57,16 +59,16 @@ class SiteMixin(BaseNode):
         
         
 class GenericMixin(BaseNode):
-    '''Works with blocks or images related to any model object, which should be passed
-       in as an argument after 'label'.'''
+    '''Works with blocks or images related to any model object, which should be
+       passed in as an argument after 'label'.'''
 
     required_params = ('related_object', 'label',)
     takes_request = True
 
 
 def node_factory(base_node, lookup_mixin):
-    '''Shortcut to return a TemplateNode for the given base_node (corresponding to either
-       Block or Image) and lookup mixin (page, site or generic)'''
+    '''Shortcut to return a TemplateNode for the given base_node (corresponding
+       to either Block or Image) and lookup mixin (page, site or generic)'''
     
     class _Node(lookup_mixin, base_node):
         pass
