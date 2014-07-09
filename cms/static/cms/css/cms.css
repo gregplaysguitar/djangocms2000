@@ -47,12 +47,9 @@
   line-height: 25px;
   position: relative;
   background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  color: #aaa;
   z-index: 1;
   text-align: center;
-  font-family: sans-serif;
-  text-transform: uppercase;
-  font-weight: bold;
 }
 
 .cms-image span.throbber,
@@ -255,6 +252,7 @@
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	z-index: 200;
+	font-size: 12px;
 }
 #cms-menu > div {
 	/*width: 960px;*/
@@ -262,7 +260,6 @@
 }
 #cms-menu > div span.status {
 	float: right;
-	min-width: 400px;
 }
 #cms-menu a {
 	color: #aaa;
@@ -299,6 +296,7 @@
     -moz-border-radius: 3px;
     border-radius: 3px;
     z-index: 200;
+    font-size: 12px;
 }
 #cms-logged_in a {
     cursor: pointer;
