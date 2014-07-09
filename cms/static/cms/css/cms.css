@@ -6,26 +6,25 @@
 	z-index: 1;	
 	display: inline-block;
 }
+
 .cms-image {
 	z-index: 20;
 }
-
 .cms-image.placeholder,
 .cms-block.placeholder {
 	font-style: italic;
 	opacity: 0.6;
 }
-
 .cms-image.placeholder {
     text-align: center;
     background-color: #ddd;
     background-color: rgba(127, 127, 127, 0.1);
 }
 
-
-
 .cms-block {
 	display: block;
+	padding: 1px;
+	margin: -1px;
 }
 .cms-block.hovered,
 .cms-image.placeholder.hovered {
@@ -223,6 +222,9 @@
 	padding: 5px;
 	margin: -6px;
 	border: 1px solid #ccc;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 #cms-textform input.save,
 #cms-textform input.cancel {
