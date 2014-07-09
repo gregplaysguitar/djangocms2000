@@ -22,7 +22,7 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	});
 	
 	function edit(block) {
-		var save_url = $(block).attr('save_url');
+		var save_url = $(block).data('save_url');
 		
 		if (currently_editing) {
 			return false;
@@ -36,21 +36,24 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 		}
 		
 		if ($(block).hasClass('cms-image')) {
-		    var img = $(block).find('img');
-		    // TODO ajaxify this
-			$('#cms-imageform form').attr('action', save_url);
-			if (img.length && !img.hasClass('placeholder')) {
-				$('#cms-imageform h2').html('Change image');
-				$('#cms-imageform div.current img').attr('src', img.attr('src'));
-				$('#cms-imageform div.current').css({'visibility': 'visible'});
-				$('#cms-imageform input[name$="description"]').val(img.attr('alt'));
-			}
-			else {
-				$('#cms-imageform h2').html('Add image');
-				$('#cms-imageform div.current').css({'visibility': 'hidden'});
-			}
-			
-			showForm('image');
+		  var form = $('#cms-imageform'),
+		      image_url = $(block).data('image_url'),
+		      description = $(block).data('description');
+		      
+		  form.find('form').attr('action', save_url);
+		
+		  if (image_url) {
+		    form.find('h2').html('Change image');
+		    form.find('div.current img').attr('src', image_url);
+		    form.find('div.current').css('visibility', 'visible');
+		    form.find('input[name$="description"]').val(description);
+		  }
+		  else {
+		    form.find('h2').html('Add image');
+		    form.find('div.current').css('visibility', 'hidden');
+		  }
+		  
+		  showForm('image');
 		}
 		else {
 		    var inner = $(block).find(".cms-inner");
@@ -58,7 +61,9 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 		    function update_block(page_content) {
                 var updated_body = $('<div>' + page_content + '</div>'),
                     // save_url is unique to the block, so use it to find the updated block 
-                    updated_block = updated_body.find('.cms-block[save_url="' + save_url + '"]'),
+                    updated_block = updated_body.find('.cms-block').filter(function() {
+                        return $(this).data('save_url') === save_url;
+                    }),
                     updated_content = $.trim(updated_block.find('.cms-inner').html());
                 
                 inner.html(updated_content || "Click to add text");
@@ -67,10 +72,10 @@ var cms = function ($, tinymce_config, post_edit_callback) {
                 }                        
 		    };
 		    
-            if ($(block).attr('format') === 'html') {
+            if ($(block).data('format') === 'html') {
                 $('#cms-htmlform #id_html-content').val(raw_content).html(raw_content);
                 tinyMCE.get("id_html-content").setContent(raw_content);
-                $('#cms-htmlform #id_format').val($(block).attr('format'));
+                $('#cms-htmlform #id_format').val($(block).data('format'));
                 
                 
                 $('#cms-htmlform form').ajaxForm({
@@ -172,17 +177,23 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	});
 
 	$('.cms-image').each(function () {
-		// if there's no image and we're cropping, size the placeholder the same as
-		// the image so as not to break layouts.
-		if (!$(this).find('img').length && $(this).attr('constraint')) {
-			var bits = $(this).attr('constraint').split('x');
-            $(this).css({
-                width: bits[0] ? bits[0] + 'px' : 'auto',
-                height: bits[1] ? bits[1] + 'px' : 'auto',
-                lineHeight: bits[2] + 'px',
-                display: 'inline-block'
-            });
-		}
+	    // img could be any element, not necessarily <img>
+	    var el = $(this).find('.cms-inner').children();
+	
+	    // if there's no image and we're cropping, size the placeholder the same as
+	    // the image so as not to break layouts.
+	    if (!el.length && $(this).attr('constraint')) {
+	        var bits = $(this).attr('constraint').split('x');
+	        $(this).css({
+	            width: bits[0] ? bits[0] + 'px' : 'auto',
+	            height: bits[1] ? bits[1] + 'px' : 'auto',
+	            lineHeight: bits[2] + 'px',
+	            display: 'inline-block'
+	        });
+	    }
+	    
+	    // match the display css prop for the same reason
+	    $(this).css('display', el.css('display') || 'inline-block');
 	});
 	$('.cms-block, .cms-image').each(function() {
 		$(this).append('<span class="editMarker"></span>');
