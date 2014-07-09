@@ -74,7 +74,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: transparent url(../images/overlay.png);
+	background: rgba(0, 0, 0, 0.6);
 	opacity: 1;
 	overflow: auto;
 	
@@ -245,7 +245,7 @@
 	top: 0;
 	left: 0;
 	width: 100%;
-	background: transparent url(../images/overlay.png);
+	background: rgba(0, 0, 0, 0.8);
 	color: #fff;
 	padding: 5px 0;
 	text-align: left;
@@ -290,7 +290,7 @@
     top: 0;
     right: 0;
     width: auto;
-    background: transparent url(../images/overlay.png);
+    background: rgba(0, 0, 0, 0.8);
     color: #fff;
     padding: 5px 10px;
     -webkit-border-radius: 3px;
