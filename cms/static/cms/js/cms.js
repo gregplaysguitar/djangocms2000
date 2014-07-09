@@ -195,22 +195,20 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	    // match the display css prop for the same reason
 	    $(this).css('display', el.css('display') || 'inline-block');
 	});
+	
 	$('.cms-block, .cms-image').each(function() {
-		$(this).append('<span class="editMarker"></span>');
-	}).mouseover(function() {
-		if (!currently_editing) {
-			$(this).addClass('hovered').find('span.editMarker').css({'display': 'block'});
-		}
-	}).mouseout(function() {
-		$(this).removeClass('hovered').find('span.editMarker').css({'display': 'none'});
-	}).click(function(e){
-		if (!e.originalTarget || e.originalTarget.tagName.toLowerCase() != 'a') {
-    		edit(this);
-	    	return false;
-		}
-	}).find('span.editMarker').click(function(){
-		edit(this.parentNode);
-		return false;
+        var me = $(this);
+	    me.hover(function() {
+    	    me.addClass('hovered');
+	    }, function() {
+    	    me.removeClass('hovered');
+	    });
+	    me.click(function(e) {
+            if (!e.originalTarget || e.originalTarget.tagName.toLowerCase() != 'a') {
+                edit(me[0]);
+                return false;
+            }
+	    });
 	});
 	
 	$('#cms-menu .page-options').click(function() {

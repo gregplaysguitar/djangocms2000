@@ -1,14 +1,7 @@
 
-.cms-image,
-.cms-block {
-	cursor: pointer;
-	position: relative;
-	z-index: 1;	
-	display: inline-block;
-}
-
 .cms-image {
 	z-index: 20;
+	cursor: pointer;
 }
 .cms-image.placeholder,
 .cms-block.placeholder {
@@ -25,6 +18,7 @@
 	display: block;
 	padding: 1px;
 	margin: -1px;
+	cursor: pointer;
 }
 .cms-block.hovered,
 .cms-image.placeholder.hovered {
@@ -42,15 +36,23 @@
     transition: background 500ms;
 }
 
-.cms-image span.editMarker,
-.cms-block span.editMarker {
-	position: absolute;
-	right: 0px;
-	top: -25px;
-	width: 95px;
-	height: 50px;
-	background: transparent url(../images/edit.png) top left no-repeat;
-	display: none;
+.cms-block.hovered:before,
+.cms-image.hovered:before {
+  content: 'Edit';
+  float: left;
+  margin: 0 -50px -25px 0;
+  width: 50px;
+  height: 25px;
+  font-size: 12px;
+  line-height: 25px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  z-index: 1;
+  text-align: center;
+  font-family: sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .cms-image span.throbber,
