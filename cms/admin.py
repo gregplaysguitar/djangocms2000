@@ -1,6 +1,12 @@
 from django import forms
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+
+try:
+    from django.contrib.contenttypes.admin import GenericTabularInline
+except ImportError:
+    # django pre-1.9
+    from django.contrib.contenttypes.generic import GenericTabularInline
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
@@ -47,7 +53,7 @@ class BlockForm(forms.ModelForm):
             self.fields['content'].required = required_cb(kwargs['instance'])
 
 
-class BlockInline(generic.GenericTabularInline):
+class BlockInline(GenericTabularInline):
     model = Block
     max_num = 0
     fields = ('content',)
@@ -70,7 +76,7 @@ class ImageForm(forms.ModelForm):
             self.fields['file'].required = required_cb(kwargs['instance'])
 
 
-class ImageInline(generic.GenericTabularInline):
+class ImageInline(GenericTabularInline):
     model = Image
     max_num = 0
     exclude = ('label',)

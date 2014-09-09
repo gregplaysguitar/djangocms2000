@@ -5,7 +5,15 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+
+try:
+    from django.contrib.contenttypes.fields import GenericForeignKey, \
+                                                   GenericRelation
+except ImportError:
+    # django pre-1.9
+    from django.contrib.contenttypes.generic import GenericForeignKey, \
+                                                    GenericRelation
+
 from django.core.cache import cache
 from django.template.loader import get_template
 from django import template
@@ -38,7 +46,7 @@ class Block(models.Model):
     
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     label = models.CharField(max_length=255)
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default=FORMAT_PLAIN)
@@ -64,7 +72,7 @@ class Block(models.Model):
 class Image(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     def label_display(self):
         return self.label.replace('-', ' ').replace('_', ' ').title()
@@ -133,8 +141,8 @@ class _CMSAbstractBaseModel(models.Model):
     class Meta:
         abstract = True
     
-    blocks = generic.GenericRelation(Block)
-    images = generic.GenericRelation(Image)
+    blocks = GenericRelation(Block)
+    images = GenericRelation(Image)
     
     def __unicode__(self):
         try:
