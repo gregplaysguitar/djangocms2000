@@ -50,6 +50,8 @@
   color: #aaa;
   z-index: 1;
   text-align: center;
+  letter-spacing: 0;
+  font-weight: normal;
 }
 
 .cms-image span.throbber,
