@@ -67,12 +67,12 @@ def savepage(request, page_pk=None):
                 'url': saved_page.get_absolute_url(),
                 'message': page and 'Page saved' or \
                                     'Page created... redirecting'
-            }), mimetype='application/json')
+            }), content_type='application/json')
         else:
             return HttpResponse(json.dumps({
                 'success': False,
                 'errors': form.errors,
-            }), mimetype='application/json')
+            }), content_type='application/json')
 
 
 def get_page_content(base_request, page_url):
@@ -143,7 +143,7 @@ def saveblock(request, block_id):
     return HttpResponse(json.dumps({
         'page_content': page_content,
         'content': block.content,
-    }), mimetype='application/json')
+    }), content_type='application/json')
 
     
 @permission_required("cms.change_image")
