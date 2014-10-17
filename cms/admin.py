@@ -118,12 +118,13 @@ class CMSBaseAdmin(admin.ModelAdmin):
 
 
 class PageAdmin(CMSBaseAdmin):
-    list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date', 'view_on_site',]
+    list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date',
+                  'view_on_site_link',]
     list_display_links=['__unicode__', 'url', ]
 
     list_filter=['sites', 'template', 'is_live', 'creation_date',]
     
-    def view_on_site(self, instance):
+    def view_on_site_link(self, instance):
         url = instance.get_absolute_url()
 
         if instance.sites.count():
@@ -138,8 +139,8 @@ class PageAdmin(CMSBaseAdmin):
             url = 'http://%s%s' % (site.domain, url)
         
         return '<a href="%s" target="_blank">view page</a>' % url
-    view_on_site.allow_tags = True
-    view_on_site.short_description = ' '
+    view_on_site_link.allow_tags = True
+    view_on_site_link.short_description = ' '
     
     def get_sites(self, obj):
         return ', '.join([unicode(s) for s in obj.sites.all()])
