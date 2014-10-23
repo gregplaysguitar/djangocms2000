@@ -82,6 +82,10 @@ class PageForm(forms.ModelForm):
     
     def clean(self):        
         data = self.cleaned_data
+        url = data.get('url')
+        
+        if not url:
+            return data
         
         # normalise url
         url = URL_STRIP_REGEX.sub('', data['url'].replace(' ', '-')).lower()
