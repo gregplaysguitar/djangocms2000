@@ -153,16 +153,14 @@ class _CMSAbstractBaseModel(models.Model):
 
 class PageManager(models.Manager):
     def get_for_url(self, url):
-    	current_site = Site.objects.get_current()
-    	pages = Page.objects.filter(sites=current_site)
     	try:
-        	page = pages.get(url=url)
+        	return self.get(sites__id=settings.SITE_ID, url=url)
         except Page.DoesNotExist:
-        	page = Page(url=url)
-        	page.save()
-        	page.sites.add(current_site)
-        	page.save()
-        return page
+            page = Page(url=url)
+            page.save()
+            page.sites.add(Site.objects.get_current())
+            page.save()
+            return page
 
 
 class LivePageManager(models.Manager):
@@ -175,7 +173,8 @@ class LivePageManager(models.Manager):
 
 
 class Page(_CMSAbstractBaseModel):
-    url = models.CharField(max_length=255, verbose_name='URL', help_text='e.g. "/about/contact/"')
+    url = models.CharField(max_length=255, verbose_name='URL', 
+                           help_text='e.g. /about/contact', db_index=True)
     template = models.CharField(max_length=255, default='')
     sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     creation_date = models.DateTimeField(auto_now_add=True)
