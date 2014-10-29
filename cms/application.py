@@ -8,6 +8,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
+try:
+    import sorl.thumbnail
+except ImportError:
+    pass
+
 from models import Block, Image, Page
 from utils import is_editing, generate_cache_key
 import settings as cms_settings
@@ -131,15 +136,18 @@ class RenderedImage:
         
     def get_thumbnail(self):
         if self.geometry:
-            from sorl.thumbnail import get_thumbnail
-            return get_thumbnail(self.image.file, self.geometry, crop=self.crop)
+            thumb = sorl.thumbnail.get_thumbnail(self.image.file, 
+                                                 self.geometry,
+                                                 crop=self.crop)
+            return thumb
         else:
             return None
     
     def get_image_attr(self, attr):
         if self.image.file:
             thumb = self.get_thumbnail()
-            return getattr(thumb, attr) if thumb else getattr(self.image.file, attr)
+            return getattr(thumb, attr) if thumb \
+                   else getattr(self.image.file, attr)
         else:
             return None
     
