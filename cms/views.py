@@ -179,7 +179,7 @@ def render_page(request, url):
     # for a url resolved elsewhere in the project)
     qs = qs.exclude(template='')
     
-    page = get_object_or_404(qs, url=url, sites__id=settings.SITE_ID)
+    page = get_object_or_404(qs, url=url, sites__site_id=settings.SITE_ID)
     
     # Render function - by default, django.shortcuts.render_to_response, but 
     # could be coffins version, or custom
@@ -259,7 +259,7 @@ def editor_html(request):
         response = HttpResponse('')
     else:
         try:
-            page = Page.objects.get(url=request.GET.get('page', None), sites__id=settings.SITE_ID)
+            page = Page.objects.get(url=request.GET.get('page', None), sites__site_id=settings.SITE_ID)
         except Page.DoesNotExist:
             page = False
             

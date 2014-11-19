@@ -14,13 +14,13 @@ IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK', None)
 DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER', 
                             'django.shortcuts.render_to_response')
-
+DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
 
 # The following are for internal use and shouldn't need to be customised
 
 STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
 SECRET_KEY = getattr(settings, 'SECRET_KEY')
-UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'uploads/%Y_%m')
+UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')
 SITE_ID = getattr(settings, 'SITE_ID', 1)
 
 # let's be *really* careful not to display content from another site using

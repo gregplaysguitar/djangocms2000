@@ -27,8 +27,8 @@ class ContentTypeFilter(SimpleListFilter):
             (None, _('Site')),
         ]
         
-        others = model_admin.model.objects.exclude(content_type=site_ctype()) \
-                .order_by().values_list('content_type', flat=True).distinct()
+        others = model_admin.model.objects.exclude(content_type_id=site_ctype().id) \
+                .order_by().values_list('content_type_id', flat=True).distinct()
         
         for ctype_id in others:
             ctype = ContentType.objects.get(pk=ctype_id)
@@ -56,10 +56,10 @@ class ContentTypeFilter(SimpleListFilter):
         
         val = self.value()
         if val == None:
-            return queryset.filter(content_type=site_ctype())
+            return queryset.filter(content_type_id=site_ctype().id)
         elif val == 'all':
             return queryset
         else:
-            return queryset.filter(content_type=ContentType.objects.get(pk=val))
+            return queryset.filter(content_type_id=ContentType.objects.get(pk=val).id)
 
 

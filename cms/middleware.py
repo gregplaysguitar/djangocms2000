@@ -13,7 +13,7 @@ class CMSFallbackMiddleware(object):
             if settings.APPEND_SLASH and not re.match(r'/$', request.path_info) \
                and Page.objects.exclude(template='') \
                                .filter(url="%s/" % request.path_info, 
-                                       sites__id=settings.SITE_ID).count():
+                                       sites__site_id=settings.SITE_ID).count():
                 return HttpResponseRedirect("%s/" % request.path_info)
             else:
                 try:

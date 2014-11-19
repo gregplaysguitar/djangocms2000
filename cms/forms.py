@@ -107,7 +107,7 @@ class PageForm(forms.ModelForm):
         
         clashes = site_pages.filter(url__in=test_urls)
         if clashes:
-            sites = clashes.values_list('sites__domain', flat=True)
+            sites = [s.site.domain for s in clashes]
             err = 'A page with this url already exists for %s.' % ', '.join(sites)
             self._errors['url'] = self.error_class([err])
         

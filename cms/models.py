@@ -6,15 +6,16 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 
-try:
-    from django.contrib.contenttypes.fields import GenericForeignKey, \
-                                                   GenericRelation
-except ImportError:
-    # django pre-1.9
-    from django.contrib.contenttypes.generic import GenericForeignKey, \
-                                                    GenericRelation
+# try:
+#     from django.contrib.contenttypes.fields import GenericForeignKey, \
+#                                                    GenericRelation
+# except ImportError:
+#     # django pre-1.9
+#     from django.contrib.contenttypes.generic import GenericForeignKey, \
+#                                                     GenericRelation
 
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django import template
 from django.utils.encoding import force_unicode
@@ -30,12 +31,18 @@ from utils import generate_cache_key
 class ContentModel(models.Model):
     class Meta:
         abstract = True
-        unique_together = ('content_type', 'object_id', 'label')
+        unique_together = ('content_type_id', 'object_id', 'label')
     
-    content_type = models.ForeignKey(ContentType)
+    # content_type = models.ForeignKey(ContentType)
+    content_type_id = models.PositiveIntegerField()
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    # content_object = GenericForeignKey('content_type', 'object_id')
     label = models.CharField(max_length=255)
+        
+    @property
+    def content_object(self):
+        ctype = ContentType.objects.get(pk=self.content_type_id)
+        return ctype.model_class().objects.get(pk=self.object_id)
     
     def __unicode__(self):
         return self.label
@@ -127,24 +134,27 @@ class _CMSAbstractBaseModel(models.Model):
     class Meta:
         abstract = True
     
-    blocks = GenericRelation(Block)
-    images = GenericRelation(Image)
+    # blocks = GenericRelation(Block)
+    # images = GenericRelation(Image)
     
     def __unicode__(self):
         try:
             return self.blocks.exclude(content='').get(label='title').content
-        except Block.DoesNotExist:
+        # except Block.DoesNotExist:
+        except:
+            # TODO
             return self.url
 
 
 class PageManager(models.Manager):
     def get_for_url(self, url):
     	try:
-        	return self.get(sites__id=settings.SITE_ID, url=url)
+        	return self.get(sites__site_id=settings.SITE_ID, url=url)
         except Page.DoesNotExist:
             page = Page(url=url)
             page.save()
-            page.sites.add(Site.objects.get_current())
+            PageSite.objects.create(page=page, site_id=settings.SITE_ID)
+            # page.sites.add(Site.objects.get_current())
             page.save()
             return page
 
@@ -162,7 +172,7 @@ class Page(_CMSAbstractBaseModel):
     url = models.CharField(max_length=255, verbose_name='URL', 
                            help_text='e.g. /about/contact', db_index=True)
     template = models.CharField(max_length=255, default='')
-    sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
+    # sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
@@ -178,18 +188,39 @@ class Page(_CMSAbstractBaseModel):
     def get_absolute_url(self):
         return self.url
 
-def page_sanity_check(sender, **kwargs):
-    ''''Validate uniqueness of page url and sites - can't be a unique_together
-        because sites is a ManyToMany field, and can't go in a model validate
-        method because model validation occurs before m2m fields are saved'''
+
+class PageSite(models.Model):
+    page = models.ForeignKey(Page, related_name='sites')
+    site_id = models.PositiveIntegerField()
     
-    page = kwargs['instance']
-    if kwargs['action'] == 'pre_add':
-        for site_id in kwargs['pk_set']:
-            if Page.objects.filter(url=page.url, sites__id=site_id):
-                raise IntegrityError('Sites and url must be unique.')
-        
-m2m_changed.connect(page_sanity_check, sender=Page.sites.through)
+    @property
+    def site(self):
+        return Site.objects.get(pk=self.site_id)
+    
+    class Meta:
+        unique_together = ('page', 'site_id')
+    
+    def clean(self):
+        others = PageSite.objects.exclude(pk=self.pk)
+        if others.filter(site_id=self.site_id, page__url=self.page.url):
+            raise ValidationError(u'Page url and site_id must be unique.')
+    
+    def __unicode__(self):
+        return unicode(self.site)
+
+
+# def page_sanity_check(sender, **kwargs):
+#     ''''Validate uniqueness of page url and sites - can't be a unique_together
+#         because sites is a ManyToMany field, and can't go in a model validate
+#         method because model validation occurs before m2m fields are saved'''
+#     
+#     page = kwargs['instance']
+#     if kwargs['action'] == 'pre_add':
+#         for site_id in kwargs['pk_set']:
+#             if Page.objects.filter(url=page.url, sites__id=site_id):
+#                 raise IntegrityError('Sites and url must be unique.')
+#         
+# m2m_changed.connect(page_sanity_check, sender=Page.sites.through)
 
 
 class CMSBaseModel(_CMSAbstractBaseModel):

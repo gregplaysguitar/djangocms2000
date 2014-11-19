@@ -43,7 +43,7 @@ def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=
         else:
             raise TypeError(u'One of url, site_id or related_object is required')
         
-        obj = model_cls.objects.get_or_create(label=label, content_type=ctype,
+        obj = model_cls.objects.get_or_create(label=label, content_type_id=ctype.id,
                                            object_id=object_id)[0]
         
         cache.set(key, obj)
