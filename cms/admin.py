@@ -312,8 +312,13 @@ class ImageInline(ContentInline):
     form = ImageForm
 
 
+class PageSiteInline(admin.TabularInline):
+    model = PageSite
+    extra = 0
+
 class CMSBaseAdmin(admin.ModelAdmin):
-    inlines=[BlockInline,ImageInline,]
+    # inlines=[BlockInline,ImageInline,]
+    inlines = [PageSiteInline]
     list_display=['url',]
     save_on_top = True
     
@@ -322,7 +327,23 @@ class CMSBaseAdmin(admin.ModelAdmin):
         css = admin_css
     class Meta:
         abstract=True
+    
+    def get_form(self, request, *args, **kwargs):
+        class _Form(super(CMSBaseAdmin, self).get_form(*args, **kwargs)):
+            pass
+            # def __init__(self, *args, **kwargs):
+            #     super(_Form, self).__init__(*args, **kwargs)
         
+        # instance = kwargs['instance']
+        print self.model
+        ctype = ContentType.objects.get_for_model(self.model)
+        for block in Block.objects.filter(content_type_id=ctype.id, 
+                                          object_id=instance.id):
+            self.fields['block_%s' % block.label] = forms.CharField()
+        
+                
+        return _Form
+    
     def save_model(self, request, obj, form, change):
         '''Save model, then add blocks/images via dummy rendering.
            
