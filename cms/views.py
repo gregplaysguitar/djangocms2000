@@ -18,7 +18,7 @@ from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 
-from .forms import get_page_form_cls, BlockForm, ImageForm
+from .forms import PageForm, BlockForm, ImageForm
 from . import settings as cms_settings
 from .models import Block, Page, Image
 from .utils import is_editing, public_key
@@ -57,11 +57,12 @@ def savepage(request, page_pk=None):
                 raise PermissionDenied
             page = None
         
-        form = get_page_form_cls()(request.POST, instance=page, 
+        form = PageForm(request.POST, instance=page, 
                                    prefix=request.POST.get('prefix', None))
             
         if form.is_valid():
             saved_page = form.save()
+            form.save_sites()
             return HttpResponse(json.dumps({
                 'success': True,
                 'url': saved_page.get_absolute_url(),
@@ -269,8 +270,8 @@ def editor_html(request):
             'editor_form': BlockForm(),
             'html_editor_form': BlockForm(prefix='html'),
             'image_form': ImageForm(),
-            'page_form': page and get_page_form_cls()(instance=page) or None,
-            'new_page_form': get_page_form_cls()(prefix='new'),
+            'page_form': page and PageForm(instance=page) or None,
+            'new_page_form': PageForm(prefix='new'),
         }, context_instance=RequestContext(request))
     return response
 
