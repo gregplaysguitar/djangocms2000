@@ -135,10 +135,11 @@ class PageForm(forms.ModelForm):
         data['url'] = url
         return data
     
-    def save_sites(self, *args, **kwargs):    
-        # Add default site if no site already set
-        PageSite.objects.create(site_id=settings.SITE_ID,
-                                page=self.instance)
+    def save_sites(self, *args, **kwargs):
+        if not self.instance.sites.count():
+            # Add default site if no site already set
+            PageSite.objects.create(site_id=settings.SITE_ID,
+                                    page=self.instance)
 
 
 class PageFormWithSites(PageForm):
