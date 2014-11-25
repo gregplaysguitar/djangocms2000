@@ -4,9 +4,10 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import resolve, Resolver404
 from django.utils.safestring import mark_safe
+from django.contrib.sites.models import Site
 
-from models import Page, Block, Image, template_choices
-import settings as cms_settings
+from .models import Page, Block, Image, template_choices, PageSite
+from . import settings as cms_settings
 
 
 def url_resolves(url):
@@ -56,6 +57,7 @@ class PageForm(forms.ModelForm):
         widget=forms.Select(choices=template_choices()),
         required=False
     )
+    
     def __init__(self, *args, **kwargs):
         super(PageForm, self).__init__(*args, **kwargs)
         
@@ -75,7 +77,7 @@ class PageForm(forms.ModelForm):
             
             self.fields['is_live'].widget = ReadonlyInput(display_text='n/a')
             self.fields['is_live'].help_text = ''
-        
+    
     class Meta:
         model = Page
         exclude = ()
@@ -83,6 +85,10 @@ class PageForm(forms.ModelForm):
     def clean(self):        
         data = self.cleaned_data
         url = data.get('url')
+        
+        # assume we're editing a page for the current site if not otherwise
+        # apparent
+        sites =  data.get('sites', [Site.objects.get_current()])
         
         if not url:
             return data
@@ -93,10 +99,8 @@ class PageForm(forms.ModelForm):
         url = URL_SLASH_REGEX.sub('/', "/%s" % (url.lstrip('/')))
         
         # check uniqueness of url/site
-        if cms_settings.USE_SITES_FRAMEWORK:
-            site_pages = Page.objects.filter(sites__in=data['sites'])
-        else:
-            site_pages = Page.objects.all()
+        site_ids = [s.id for s in sites]
+        site_pages = Page.objects.filter(sites__site_id__in=site_ids)
         
         if self.instance:
             site_pages = site_pages.exclude(pk=self.instance.pk)
@@ -107,7 +111,8 @@ class PageForm(forms.ModelForm):
         
         clashes = site_pages.filter(url__in=test_urls)
         if clashes:
-            sites = [s.site.domain for s in clashes]
+            # TODO: only show the site(s) with actual clashes
+            sites = [s.domain for s in sites]
             err = 'A page with this url already exists for %s.' % ', '.join(sites)
             self._errors['url'] = self.error_class([err])
         
@@ -129,12 +134,40 @@ class PageForm(forms.ModelForm):
         
         data['url'] = url
         return data
+    
+    def save_sites(self, *args, **kwargs):    
+        # Add default site if no site already set
+        PageSite.objects.create(site_id=settings.SITE_ID,
+                                page=self.instance)
+
+
+class PageFormWithSites(PageForm):
+    sites = forms.ModelMultipleChoiceField(queryset=Site.objects)
+    
+    def __init__(self, *args, **kwargs):
+        super(PageFormWithSites, self).__init__(*args, **kwargs)
+        instance = kwargs.get('instance', None)
+          
+        if instance:
+            # initial value for sites comes from the related PageSite model
+            self.fields['sites'].initial = [s.site for s in \
+                                            instance.sites.all()] 
+    
+    def save_sites(self, *args, **kwargs):
+        # update PageSite instances from sites field data
+        sites = list(self.cleaned_data['sites'])
+        for pagesite in self.instance.sites.all():
+            if pagesite.site in sites:
+                del sites[sites.index(pagesite.site)]
+            else:
+                pagesite.delete()
         
+        for site in sites:
+            PageSite.objects.create(page=self.instance, site_id=site.id)
 
 
-class PublicPageForm(PageForm):
-    class Meta(PageForm.Meta):
-        exclude = ['site',]
-    
-    
-    
+def get_page_form_cls():
+    if cms_settings.USE_SITES_FRAMEWORK:
+        return PageFormWithSites
+    else:
+        return PageForm

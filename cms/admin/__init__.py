@@ -1,9 +1,4 @@
-from django import forms
 from django.contrib import admin
-
-# from django.contrib.contenttypes.admin import GenericTabularInline, GenericInlineModelAdminChecks
-# from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
-
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
@@ -12,12 +7,13 @@ from django.utils.text import Truncator
 from django.conf import settings
 from django.test.client import Client
 
-import settings as cms_settings
-from forms import PageForm, ReadonlyInput
-from models import Page, Block, Image, PageSite
-from admin_filters import ContentTypeFilter
-from utils import public_key
-from admin_inlines import ContentInline
+from .. import settings as cms_settings
+from ..models import Page, Block, Image, PageSite
+from ..utils import public_key
+from ..forms import get_page_form_cls
+from .filters import ContentTypeFilter, PageSiteFilter
+from .inlines import ContentInline, BlockInline, ImageInline
+from .admin_forms import BlockForm, ImageForm
 
 
 admin_js = (
@@ -31,64 +27,16 @@ admin_css = {
     'all': (cms_settings.STATIC_URL + 'css/page_admin.css',),
 }
 
-class BlockForm(forms.ModelForm):
-    class Meta:
-        model = Block
-        exclude = ()
-    
-    def __init__(self, *args, **kwargs):
-        super(BlockForm, self).__init__(*args, **kwargs)
 
-        # change the content widget based on the format of the block - a bit hacky but best we can do
-        if 'instance' in kwargs:
-            format = kwargs['instance'].format
-            if format == 'attr':
-                self.fields['content'].widget = forms.TextInput()                
-            self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
-        
-        required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
-        if callable(required_cb) and 'instance' in kwargs:
-            self.fields['content'].required = required_cb(kwargs['instance'])
-
-
-class BlockInline(ContentInline):
-    model = Block
-    fields = ('content',)
-    form = BlockForm
-
-
-class ImageForm(forms.ModelForm):
-    class Meta:
-        model = Image
-        exclude = ()
-    
-    def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
-
-        required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
-        if callable(required_cb) and 'instance' in kwargs:
-            self.fields['file'].required = required_cb(kwargs['instance'])
-
-
-class ImageInline(ContentInline):
-    model = Image
-    exclude = ('label',)
-    form = ImageForm
-
-
-class PageSiteInline(admin.TabularInline):
-    model = PageSite
-    extra = 0
-
-    
 class CMSBaseAdmin(admin.ModelAdmin):
-    inlines = [PageSiteInline, BlockInline, ImageInline, ]
+    inlines = [BlockInline, ImageInline, ]
     list_display=['url',]
     save_on_top = True
     
     class Media:
         js = admin_js
         css = admin_css
+    
     class Meta:
         abstract=True
     
@@ -100,7 +48,8 @@ class CMSBaseAdmin(admin.ModelAdmin):
            editing pages on another, the dummy render will silently fail.
         
         '''
-        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, change)
+        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, 
+                                                         change)
         
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
@@ -112,13 +61,18 @@ class CMSBaseAdmin(admin.ModelAdmin):
         return returnval
 
 
-class PageAdmin(CMSBaseAdmin):
-    list_display=['__unicode__', 'url', 'template', 'is_live', 'creation_date',
-                  'view_on_site_link',]
-    list_display_links=['__unicode__', 'url', ]
+show_sites = cms_settings.USE_SITES_FRAMEWORK
 
-    list_filter=['sites', 'template', 'is_live', 'creation_date',]
-    
+class PageAdmin(CMSBaseAdmin):
+    list_display = ('__unicode__', 'url', 'template', 'is_live', 
+                    'creation_date', 'view_on_site_link', ) + \
+                   (('get_sites', ) if show_sites else ())
+    list_display_links=['__unicode__', 'url', ]
+    list_filter = ((PageSiteFilter, ) if show_sites else ()) + \
+                  ('template', 'is_live', 'creation_date',)
+    form = get_page_form_cls()
+    search_fields = ['url', 'template',]
+
     def view_on_site_link(self, instance):
         url = instance.get_absolute_url()
 
@@ -142,24 +96,10 @@ class PageAdmin(CMSBaseAdmin):
     get_sites.short_description = 'sites'
     get_sites.admin_order_field = 'sites'
     
-    # search_fields = ['url', 'blocks__content', 'template',]
-    search_fields = ['url', 'template',]
-    form = PageForm
-    exclude = []
-    
     def save_related(self, request, form, formsets, change):
         super(PageAdmin, self).save_related(request, form, formsets, change)
-        
-        # If the sites field is hidden, and no site is set, add the default one
-        if not cms_settings.USE_SITES_FRAMEWORK and not form.instance.sites.count():
-            PageSite.objects.create(site_id=settings.SITE_ID, page=form.instance)
-    
-if cms_settings.USE_SITES_FRAMEWORK:
-    PageAdmin.list_display.append('get_sites')
-else:
-    PageAdmin.exclude.append('sites')
+        form.save_sites()
 
-     
 admin.site.register(Page, PageAdmin)
 
 
@@ -169,13 +109,11 @@ class ContentAdmin(admin.ModelAdmin):
     label_display.short_description = 'label'
     label_display.admin_order_field = 'label'
 
-class BlockFormSite(BlockForm):
-    label = forms.CharField(widget=ReadonlyInput)
 
 class BlockAdmin(ContentAdmin):
-    form = BlockFormSite
-    fields = ['label', 'content',]
-    list_display = ['label_display', 'content_object', 'format', 'content_snippet', ]
+    form = BlockForm
+    list_display = ['label_display', 'content_object', 'format', 
+                    'content_snippet', ]
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
     
@@ -189,17 +127,9 @@ class BlockAdmin(ContentAdmin):
 admin.site.register(Block, BlockAdmin)
 
 
-class ImageFormSite(forms.ModelForm):
-    class Meta:
-        model = Image
-        exclude = ()
-    
-    label = forms.CharField(widget=ReadonlyInput)
-
 class ImageAdmin(ContentAdmin):
-    fields = ['label', 'file', 'description', ]
     list_display = ['label_display', 'content_object', 'file', 'description', ]
-    form = ImageFormSite
+    form = ImageForm
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
 

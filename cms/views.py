@@ -18,10 +18,10 @@ from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 
-from forms import PublicPageForm, BlockForm, ImageForm
-import settings as cms_settings
-from models import Block, Page, Image
-from utils import is_editing, public_key
+from .forms import get_page_form_cls, BlockForm, ImageForm
+from . import settings as cms_settings
+from .models import Block, Page, Image
+from .utils import is_editing, public_key
 
 
 def logout(request):
@@ -57,8 +57,8 @@ def savepage(request, page_pk=None):
                 raise PermissionDenied
             page = None
         
-        form = PublicPageForm(request.POST, instance=page, 
-                              prefix=request.POST.get('prefix', None))
+        form = get_page_form_cls()(request.POST, instance=page, 
+                                   prefix=request.POST.get('prefix', None))
             
         if form.is_valid():
             saved_page = form.save()
@@ -269,8 +269,8 @@ def editor_html(request):
             'editor_form': BlockForm(),
             'html_editor_form': BlockForm(prefix='html'),
             'image_form': ImageForm(),
-            'page_form': page and PublicPageForm(instance=page) or None,
-            'new_page_form': PublicPageForm(prefix='new'),
+            'page_form': page and get_page_form_cls()(instance=page) or None,
+            'new_page_form': get_page_form_cls()(prefix='new'),
         }, context_instance=RequestContext(request))
     return response
 

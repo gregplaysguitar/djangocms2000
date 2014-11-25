@@ -9,10 +9,14 @@ from django.db.models.fields import FieldDoesNotExist
 from django.forms import ALL_FIELDS
 from django.forms.models import modelform_defines_fields
 
-from admin_forms import content_inlineformset_factory, BaseContentFormSet
+from ..models import Block, Image
+from .admin_forms import content_inlineformset_factory, BaseContentFormSet, \
+                         InlineBlockForm, InlineImageForm
 
 
 class ContentInlineChecks(InlineModelAdminChecks):
+    '''Since this module isn't intended for external use, we don't worry about
+       any checks. '''
     def _check_exclude_of_parent_model(self, cls, parent_model):
         return []
 
@@ -21,12 +25,15 @@ class ContentInlineChecks(InlineModelAdminChecks):
 
 
 class ContentInline(InlineModelAdmin):
+    '''An inline model admin which works with cms.Block and cms.Image models,
+       letting them be attached as an inline without needing their ct_field 
+       to be an actual ForeignKey.'''
+    
     template = 'admin/edit_inline/tabular.html'
 
     ct_field = "content_type_id"
     ct_fk_field = "object_id"
     formset = BaseContentFormSet
-
     checks_class = ContentInlineChecks
 
     def has_add_permission(self, request):
@@ -66,4 +73,15 @@ class ContentInline(InlineModelAdmin):
             defaults['fields'] = ALL_FIELDS
         
         return content_inlineformset_factory(self.model, **defaults)
+
+
+class BlockInline(ContentInline):
+    model = Block
+    form = InlineBlockForm
+
+
+class ImageInline(ContentInline):
+    model = Image
+    form = InlineImageForm
+
 

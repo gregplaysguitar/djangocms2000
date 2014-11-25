@@ -63,3 +63,33 @@ class ContentTypeFilter(SimpleListFilter):
             return queryset.filter(content_type_id=ContentType.objects.get(pk=val).id)
 
 
+class PageSiteFilter(SimpleListFilter):
+    '''Filter on related Site, via the PageSite model.''' 
+
+    title = _('site')
+    parameter_name = 'sites'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.domain) for s in Site.objects.all()]
+
+    # def choices(self, cl):
+    #     '''Iterator returning choices for the filter, based on the lookup
+    #        list.'''
+    # 
+    #     for lookup, title in self.lookup_choices:
+    #         yield {
+    #             'selected': self.value() == lookup,
+    #             'query_string': cl.get_query_string({
+    #                 self.parameter_name: lookup,
+    #             }, []),
+    #             'display': title,
+    #         }
+
+    def queryset(self, request, queryset):
+        '''Return a filtered queryset based on the selected choice.'''
+
+        val = self.value()
+        if val:
+            return queryset.filter(sites__site_id=val)
+        return queryset
+
