@@ -5,7 +5,6 @@ CMS_APP_LABEL = 'cms'
 
 class CMSRouter(object):
     def db_for_read(self, model, **hints):
-        # print '>>>', model
         if model._meta.app_label == CMS_APP_LABEL:
             return DB_ALIAS
         return None
@@ -22,9 +21,7 @@ class CMSRouter(object):
         return None
 
     def allow_migrate(self, db, model):
-        # print db, model
         if db == DB_ALIAS:
-            # print model._meta.app_label == CMS_APP_LABEL
             return model._meta.app_label == CMS_APP_LABEL
         elif model._meta.app_label == CMS_APP_LABEL:
             return False
