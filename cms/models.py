@@ -42,11 +42,8 @@ class ContentModel(models.Model):
 
 
 ATTR_REPLACE_CHARS = (
-    ('&', '&amp;'),
     ('"', '&quot;'),
     ("'", '&#39;'),
-    ('<', '&lt;'),
-    ('>', '&gt;'),
 )
 class Block(ContentModel):
     FORMAT_ATTR = 'attr'
