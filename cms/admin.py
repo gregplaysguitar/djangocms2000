@@ -44,7 +44,7 @@ class BlockForm(forms.ModelForm):
         # change the content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
             format = kwargs['instance'].format
-            if format == 'attr':
+            if format == Block.FORMAT_ATTR:
                 self.fields['content'].widget = forms.TextInput()                
             self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
         

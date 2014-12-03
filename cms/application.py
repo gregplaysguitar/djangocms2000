@@ -97,7 +97,7 @@ def get_rendered_block(label, format='plain', related_object=None, filters=None,
        raise LookupError('%s is not a valid block format.' % format)
     
     if editable == None:
-        editable = (format != 'attr')
+        editable = (format != Block.FORMAT_ATTR)
     
     editing = editable and request and is_editing(request, 'block')
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)

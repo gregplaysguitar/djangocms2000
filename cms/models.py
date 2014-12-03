@@ -63,9 +63,9 @@ class Block(ContentModel):
     
     def display_content(self):
         '''Returns content, marked safe if necessary'''
-        if self.format == 'html':
+        if self.format == self.FORMAT_HTML:
             return mark_safe(self.content)
-        elif self.format == 'attr':
+        elif self.format == self.FORMAT_ATTR:
             return reduce(lambda s, r: s.replace(*r), (self.content,) + ATTR_REPLACE_CHARS)
         else:
             return self.content
