@@ -120,7 +120,7 @@ def saveblock(request, block_id):
     block = get_object_or_404(Block, id=block_id)
     
     # html has its own form, so it uses a prefix
-    if block.format == 'html':
+    if block.format == Block.FORMAT_HTML:
         prefix = 'html'
     else:
         prefix = None

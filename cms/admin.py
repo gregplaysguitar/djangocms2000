@@ -44,7 +44,7 @@ class BlockForm(forms.ModelForm):
         # change the content widget based on the format of the block - a bit hacky but best we can do
         if 'instance' in kwargs:
             format = kwargs['instance'].format
-            if format == 'attr':
+            if format == Block.FORMAT_ATTR:
                 self.fields['content'].widget = forms.TextInput()                
             self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
         
@@ -167,20 +167,21 @@ else:
 admin.site.register(Page, PageAdmin)
 
 
+class ContentAdmin(admin.ModelAdmin):
+    def label_display(self, obj):
+        return obj.label.replace('-', ' ').replace('_', ' ').capitalize()
+    label_display.short_description = 'label'
+    label_display.admin_order_field = 'label'
+
 class BlockFormSite(BlockForm):
     label = forms.CharField(widget=ReadonlyInput)
 
-class BlockAdmin(admin.ModelAdmin):
+class BlockAdmin(ContentAdmin):
     form = BlockFormSite
     fields = ['label', 'content',]
     list_display = ['label_display', 'content_object', 'format', 'content_snippet', ]
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
-    
-    def label_display(self, obj):
-        return obj.label.replace('-', ' ').replace('_', ' ').capitalize()
-    label_display.short_description = 'label'
-    label_display.admin_order_field = 'label'
     
     def content_snippet(self, obj):
         return Truncator(strip_tags(obj.content)).words(10, truncate=' ...')
@@ -199,7 +200,7 @@ class ImageFormSite(forms.ModelForm):
     
     label = forms.CharField(widget=ReadonlyInput)
 
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(ContentAdmin):
     fields = ['label', 'file', 'description', ]
     list_display = ['label_display', 'content_object', 'file', 'description', ]
     form = ImageFormSite

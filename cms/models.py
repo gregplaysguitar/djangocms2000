@@ -27,14 +27,25 @@ import settings as cms_settings
 from utils import generate_cache_key
 
 
+class ContentModel(models.Model):
+    class Meta:
+        abstract = True
+        unique_together = ('content_type', 'object_id', 'label')
+    
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    label = models.CharField(max_length=255)
+    
+    def __unicode__(self):
+        return self.label
+
+
 ATTR_REPLACE_CHARS = (
-    ('&', '&amp;'),
     ('"', '&quot;'),
     ("'", '&#39;'),
-    ('<', '&lt;'),
-    ('>', '&gt;'),
 )
-class Block(models.Model):
+class Block(ContentModel):
     FORMAT_ATTR = 'attr'
     FORMAT_PLAIN = 'plain'
     FORMAT_HTML = 'html'
@@ -44,58 +55,30 @@ class Block(models.Model):
         (FORMAT_HTML, 'HTML'),
     )
     
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    label = models.CharField(max_length=255)
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default=FORMAT_PLAIN)
     content = models.TextField(blank=True, default='')
     
     def display_content(self):
         '''Returns content, marked safe if necessary'''
-        if self.format == 'html':
+        if self.format == self.FORMAT_HTML:
             return mark_safe(self.content)
-        elif self.format == 'attr':
+        elif self.format == self.FORMAT_ATTR:
             return reduce(lambda s, r: s.replace(*r), (self.content,) + ATTR_REPLACE_CHARS)
         else:
             return self.content
-    
-    def __unicode__(self):
-        return self.label
-    
-    class Meta:
-       ordering = ['id',]
-       unique_together = ('content_type', 'object_id', 'label')
    
 
-class Image(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    def label_display(self):
-        return self.label.replace('-', ' ').replace('_', ' ').title()
-    
-    
-    #page = models.ForeignKey(Page)
-    label = models.CharField(max_length=255)
+class Image(ContentModel):
     file = models.ImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True)
     description = models.CharField(max_length=255, blank=True)
-    def __unicode__(self):
-        return self.label
- 
- 
+     
     # TODO these can be expensive for large images so should be cached
     def dimensions(self):
         return {
             'width': self.file.width,
             'height': self.file.height,
         }
-    
-    class Meta:
-       unique_together = ('content_type', 'object_id', 'label')
-    
+
 
 def clear_cache(sender, instance, **kwargs):
     try:
