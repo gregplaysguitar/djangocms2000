@@ -99,10 +99,13 @@ def get_rendered_block(label, format='plain', related_object=None, filters=None,
     if editable == None:
         editable = (format != 'attr')
     
-    editing = editable and request and is_editing(request, 'block')
+    editing = editable and renderer != 'raw' and request and \
+              is_editing(request, 'block')
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
     
-    if not renderer:
+    if renderer == 'raw':
+        renderer = lambda obj: obj
+    elif not renderer:
         renderer = functools.partial(default_block_renderer, filters=filters)
     
     if editing:
@@ -200,11 +203,16 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
 
-    editing = editable and request and is_editing(request, 'image')
+    editing = editable and renderer != 'raw' and request and \
+              is_editing(request, 'image')
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
     
     image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
     image = RenderedImage(image_obj, geometry, crop, scale)
+    
+    print renderer
+    if renderer == 'raw':
+        renderer = lambda obj: obj
     
     if cms_settings.DUMMY_IMAGE_SOURCE and \
        (not image.image.file or not os.path.exists(image.image.file.path)):
@@ -220,3 +228,4 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
         })
     else:
         return rendered
+        
