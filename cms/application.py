@@ -210,7 +210,6 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
     image = RenderedImage(image_obj, geometry, crop, scale)
     
-    print renderer
     if renderer == 'raw':
         renderer = lambda obj: obj
     
