@@ -5,12 +5,11 @@
       data-save_url="{% url 'cms.views.saveblock' block.id %}"
       data-format="{{ block.format }}">
 	<input type="hidden" name="content" value="{{ block.content }}">
-
 	<span class="cms-inner">
 		{% if block.content %}
 			{{ rendered_content }}
 		{% else %}
-			Click to add text {{ block.label }}
+			Click to add text <span class="label-name">{{ block.label }}</span>
 		{% endif %}
 	</span>
 </span>
