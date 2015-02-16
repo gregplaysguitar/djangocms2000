@@ -43,6 +43,16 @@ Usage
    [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the
    original image will be displayed.
 
+Jinja2/Coffin compatibility
+---------------------------
+
+Grab jinja_cms.py from https://gist.github.com/gregplaysguitar/aeac2702562c5b0771a1, and 
+place it in a templatetags directory for coffin to find. Basic usage examples:
+
+    {{ cms_block('intro', filters='linebreaks') }}
+    {{ cms_block('content', format='html') }}
+    {{ cms_image('main-image', '200x200') }}
+
 Upgrading from 1.x to 2.x
 -------------------------
 1. First make sure you are running the latest 1.x series tag (see [here](https://github.com/gregplaysguitar/djangocms2000/tags)).

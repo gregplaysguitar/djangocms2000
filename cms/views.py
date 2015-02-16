@@ -170,7 +170,7 @@ def saveimage(request, image_id):
 def render_page(request, url):
     '''Renders a cms.page object.'''
     
-    if request.user.has_module_perms("cms") or \
+    if hasattr(request, 'user') and request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == public_key():
         qs = Page.objects
     else:
