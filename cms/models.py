@@ -24,24 +24,22 @@ from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
 
-import settings as cms_settings
-from utils import generate_cache_key
+from . import settings as cms_settings
+from .utils import generate_cache_key, ctype_from_key
 
 
 class ContentModel(models.Model):
     class Meta:
         abstract = True
-        unique_together = ('content_type_id', 'object_id', 'label')
+        unique_together = ('content_type', 'object_id', 'label')
     
-    # content_type = models.ForeignKey(ContentType)
-    content_type_id = models.PositiveIntegerField()
+    content_type = models.CharField(max_length=190)
     object_id = models.PositiveIntegerField()
-    # content_object = GenericForeignKey('content_type', 'object_id')
     label = models.CharField(max_length=255)
         
     @property
     def content_object(self):
-        ctype = ContentType.objects.get(pk=self.content_type_id)
+        ctype = ctype_from_key(self.content_type)
         return ctype.model_class().objects.get(pk=self.object_id)
     
     def __unicode__(self):

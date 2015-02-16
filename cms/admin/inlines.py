@@ -31,7 +31,7 @@ class ContentInline(InlineModelAdmin):
     
     template = 'admin/edit_inline/tabular.html'
 
-    ct_field = "content_type_id"
+    ct_field = "content_type"
     ct_fk_field = "object_id"
     formset = BaseContentFormSet
     checks_class = ContentInlineChecks

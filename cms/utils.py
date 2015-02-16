@@ -1,6 +1,7 @@
 import hashlib
 
-import settings
+from django.contrib.contenttypes.models import ContentType
+from . import settings
 
 
 def is_editing(request, obj_type=None):
@@ -59,3 +60,11 @@ def public_key():
     
     return hashlib.sha1(settings.SECRET_KEY).hexdigest()[:10]
 
+
+def key_from_ctype(ctype):
+    return ctype.app_label + '-' + ctype.model
+
+
+def ctype_from_key(key):
+    app_label, model = key.split('-')
+    return ContentType.objects.get(app_label=app_label, model=model)

@@ -33,6 +33,10 @@ class CMSBaseAdmin(admin.ModelAdmin):
     list_display=['url',]
     save_on_top = True
     
+    def view_on_site(self, obj):
+        site = Site.objects.get_current()
+        return 'http://' + site.domain + obj.get_absolute_url()
+    
     class Media:
         js = admin_js
         css = admin_css

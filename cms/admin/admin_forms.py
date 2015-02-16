@@ -6,12 +6,12 @@ from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 from ..forms import ReadonlyInput
 from ..models import Block, Image
 from .. import settings as cms_settings
+from ..utils import key_from_ctype
 
 
 class BaseContentFormSet(BaseGenericInlineFormSet):
-    '''Just like BaseGenericInlineFormSet, except it doesn't rely on ct_field 
-       being an actual ForeignKey (it can be an integer field containing
-       the ctype id, but not linked at the database level.)'''
+    '''Just like BaseGenericInlineFormSet, except it uses a CharField key (format 
+       "app_label-model") for ct_field instead of an integer ForeignKey.'''
     
     def __init__(self, data=None, files=None, instance=None, save_as_new=None,
                  prefix=None, queryset=None, **kwargs):
@@ -29,7 +29,7 @@ class BaseContentFormSet(BaseGenericInlineFormSet):
             ctype = ContentType.objects.get_for_model(self.instance, 
                                                       for_concrete_model=True)
             qs = queryset.filter(
-                content_type_id=ctype.id,
+                content_type=key_from_ctype(ctype),
                 object_id=self.instance.pk,
             )
         super(BaseGenericInlineFormSet, self).__init__(
@@ -41,7 +41,7 @@ class BaseContentFormSet(BaseGenericInlineFormSet):
 
 def content_inlineformset_factory(model, form=ModelForm,
                                   formset=BaseContentFormSet,
-                                  ct_field="content_type_id",
+                                  ct_field="content_type",
                                   fk_field="object_id",
                                   fields=None, exclude=None,
                                   extra=3, can_order=False, can_delete=True,

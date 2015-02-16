@@ -13,9 +13,9 @@ try:
 except ImportError:
     pass
 
-from models import Block, Image, Page
-from utils import is_editing, generate_cache_key
-import settings as cms_settings
+from .models import Block, Image, Page
+from .utils import is_editing, generate_cache_key, key_from_ctype
+from . import settings as cms_settings
 
 
 def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=None, cached=True):
@@ -43,7 +43,7 @@ def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=
         else:
             raise TypeError(u'One of url, site_id or related_object is required')
         
-        obj = model_cls.objects.get_or_create(label=label, content_type_id=ctype.id,
+        obj = model_cls.objects.get_or_create(label=label, content_type=key_from_ctype(ctype),
                                            object_id=object_id)[0]
         
         cache.set(key, obj)

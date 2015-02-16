@@ -6,6 +6,8 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
+from ..utils import key_from_ctype, ctype_from_key
+
 
 def site_ctype():
     return ContentType.objects.get_for_model(Site)
@@ -27,12 +29,13 @@ class ContentTypeFilter(SimpleListFilter):
             (None, _('Site')),
         ]
         
-        others = model_admin.model.objects.exclude(content_type_id=site_ctype().id) \
-                .order_by().values_list('content_type_id', flat=True).distinct()
+        others = model_admin.model.objects \
+                .exclude(content_type=key_from_ctype(site_ctype())) \
+                .order_by().values_list('content_type', flat=True).distinct()
         
-        for ctype_id in others:
-            ctype = ContentType.objects.get(pk=ctype_id)
-            lookup_list.append((str(ctype_id), str(ctype).title()))
+        for ctype_key in others:
+            ctype = ctype_from_key(ctype_key)
+            lookup_list.append((str(ctype.id), str(ctype).title()))
         
         lookup_list.append(('all', _('All')))
         
@@ -56,11 +59,11 @@ class ContentTypeFilter(SimpleListFilter):
         
         val = self.value()
         if val == None:
-            return queryset.filter(content_type_id=site_ctype().id)
+            return queryset.filter(content_type=key_from_ctype(site_ctype()))
         elif val == 'all':
             return queryset
         else:
-            return queryset.filter(content_type_id=ContentType.objects.get(pk=val).id)
+            return queryset.filter(content_type=key_from_ctype(ContentType.objects.get(pk=val)))
 
 
 class PageSiteFilter(SimpleListFilter):
