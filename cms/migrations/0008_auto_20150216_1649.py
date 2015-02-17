@@ -14,18 +14,21 @@ def convert_content_type(apps, schema_editor):
     if db_alias != DB_ALIAS:
         return
     
-    
     ContentType = apps.get_model("contenttypes", "ContentType")
     ctype_map = {}
     for ctype in ContentType.objects.all():
         ctype_map[ctype.pk] = ctype.app_label + '-' + ctype.model
     
     models = (apps.get_model("cms", "Block"), 
-        apps.get_model("cms", "Image"))
+              apps.get_model("cms", "Image"))
             
     for model_cls in models:
         for obj in model_cls.objects.using(db_alias).all():
-            obj.content_type = ctype_map[obj.content_type_id]
+            # If the content_type_id isn't in the map, it must be pointing
+            # to a stale content type, so just store the id so there's 
+            # something there
+            obj.content_type = ctype_map.get(obj.content_type_id, 
+                                             obj.content_type_id)
             obj.save()
 
 
