@@ -45,7 +45,6 @@ Usage
 
 Jinja2/Coffin compatibility
 ---------------------------
-
 Grab jinja_cms.py from https://gist.github.com/gregplaysguitar/aeac2702562c5b0771a1, and 
 place it in a templatetags directory for coffin to find. Basic usage examples:
 
@@ -69,8 +68,15 @@ Upgrading from 1.x to 2.x
    `format` is also now a keyword argument, e.g. `{% cmsblock 'text' format='html' %}`.
 5. The `format` argument has been removed from `{% cmsimage ... %}` and its variants, 
    since the new extended syntax renders it obsolete.
-   
 
+Committing cms content and media to version control
+-----------------------------------------
+CMS database content can be kept separate from the rest of the database. To 
+enable, set `CMS_DB_ALIAS` to point to a secondary database and add 
+`'cms.db_router.CMSRouter'` to your `DATABASE_ROUTERS` setting. For example,
+you may want to store CMS content in an sqlite database which can be easily
+committed to version control. CMS media, by default, is stored in the `cms` 
+subfolder of `MEDIA_ROOT`.
 
 
 See reference.markdown for more info

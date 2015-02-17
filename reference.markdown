@@ -115,6 +115,11 @@ instance, so effectively a site-wide block. Example
 
 ## Settings
 
+#### `CMS_DB_ALIAS`
+
+When `'cms.db_router.CMSRouter'` is present in the `DATABASE_ROUTERS` setting,
+CMS database content will be stored in the database referenced by 
+`CMS_DB_ALIAS`.
 
 #### `CMS_USE_SITES_FRAMEWORK`
 
