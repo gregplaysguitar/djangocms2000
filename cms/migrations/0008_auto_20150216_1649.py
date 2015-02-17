@@ -20,7 +20,7 @@ def convert_content_type(apps, schema_editor):
         ctype_map[ctype.pk] = ctype.app_label + '-' + ctype.model
     
     models = (apps.get_model("cms", "Block"), 
-        apps.get_model("cms", "Image"))
+              apps.get_model("cms", "Image"))
             
     for model_cls in models:
         for obj in model_cls.objects.using(db_alias).all():
