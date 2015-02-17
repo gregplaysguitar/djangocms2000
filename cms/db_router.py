@@ -4,6 +4,9 @@ CMS_APP_LABEL = 'cms'
 
 
 class CMSRouter(object):
+    """Routes all cms_* tables to the database referenced by CMS_DB_ALIAS,
+       so that cms content can be kept in a separate database."""
+    
     def db_for_read(self, model, **hints):
         if model._meta.app_label == CMS_APP_LABEL:
             return DB_ALIAS
