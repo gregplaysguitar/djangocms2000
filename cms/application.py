@@ -159,6 +159,10 @@ class RenderedImage:
         return self.get_image_attr('url')
     
     @property
+    def description(self):
+        return self.image.description
+    
+    @property
     def width(self):
         img_width = self.get_image_attr('width')
         return (img_width / self.scale) if img_width else None
@@ -169,28 +173,23 @@ class RenderedImage:
         return (img_height / self.scale) if img_height else None
 
 
-def get_dummy_image(geometry):
-    '''Generate a dummy image using the dummy image source from settings, and 
-       supplied geometry. Geometry can be of the form 'XxY', 'X' or 'xY' - if
-       only one dimension is supplied, a square is returned.'''
-    
-    width, height = (geometry.split('x') + [''])[:2]
-    placeholder = cms_settings.DUMMY_IMAGE_SOURCE % {
-        'width': width or height,
-        'height': height or width,
-    }
-    return mark_safe('<img class="placeholder" '\
-                'src="%s" alt="%s" width="%s" height="%s">' % (placeholder, 
-                                                               'Placeholder image',
-                                                               width or height,
-                                                               height or width))
+class DummyImage(object):
+    def __init__(self, geometry):
+        width, height = (geometry.split('x') + [''])[:2]
+        self.url = cms_settings.DUMMY_IMAGE_SOURCE % {
+            'width': width or height,
+            'height': height or width,
+        }
+        self.width = width
+        self.height = height
+        self.description = 'Placeholder image'
 
 def default_image_renderer(img):
     '''Renders a RenderedImage object as html for display on the site.'''
     
     if img.url:
         return mark_safe('<img src="%s" alt="%s" width="%s" height="%s">' % (img.url, 
-                                                                   img.image.description,
+                                                                   img.description,
                                                                    img.width,
                                                                    img.height))
     else:
@@ -216,7 +215,7 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     if cms_settings.DUMMY_IMAGE_SOURCE and \
        (not image.image.file or not os.path.exists(image.image.file.path)):
         # arbitrary small image if no geometry supplied
-        rendered = get_dummy_image(image.geometry or '100x100')
+        rendered = renderer(DummyImage(image.geometry or '100x100'))
     else:
         rendered = renderer(image)
         
