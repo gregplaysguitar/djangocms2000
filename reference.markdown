@@ -193,3 +193,17 @@ Full path to the function used to render pages by the fallback middleware,
 defaults to `'django.shortcuts.render_to_response`'. If you're using Coffin and
 Jinja2, for example, you may want to set this to 
 `'coffin.shortcuts.render_to_response`'
+
+
+#### `DB_ALIAS`
+
+Alias for the database which will store cms content - uses `'default'` if not 
+set. If cms content should be stored in a separate database, specify it here 
+and use the built in router, i.e.
+
+    DATABASE_ROUTERS = ['cms.db_router.CMSRouter']
+
+
+#### `UPLOAD_PATH`
+
+Path for cms media uploads. Defaults to `'cms/%Y_%m'`

@@ -15,15 +15,15 @@ DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER', 
                             'django.shortcuts.render_to_response')
 DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
-
-# The following are for internal use and shouldn't need to be customised
-
-STATIC_URL = getattr(settings, 'CMS_STATIC_URL', settings.STATIC_URL + 'cms/')
-SECRET_KEY = getattr(settings, 'SECRET_KEY')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')
-SITE_ID = getattr(settings, 'SITE_ID', 1)
+
+
+# The following are for internal use and can't be customised
+
+STATIC_URL = settings.STATIC_URL + 'cms/'
+SECRET_KEY = settings.SECRET_KEY
+SITE_ID = settings.SITE_ID
 
 # let's be *really* careful not to display content from another site using
 # the same cache
 CACHE_PREFIX = 'cms-%s' % hashlib.sha1(SECRET_KEY).hexdigest()[:5]
-
