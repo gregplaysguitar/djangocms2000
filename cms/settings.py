@@ -24,6 +24,9 @@ STATIC_URL = settings.STATIC_URL + 'cms/'
 SECRET_KEY = settings.SECRET_KEY
 SITE_ID = settings.SITE_ID
 
+# Assume there's a template engine, and that the first one is the one we want
+TEMPLATE_DIRS = settings.TEMPLATES[0].get('DIRS', [])
+
 # let's be *really* careful not to display content from another site using
 # the same cache
 CACHE_PREFIX = 'cms-%s' % hashlib.sha1(SECRET_KEY).hexdigest()[:5]

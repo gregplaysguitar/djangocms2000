@@ -99,17 +99,19 @@ post_save.connect(clear_cache, sender=Block)
 post_save.connect(clear_cache, sender=Image)
 
 
-TEMPLATE_DIR = settings.TEMPLATE_DIRS[0]
-
-def get_templates_from_dir(dir, exclude=None):
+def get_templates_from_dir(dirname, exclude=None):
     TEMPLATE_REGEX = re.compile('\.html$')
     templates = []
-    for root, dirs, files in os.walk("%s/%s" % (TEMPLATE_DIR, dir)):
-        for file in files:
-            path = ("%s/%s" % (root.replace(TEMPLATE_DIR, ''), file)).strip('/')
-            filename = path.replace(dir, '').strip('/')
-            if TEMPLATE_REGEX.search(path) and (not exclude or not exclude.search(filename)):
-                templates.append((path, filename))
+    for template_dir in cms_settings.TEMPLATE_DIRS:
+        template_path = os.path.join(template_dir, dirname)
+        for root, dirs, files in os.walk(template_path):
+            for file in files:
+                rel_root = root.replace(template_dir, '')
+                path = os.path.join(rel_root, file).strip('/')
+                filename = path.replace(dirname, '').strip('/')
+                if TEMPLATE_REGEX.search(path) and \
+                   (not exclude or not exclude.search(filename)):
+                    templates.append((path, filename))
     
     return templates
 
