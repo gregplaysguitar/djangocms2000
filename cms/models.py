@@ -117,8 +117,8 @@ def get_templates_from_dir(dirname, exclude=None):
 
 
 def template_choices():
-    CMS_EXCLUDE_REGEX = re.compile('base\.html$|^cms/|\.inc\.html$')
-    return [('', '---------')] + get_templates_from_dir("cms", CMS_EXCLUDE_REGEX)
+    EXCLUDE_RE = re.compile('base\.html|^cms/')
+    return [('', '---------')] + get_templates_from_dir("cms", EXCLUDE_RE)
     
 
 def get_child_pages(parent_url, qs=None):
@@ -253,4 +253,3 @@ def add_blocks(sender, **kwargs):
                 object_id=kwargs['instance'].id
             )
 post_save.connect(add_blocks)
-
