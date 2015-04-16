@@ -5,13 +5,13 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test
 
 # avoid importing the module 
-exec(open('cms/_version.py').read())
+exec(open('adhoc/_version.py').read())
 
 setup(
-    name='djangocms2000',
+    name='django-adhoc',
     version=__version__,
     description='Flexible Django CMS with edit-in-place capability',
-    long_description=open('readme.markdown').read(),
+    long_description=open('readme.md').read(),
     author='Greg Brown',
     author_email='greg@gregbrown.co.nz',
     url='https://github.com/gregplaysguitar/djangocms2000',

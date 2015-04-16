@@ -6,13 +6,13 @@ from . import settings
 
 def is_editing(request, obj_type=None):
     '''Test the request object to see if we're in edit mode'''
-    if ('cms-edit_mode' in request.COOKIES):
+    if ('adhoc-edit_mode' in request.COOKIES):
         if obj_type =='block':
-            return request.user.has_perm("cms.change_block")
+            return request.user.has_perm("adhoc.change_block")
         elif obj_type =='image':
-            return request.user.has_perm("cms.change_image")
+            return request.user.has_perm("adhoc.change_image")
         else:
-            return request.user.has_module_perms("cms")
+            return request.user.has_module_perms("adhoc")
     else:
         return False
 
@@ -37,8 +37,8 @@ def generate_cache_key(type, label=None, site_id=None, related_object=None, url=
         if app_label == 'sites' and model_name == 'site':
             # must actually be a site block, being referenced by the sites.Site object
             site_id = related_object.pk
-        elif app_label == 'cms' and model_name == 'page':
-            # must be a cms.Page, ditto
+        elif app_label == 'adhoc' and model_name == 'page':
+            # must be a adhoc.Page, ditto
             url = related_object.url
         
     if site_id:

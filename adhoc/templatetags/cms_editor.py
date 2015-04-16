@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django import template
 
 from cms.utils import is_editing
-from cms import settings as cms_settings
+from cms import settings as adhoc_settings
 
 
 register = template.Library()
@@ -15,13 +15,13 @@ def cms_editor(context):
        allow frontend editing. '''
     
     if 'edit' in context['request'].GET:
-        return render_to_string("cms/cms/login_top.html", RequestContext(context['request'], {
+        return render_to_string("adhoc/cms/login_top.html", RequestContext(context['request'], {
             'login_form': AuthenticationForm(),
-            'cms_settings': cms_settings,
+            'adhoc_settings': adhoc_settings,
         }))
     else:
-        return render_to_string("cms/cms/editor_script.html", RequestContext(context['request'], {
-            'cms_settings': cms_settings,
+        return render_to_string("adhoc/cms/editor_script.html", RequestContext(context['request'], {
+            'adhoc_settings': adhoc_settings,
         }))
 
 register.simple_tag(cms_editor, takes_context=True)

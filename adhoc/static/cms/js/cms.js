@@ -16,7 +16,7 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 		}, tinymce_config);
 	
 	$('.edit-switcher').click(function() {
-	    $.cookie('cms-edit_mode', null, {path: '/'});
+	    $.cookie('adhoc-edit_mode', null, {path: '/'});
 	    location.reload();
 	    return false;
 	});
@@ -301,6 +301,4 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	};
 
 
-}; // init done inline so settings can be passed in - see templates/cms/cms/editor.js
-
-
+}; // init done inline so settings can be passed in - see templates/adhoc/cms/editor.js

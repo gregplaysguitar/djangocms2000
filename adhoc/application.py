@@ -15,7 +15,7 @@ except ImportError:
 
 from .models import Block, Image, Page
 from .utils import is_editing, generate_cache_key, key_from_ctype
-from . import settings as cms_settings
+from . import settings as adhoc_settings
 
 
 def get_block_or_image(model_cls, label, url=None, site_id=None, related_object=None, cached=True):
@@ -68,7 +68,7 @@ def get_lookup_kwargs(site_id=None, related_object=None, request=None):
         
 
 def default_block_renderer(block, filters=None):
-    '''Renders a cms.block as html for display on the site.'''
+    '''Renders a adhoc.block as html for display on the site.'''
     
     content = block.display_content()
     if filters and content:
@@ -111,7 +111,7 @@ def get_rendered_block(label, format='plain', related_object=None, filters=None,
     if editing:
         block = get_block(label, cached=False, **lookup_kwargs)
         set_block_format(block, format)
-        return template.loader.render_to_string("cms/cms/block_editor.html", {
+        return template.loader.render_to_string("adhoc/cms/block_editor.html", {
             'block': block,
             'rendered_content': renderer(block),
         })
@@ -176,7 +176,7 @@ class RenderedImage:
 class DummyImage(object):
     def __init__(self, geometry):
         width, height = (geometry.split('x') + [''])[:2]
-        self.url = cms_settings.DUMMY_IMAGE_SOURCE % {
+        self.url = adhoc_settings.DUMMY_IMAGE_SOURCE % {
             'width': width or height,
             'height': height or width,
         }
@@ -212,7 +212,7 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     if renderer == 'raw':
         renderer = lambda obj: obj
     
-    if cms_settings.DUMMY_IMAGE_SOURCE and \
+    if adhoc_settings.DUMMY_IMAGE_SOURCE and \
        (not image.image.file or not os.path.exists(image.image.file.path)):
         # arbitrary small image if no geometry supplied
         rendered = renderer(DummyImage(image.geometry or '100x100'))
@@ -220,7 +220,7 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
         rendered = renderer(image)
         
     if editing:
-        return template.loader.render_to_string("cms/cms/image_editor.html", {
+        return template.loader.render_to_string("adhoc/cms/image_editor.html", {
             'image': image,
             'rendered_content': rendered,
         })

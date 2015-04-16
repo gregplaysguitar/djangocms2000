@@ -1,14 +1,14 @@
 {% load url from future %}
-{% load cms_tags %}
+{% load adhoc_tags %}
 {% load url from future %}
 
-<link rel="stylesheet" type="text/css" href="{{ cms_settings.STATIC_URL }}css/cms.css">
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery-1.10.2.min.js"></script>
-<script type="text/javascript" src="{{ cms_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ adhoc_settings.STATIC_URL }}css/cms.css">
+<script type="text/javascript" src="{{ adhoc_settings.STATIC_URL }}lib/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="{{ adhoc_settings.STATIC_URL }}lib/jquery.cookie.js"></script>
 <script>
 var cms_jQuery = jQuery.noConflict(true);
 (function ($) {
-	 $.cookie('cms-edit_mode', 1, {path: '/'});
+	 $.cookie('{{ adhoc_settings.EDIT_MODE_COOKIE }}', 1, {path: '/'});
 })(cms_jQuery);
 </script>
 

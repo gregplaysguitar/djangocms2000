@@ -7,7 +7,7 @@ from django.utils.text import Truncator
 from django.conf import settings
 from django.test.client import Client
 
-from .. import settings as cms_settings
+from .. import settings as adhoc_settings
 from ..models import Page, Block, Image, PageSite
 from ..utils import public_key
 from ..forms import get_page_form_cls
@@ -17,14 +17,14 @@ from .admin_forms import BlockForm, ImageForm
 
 
 admin_js = (
-    cms_settings.STATIC_URL + 'lib/jquery-1.10.2.min.js',
-    cms_settings.STATIC_URL + 'tinymce/js/tinymce/tinymce.min.js',
-    cms_settings.STATIC_URL + 'js/page_admin.js',
+    adhoc_settings.STATIC_URL + 'lib/jquery-1.10.2.min.js',
+    adhoc_settings.STATIC_URL + 'tinymce/js/tinymce/tinymce.min.js',
+    adhoc_settings.STATIC_URL + 'js/page_admin.js',
     reverse_lazy('cms.views.linklist'),
     reverse_lazy('cms.views.block_admin_init'),
 )
 admin_css = {
-    'all': (cms_settings.STATIC_URL + 'css/page_admin.css',),
+    'all': (adhoc_settings.STATIC_URL + 'css/page_admin.css',),
 }
 
 
@@ -65,7 +65,7 @@ class CMSBaseAdmin(admin.ModelAdmin):
         return returnval
 
 
-show_sites = cms_settings.USE_SITES_FRAMEWORK
+show_sites = adhoc_settings.USE_SITES_FRAMEWORK
 
 class PageAdmin(CMSBaseAdmin):
     list_display = ('__unicode__', 'url', 'template', 'is_live', 

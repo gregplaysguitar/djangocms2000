@@ -5,7 +5,7 @@ from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 
 from ..forms import ReadonlyInput
 from ..models import Block, Image
-from .. import settings as cms_settings
+from .. import settings as adhoc_settings
 from ..utils import key_from_ctype
 
 
@@ -89,7 +89,7 @@ class InlineBlockForm(forms.ModelForm):
                 self.fields['content'].widget = forms.TextInput()                
             self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
 
-        required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
+        required_cb = adhoc_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.fields['content'].required = required_cb(kwargs['instance'])
 
@@ -102,7 +102,7 @@ class InlineImageForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InlineImageForm, self).__init__(*args, **kwargs)
 
-        required_cb = cms_settings.IMAGE_REQUIRED_CALLBACK
+        required_cb = adhoc_settings.IMAGE_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
             self.fields['file'].required = required_cb(kwargs['instance'])
 

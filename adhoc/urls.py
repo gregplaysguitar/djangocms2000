@@ -5,7 +5,7 @@ from django.conf.urls import *
 import settings
 
 
-urlpatterns = patterns('cms.views',
+urlpatterns = patterns('adhoc.views',
 	(r'^actions/savepage/$', 'savepage'),
 	(r'^actions/savepage/(\d+)/$', 'savepage'),
 	(r'^actions/saveblock/(\d+)$', 'saveblock'),

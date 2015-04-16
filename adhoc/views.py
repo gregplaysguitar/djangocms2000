@@ -19,7 +19,7 @@ from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 
 from .forms import PageForm, BlockForm, ImageForm
-from . import settings as cms_settings
+from . import settings as adhoc_settings
 from .models import Block, Page, Image
 from .utils import is_editing, public_key
 
@@ -37,7 +37,7 @@ def logout(request):
 def login(request, *args, **kwargs):
     '''Basic login view used by cms login forms.'''
     
-    kwargs['template_name'] = 'cms/cms/login.html'
+    kwargs['template_name'] = 'adhoc/cms/login.html'
     return auth_login(request, *args, **kwargs)
 
 
@@ -114,7 +114,7 @@ def get_page_content(base_request, page_url):
 
 BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
 
-@permission_required("cms.change_block")
+@permission_required("adhoc.change_block")
 def saveblock(request, block_id):
     '''Ajax-only view to save cms.block objects from the frontend editor'''
 
@@ -147,7 +147,7 @@ def saveblock(request, block_id):
     }), content_type='application/json')
 
     
-@permission_required("cms.change_image")
+@permission_required("adhoc.change_image")
 def saveimage(request, image_id):
     '''Ajax-only view to save cms.image objects from the frontend editor'''
     
@@ -184,7 +184,7 @@ def render_page(request, url):
     
     # Render function - by default, django.shortcuts.render_to_response, but 
     # could be coffins version, or custom
-    bits = cms_settings.TEMPLATE_RENDERER.split('.')
+    bits = adhoc_settings.TEMPLATE_RENDERER.split('.')
     renderer_module = importlib.import_module('.'.join(bits[:-1]))
     renderer = getattr(renderer_module, bits[-1])
     
@@ -195,32 +195,32 @@ def render_page(request, url):
 
 def tinymce_config_json():
     '''Return tinymce overrides from settings, as a json string for js.'''
-    tinymce_config = cms_settings.TINYMCE_CONFIG
+    tinymce_config = adhoc_settings.TINYMCE_CONFIG
     if callable(tinymce_config):
         tinymce_config = tinymce_config()
     return json.dumps(tinymce_config)
 
 
-@permission_required("cms.change_block")
+@permission_required("adhoc.change_block")
 def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc
        in the django admin.'''
     
-    response = render_to_response('cms/cms/block_admin_init.js', {
+    response = render_to_response('adhoc/cms/block_admin_init.js', {
         'tinymce_config_json': tinymce_config_json(),
-        'cms_settings': cms_settings,
+        'adhoc_settings': adhoc_settings,
     }, context_instance=RequestContext(request))
     
     response['Content-Type'] = 'application/javascript'
     return response
 
 
-@permission_required("cms.change_block")
+@permission_required("adhoc.change_block")
 def linklist(request):
     '''Used to populate the tinymce link list popup.'''
     
     response = render_to_response(
-    'cms/cms/linklist.js',
+    'adhoc/cms/linklist.js',
         {
             'page_list': Page.objects.all(),
         },
@@ -239,13 +239,13 @@ def editor_js(request):
         response = HttpResponse('')
     else:
         if is_editing(request):
-            response = render_to_response('cms/cms/editor.js', {
-                'cms_settings': cms_settings,
+            response = render_to_response('adhoc/cms/editor.js', {
+                'adhoc_settings': adhoc_settings,
                 'tinymce_config_json': tinymce_config_json(),
             }, context_instance=RequestContext(request))
         else:
-            response = render_to_response('cms/cms/edit-mode-switcher.js', {
-                'cms_settings': cms_settings,
+            response = render_to_response('adhoc/cms/edit-mode-switcher.js', {
+                'adhoc_settings': adhoc_settings,
             }, context_instance=RequestContext(request))
     
     response['Content-Type'] = 'application/javascript'
@@ -264,9 +264,9 @@ def editor_html(request):
         except Page.DoesNotExist:
             page = False
             
-        response = render_to_response('cms/cms/editor.html', {
+        response = render_to_response('adhoc/cms/editor.html', {
             'page': page,
-            'cms_settings': cms_settings,
+            'adhoc_settings': adhoc_settings,
             'editor_form': BlockForm(),
             'html_editor_form': BlockForm(prefix='html'),
             'image_form': ImageForm(),
@@ -274,8 +274,3 @@ def editor_html(request):
             'new_page_form': PageForm(prefix='new'),
         }, context_instance=RequestContext(request))
     return response
-
-
-
-
-

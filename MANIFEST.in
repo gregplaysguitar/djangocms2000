@@ -1,0 +1,7 @@
+django-adhoc/MANIFEST.in
+
+include license.md
+include readme.md
+include reference.md
+recursive-include adhoc/static *
+recursive-include adhoc/templates *

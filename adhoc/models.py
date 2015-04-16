@@ -5,15 +5,6 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
-
-# try:
-#     from django.contrib.contenttypes.fields import GenericForeignKey, \
-#                                                    GenericRelation
-# except ImportError:
-#     # django pre-1.9
-#     from django.contrib.contenttypes.generic import GenericForeignKey, \
-#                                                     GenericRelation
-
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
@@ -24,7 +15,7 @@ from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, m2m_changed
 from django.utils.functional import curry
 
-from . import settings as cms_settings
+from . import settings as adhoc_settings
 from .utils import generate_cache_key, ctype_from_key
 
 
@@ -74,7 +65,7 @@ class Block(ContentModel):
    
 
 class Image(ContentModel):
-    file = models.ImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True)
+    file = models.ImageField(upload_to=adhoc_settings.UPLOAD_PATH, blank=True)
     description = models.CharField(max_length=255, blank=True)
      
     # TODO these can be expensive for large images so should be cached
@@ -102,7 +93,7 @@ post_save.connect(clear_cache, sender=Image)
 def get_templates_from_dir(dirname, exclude=None):
     TEMPLATE_REGEX = re.compile('\.html$')
     templates = []
-    for template_dir in cms_settings.TEMPLATE_DIRS:
+    for template_dir in adhoc_settings.TEMPLATE_DIRS:
         template_path = os.path.join(template_dir, dirname)
         for root, dirs, files in os.walk(template_path):
             for file in files:
@@ -118,7 +109,7 @@ def get_templates_from_dir(dirname, exclude=None):
 
 def template_choices():
     EXCLUDE_RE = re.compile('base\.html|^cms/')
-    return [('', '---------')] + get_templates_from_dir("cms", EXCLUDE_RE)
+    return [('', '---------')] + get_templates_from_dir("adhoc", EXCLUDE_RE)
     
 
 def get_child_pages(parent_url, qs=None):
@@ -220,7 +211,7 @@ class PageSite(models.Model):
 # m2m_changed.connect(page_sanity_check, sender=Page.sites.through)
 
 
-class CMSBaseModel(_CMSAbstractBaseModel):
+class AdhocBaseModel(_CMSAbstractBaseModel):
     """Abstract model for other apps that want to have related Blocks and Images"""
     
     BLOCK_LABELS = [] # list of tuples of the form ('name', 'format',), but will fall back if it's just a list of strings
@@ -230,9 +221,9 @@ class CMSBaseModel(_CMSAbstractBaseModel):
         abstract = True
 
 
-# add extra blocks on save (dummy rendering happens too since CMSBaseModel extends _CMSAbstractBaseModel)
+# add extra blocks on save (dummy rendering happens too since AdhocBaseModel extends _CMSAbstractBaseModel)
 def add_blocks(sender, **kwargs):
-    if isinstance(kwargs['instance'], CMSBaseModel):
+    if isinstance(kwargs['instance'], AdhocBaseModel):
         for label_tuple in kwargs['instance'].BLOCK_LABELS:
             if isinstance(label_tuple, str):
                 label_tuple = (label_tuple, None,)

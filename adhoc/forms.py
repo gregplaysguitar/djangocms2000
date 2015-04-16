@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
 from .models import Page, Block, Image, template_choices, PageSite
-from . import settings as cms_settings
+from . import settings as adhoc_settings
 
 
 def url_resolves(url):
@@ -168,7 +168,7 @@ class PageFormWithSites(PageForm):
 
 
 def get_page_form_cls():
-    if cms_settings.USE_SITES_FRAMEWORK:
+    if adhoc_settings.USE_SITES_FRAMEWORK:
         return PageFormWithSites
     else:
         return PageForm
