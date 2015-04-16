@@ -9,6 +9,7 @@ except ImportError:
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.conf import settings
@@ -232,9 +233,10 @@ def linklist(request):
 
 @never_cache
 def editor_js(request):
-    '''Dynamic js file for frontend editing. Serves up a blank file, the full editor js,
-       or the edit-mode switcher button depending on the user's cookies and permissions.'''
-       
+    '''Dynamic js file for frontend editing. Serves up a blank file, the full
+       editor js, or the edit-mode switcher button depending on the user's 
+       cookies and permissions.'''
+
     if not request.user.has_module_perms('cms'):
         response = HttpResponse('')
     else:
@@ -247,7 +249,7 @@ def editor_js(request):
             response = render_to_response('cms/cms/edit-mode-switcher.js', {
                 'cms_settings': cms_settings,
             }, context_instance=RequestContext(request))
-    
+
     response['Content-Type'] = 'application/javascript'
     return response
 
@@ -276,6 +278,13 @@ def editor_html(request):
     return response
 
 
+@never_cache
+def login_js(request):
+    '''Dynamic js file to show the login form.'''
 
+    response = render_to_response('cms/cms/login.js', {
+        'cms_settings': cms_settings,
+    }, context_instance=RequestContext(request))
 
-
+    response['Content-Type'] = 'application/javascript'
+    return response
