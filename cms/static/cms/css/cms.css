@@ -280,30 +280,9 @@
 }
 
 
-
 #getarealbrowser {
 	display: none;
 	z-index: 200;
-}
-
-#cms-logged_in {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: auto;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 5px 10px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    z-index: 200;
-    font-size: 12px;
-}
-#cms-logged_in a {
-    cursor: pointer;
-    padding: 0 5px;
-    color: #aaa;
 }
 
 

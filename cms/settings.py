@@ -25,7 +25,11 @@ SECRET_KEY = settings.SECRET_KEY
 SITE_ID = settings.SITE_ID
 
 # Assume there's a template engine, and that the first one is the one we want
-TEMPLATE_DIRS = settings.TEMPLATES[0].get('DIRS', [])
+try:
+    TEMPLATE_DIRS = settings.TEMPLATES[0].get('DIRS', [])
+except AttributeError:
+    # pre-1.8 fallback
+    TEMPLATE_DIRS = settings.TEMPLATE_DIRS
 
 # let's be *really* careful not to display content from another site using
 # the same cache

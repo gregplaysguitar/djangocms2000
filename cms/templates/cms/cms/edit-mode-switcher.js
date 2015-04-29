@@ -1,9 +1,10 @@
 {% load url from future %}
 
 
-var switcher_html = '<div id="cms-logged_in">' +
+var switcher_html = '<div id="cms-menu">' +
                     '    <a class="edit-switcher on">Edit</a> /' + 
-                    '    <a href="{% url "cms.views.logout" %}?from={{ request.path_info }}">Logout</a>' +
+                    '    <a href="{% url "cms.views.logout" %}?from=' +
+                    window.location.pathname + '">Logout</a>' +
                     '</div>'
 
 yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
@@ -14,7 +15,7 @@ yepnope({
         var cms_jQuery = jQuery.noConflict(true),
             switcher = cms_jQuery(switcher_html).appendTo('body');
             
-            switcher.click(function() {
+            switcher.find('.edit-switcher').on('click', function() {
                 cms_jQuery.cookie('cms-edit_mode', 1, {path: '/'});
                 location.reload();
                 return false;

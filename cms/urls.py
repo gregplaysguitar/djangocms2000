@@ -17,4 +17,5 @@ urlpatterns = patterns('cms.views',
 	(r'^linklist\.js$', 'linklist'),
 	(r'^editor\.js$', 'editor_js'),
 	(r'^editor\.html$', 'editor_html'),
+	(r'^login\.js$', 'login_js'),
 )
