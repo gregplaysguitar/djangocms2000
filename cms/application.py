@@ -122,13 +122,16 @@ def get_rendered_block(label, format='plain', related_object=None, filters=None,
 
 
 class RenderedImage:
-    '''A wrapper class for Image which can optionally be resized, via the geometry and 
-       crop arguments. If these are given, the url, height and width are derived from a 
-       generated sorl thumbnail; otherwise the original image is used. The height and
-       width are also divided by the scale argument, if provided, to enable retina
-       images.'''
+    '''A wrapper class for Image which can optionally be resized, via the 
+       geometry and crop arguments. If these are given, the url, height and 
+       width are derived from a generated sorl thumbnail; otherwise the 
+       original image is used. The height and width are also divided by the 
+       scale argument, if provided, to enable retina images. The optional
+       colorspace argument is passed directly to sorl thumbnail and has no
+       effect if the image is not resized. '''
     
-    def __init__(self, image, geometry=None, crop=None, scale=1):
+    def __init__(self, image, geometry=None, crop=None, scale=1,
+                 colorspace=None):
         if type(geometry) == int:
             geometry = str(geometry)
         
@@ -136,11 +139,13 @@ class RenderedImage:
         self.geometry = geometry
         self.crop = crop
         self.scale = scale
+        self.colorspace = colorspace
         
     def get_thumbnail(self):
         if self.geometry:
             thumb = sorl.thumbnail.get_thumbnail(self.image.file, 
                                                  self.geometry,
+                                                 colorspace=self.colorspace,
                                                  crop=self.crop)
             return thumb
         else:
@@ -197,7 +202,7 @@ def default_image_renderer(img):
 
 def get_rendered_image(label, geometry=None, related_object=None, crop=None,
                        editable=True, renderer=default_image_renderer,
-                       site_id=None, request=None, scale=1):
+                       site_id=None, request=None, scale=1, colorspace=None):
     '''Get the rendered html for an image, wrapped in editing bits if appropriate.
        `renderer` is a callable taking an image object, geometry and crop options,
        and returning rendered html for the image.'''
@@ -207,7 +212,7 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
     
     image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
-    image = RenderedImage(image_obj, geometry, crop, scale)
+    image = RenderedImage(image_obj, geometry, crop, scale, colorspace)
     
     if renderer == 'raw':
         renderer = lambda obj: obj
