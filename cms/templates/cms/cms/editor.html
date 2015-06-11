@@ -1,6 +1,3 @@
-{% load url from future %}
-
-
 <div id="cms-menu">
     <div>
         <span class="status">
@@ -15,7 +12,7 @@
                 <a class="new-page" href="{% url 'admin:cms_page_add' %}">New page</a> /
             {% endif %}
             <a class="edit-switcher off">Stop editing</a> /
-            <a href="{% url 'cms.views.logout' %}?from={{ request.GET.page }}">Log me out</a>
+            <a href="{% url 'cms_logout' %}?from={{ request.GET.page }}">Log me out</a>
         </span>
 
         {% if page and not page.is_live %}
@@ -30,7 +27,7 @@
 {% if page_form %}
 <div id="cms-pageoverlay" class="cms-overlay">
     <div id="cms-pageform" class="cms-form">
-        <form action="{% url 'cms.views.savepage' page.pk %}" method="post">
+        <form action="{% url 'cms_savepage' page.pk %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="prefix" value="{% firstof page_form.prefix '' %}">
         <h2>Edit page {{ page }}</h2>
@@ -50,7 +47,7 @@
 
 <div id="cms-newpageoverlay" class="cms-overlay">
     <div id="cms-newpageform" class="cms-form">
-        <form action="{% url 'cms.views.savepage' %}" method="post">
+        <form action="{% url 'cms_savepage' %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="prefix" value="{% firstof new_page_form.prefix '' %}">
         <h2>Create a new page</h2>

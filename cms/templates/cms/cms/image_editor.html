@@ -1,7 +1,5 @@
-{% load url from future %}
-
 <span class='cms-image {% if not image.image.file %}placeholder{% endif %}'
-      data-save_url='{% url 'cms.views.saveimage' image.image.id %}'
+      data-save_url='{% url 'cms_saveimage' image.image.id %}'
       data-description="{{ image.image.description }}"
       data-image_url="{% if image.url %}{{ image.url }}{% endif %}">
   

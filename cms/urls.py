@@ -1,21 +1,22 @@
 import os
 
-from django.conf.urls import *
+from django.conf.urls import url
 
-import settings
+from . import views
 
 
-urlpatterns = patterns('cms.views',
-	(r'^actions/savepage/$', 'savepage'),
-	(r'^actions/savepage/(\d+)/$', 'savepage'),
-	(r'^actions/saveblock/(\d+)$', 'saveblock'),
-	(r'^actions/saveimage/(\d+)$', 'saveimage'),
+urlpatterns = (
+	url(r'^actions/savepage/$', views.savepage, {}, 'cms_savepage'),
+	url(r'^actions/savepage/(\d+)/$', views.savepage, {}, 'cms_savepage'),
+	url(r'^actions/saveblock/(\d+)$', views.saveblock, {}, 'cms_saveblock'),
+	url(r'^actions/saveimage/(\d+)$', views.saveimage, {}, 'cms_saveimage'),
 	
-	(r'^login/$', 'login'),
-	(r'^logout/$', 'logout'),
-	(r'^block_admin_init\.js$', 'block_admin_init'),
-	(r'^linklist\.js$', 'linklist'),
-	(r'^editor\.js$', 'editor_js'),
-	(r'^editor\.html$', 'editor_html'),
-	(r'^login\.js$', 'login_js'),
+	url(r'^login/$', views.login, {}, 'cms_login'),
+	url(r'^logout/$', views.logout, {}, 'cms_logout'),
+	url(r'^block_admin_init\.js$', views.block_admin_init, {}, 
+	    'cms_block_admin_init'),
+	url(r'^linklist\.js$', views.linklist, {}, 'cms_linklist'),
+	url(r'^editor\.js$', views.editor_js, {}, 'cms_editor_js'),
+	url(r'^editor\.html$', views.editor_html, {}, 'cms_editor_html'),
+	url(r'^login\.js$', views.login_js, {}, 'cms_login_js'),
 )

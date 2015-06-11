@@ -1,6 +1,6 @@
 <div id="cms-menu">
   <div>
-    <form method="post" action="{% url 'cms.views.login' %}">
+    <form method="post" action="{% url 'cms_login' %}">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.path_info }}">
       

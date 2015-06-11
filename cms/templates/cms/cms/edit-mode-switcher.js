@@ -1,9 +1,7 @@
-{% load url from future %}
-
 
 var switcher_html = '<div id="cms-menu">' +
                     '    <a class="edit-switcher on">Edit</a> /' + 
-                    '    <a href="{% url "cms.views.logout" %}?from=' +
+                    '    <a href="{% url "cms_logout" %}?from=' +
                     window.location.pathname + '">Logout</a>' +
                     '</div>'
 

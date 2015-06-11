@@ -1,5 +1,3 @@
-{% load url from future %}
-
 yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 
 yepnope({
@@ -9,7 +7,7 @@ yepnope({
     var cms_jQuery = jQuery.noConflict(true),
         url = window.location.pathname;
     
-    cms_jQuery.get('{% url "cms.views.login" %}', function(html) {
+    cms_jQuery.get('{% url "cms_login" %}', function(html) {
       cms_jQuery('body').append(html);
       var menu = cms_jQuery('#cms-menu');
       menu.hide().fadeIn()

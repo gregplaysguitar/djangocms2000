@@ -1,11 +1,9 @@
-{% load url from future %}
-
 <script type="text/javascript" 
         src="{{ cms_settings.STATIC_URL }}lib/yepnope.1.5.4-min.js"></script>
 {% if show_login %}
   <script type="text/javascript" 
-          src="{% url 'cms.views.login_js' %}"></script>  
+          src="{% url 'cms_login_js' %}"></script>  
 {% else %}
   <script type="text/javascript" 
-          src="{% url 'cms.views.editor_js' %}"></script>
+          src="{% url 'cms_editor_js' %}"></script>
 {% endif %}

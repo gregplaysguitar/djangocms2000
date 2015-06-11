@@ -1,8 +1,6 @@
-{% load url from future %}
-
 <span class="cms-block {{ block.format }} 
              {% if not block.content %}placeholder{% endif %}"
-      data-save_url="{% url 'cms.views.saveblock' block.id %}"
+      data-save_url="{% url 'cms_saveblock' block.id %}"
       data-format="{{ block.format }}">
 	<input type="hidden" name="content" value="{{ block.content }}">
 	
