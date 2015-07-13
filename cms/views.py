@@ -248,7 +248,7 @@ def editor_js(request):
         else:
             response = render_to_response('cms/cms/edit-mode-switcher.js', {
                 'cms_settings': cms_settings,
-            }, context_instance=RequestContext(request))
+            })
 
     response['Content-Type'] = 'application/javascript'
     return response

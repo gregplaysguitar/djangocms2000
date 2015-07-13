@@ -16,11 +16,10 @@ def cms_editor(context):
        allow frontend editing. '''
     
     show_login = 'edit' in context['request'].GET
-    return render_to_string("cms/cms/editor_script.html", 
-                            RequestContext(context['request'], {
+    return render_to_string("cms/cms/editor_script.html", {
         'cms_settings': cms_settings,
         'show_login': show_login,
-    }))
+    })
 
 register.simple_tag(cms_editor, takes_context=True)
 
