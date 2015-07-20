@@ -25,7 +25,7 @@ from django.db.models.signals import class_prepared, post_save, pre_save, m2m_ch
 from django.utils.functional import curry
 
 from . import settings as cms_settings
-from .utils import generate_cache_key, ctype_from_key
+from .utils import generate_cache_key, ctype_from_key, key_from_obj
 
 
 class ContentModel(models.Model):
@@ -124,7 +124,9 @@ def template_choices():
 def get_child_pages(parent_url, qs=None):
     if not parent_url.endswith('/'):
         parent_url += '/'
-    return (qs or Page.live).filter(url__iregex=r'^' + parent_url + '[^/]+/?$')
+    if not qs:
+        qs = Page.objects.live()
+    return qs.filter(url__iregex=r'^' + parent_url + '[^/]+/?$')
 
 
 class _CMSAbstractBaseModel(models.Model):
@@ -134,13 +136,16 @@ class _CMSAbstractBaseModel(models.Model):
     # blocks = GenericRelation(Block)
     # images = GenericRelation(Image)
     
+    def get_blocks(self):
+        return Block.objects.filter(content_type=key_from_obj(self), 
+                                    object_id=self.id)
+    
     def __unicode__(self):
         try:
-            return self.blocks.exclude(content='').get(label='title').content
-        # except Block.DoesNotExist:
-        except:
-            # TODO
+            block = self.get_blocks().exclude(content='').get(label='title')
+        except Block.DoesNotExist:
             return self.url
+        return block.content
 
 
 class PageManager(models.Manager):
@@ -154,15 +159,9 @@ class PageManager(models.Manager):
             # page.sites.add(Site.objects.get_current())
             page.save()
             return page
-
-
-class LivePageManager(models.Manager):
-    def get_queryset(self):
-        return super(LivePageManager, self).get_queryset().filter(is_live=True)
     
-    # For backwards-compatibility
-    def get_query_set(self):
-        return super(LivePageManager, self).get_query_set().filter(is_live=True)
+    def live(self):
+        return self.filter(is_live=True)
 
 
 class Page(_CMSAbstractBaseModel):
@@ -174,7 +173,6 @@ class Page(_CMSAbstractBaseModel):
     is_live = models.BooleanField(default=True, help_text="If this is not checked, the page will only be visible to logged-in users.")
     
     objects = PageManager()
-    live = LivePageManager()
     
     class Meta:
         ordering = ('url',)

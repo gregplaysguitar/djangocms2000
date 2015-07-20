@@ -65,6 +65,10 @@ def key_from_ctype(ctype):
     return ctype.app_label + '-' + ctype.model
 
 
+def key_from_obj(obj):
+    return obj._meta.app_label + '-' + obj._meta.model_name
+
+
 def ctype_from_key(key):
     app_label, model = key.split('-')
     return ContentType.objects.get(app_label=app_label, model=model)

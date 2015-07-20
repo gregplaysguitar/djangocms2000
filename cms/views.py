@@ -173,9 +173,9 @@ def render_page(request, url):
     
     if hasattr(request, 'user') and request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == public_key():
-        qs = Page.objects
+        qs = Page.objects.all()
     else:
-        qs = Page.live
+        qs = Page.objects.live()
     
     # don't try to render pages with no template (e.g. those who hold content
     # for a url resolved elsewhere in the project)
