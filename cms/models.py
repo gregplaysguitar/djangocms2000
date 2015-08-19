@@ -139,6 +139,10 @@ class _CMSAbstractBaseModel(models.Model):
     def get_blocks(self):
         return Block.objects.filter(content_type=key_from_obj(self), 
                                     object_id=self.id)
+
+    def get_images(self):
+        return Image.objects.filter(content_type=key_from_obj(self),
+                                    object_id=self.id)
     
     def __unicode__(self):
         try:
