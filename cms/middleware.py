@@ -1,8 +1,10 @@
-from views import render_page
+import re
+
 from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
-import re
-from models import Page
+
+from .models import Page
+from .views import render_page
 
 
 class CMSFallbackMiddleware(object):
