@@ -58,7 +58,7 @@ class CMSBaseAdmin(admin.ModelAdmin):
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
             site = Site.objects.get_current()
-            response = c.get(unicode(obj.get_absolute_url()),
+            response = c.get(obj.get_absolute_url(),
                              {'cms_dummy_render': public_key()},
                              HTTP_HOST=site.domain,
                              follow=True)
@@ -69,10 +69,10 @@ show_sites = cms_settings.USE_SITES_FRAMEWORK
 
 
 class PageAdmin(CMSBaseAdmin):
-    list_display = ('__unicode__', 'url', 'template', 'is_live',
+    list_display = ('__str__', 'url', 'template', 'is_live',
                     'creation_date', 'view_on_site_link', ) + \
                    (('get_sites', ) if show_sites else ())
-    list_display_links = ['__unicode__', 'url', ]
+    list_display_links = ['__str__', 'url', ]
     list_filter = ((PageSiteFilter, ) if show_sites else ()) + \
                   ('template', 'is_live', 'creation_date',)
     form = get_page_form_cls()
@@ -97,7 +97,7 @@ class PageAdmin(CMSBaseAdmin):
     view_on_site_link.short_description = ' '
 
     def get_sites(self, obj):
-        return ', '.join([unicode(s) for s in obj.sites.all()])
+        return ', '.join([str(s) for s in obj.sites.all()])
     get_sites.short_description = 'sites'
     get_sites.admin_order_field = 'sites'
 

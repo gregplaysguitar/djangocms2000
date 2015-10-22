@@ -14,6 +14,7 @@ from django.template.loader import get_template
 from django import template
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
+from django.utils.encoding import python_2_unicode_compatible
 from django.db.models.signals import class_prepared, post_save, pre_save, \
     m2m_changed
 from django.utils.functional import curry
@@ -22,6 +23,7 @@ from . import settings as cms_settings
 from .utils import generate_cache_key, ctype_from_key, key_from_obj
 
 
+@python_2_unicode_compatible
 class ContentModel(models.Model):
     class Meta:
         abstract = True
@@ -36,7 +38,7 @@ class ContentModel(models.Model):
         ctype = ctype_from_key(self.content_type)
         return ctype.model_class().objects.get(pk=self.object_id)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 
@@ -129,6 +131,7 @@ def get_child_pages(parent_url, qs=None):
     return qs.filter(url__iregex=r'^' + parent_url + '[^/]+/?$')
 
 
+@python_2_unicode_compatible
 class _CMSAbstractBaseModel(models.Model):
     class Meta:
         abstract = True
@@ -144,7 +147,7 @@ class _CMSAbstractBaseModel(models.Model):
         return Image.objects.filter(content_type=key_from_obj(self),
                                     object_id=self.id)
 
-    def __unicode__(self):
+    def __str__(self):
         try:
             block = self.get_blocks().exclude(content='').get(label='title')
         except Block.DoesNotExist:
@@ -190,6 +193,7 @@ class Page(_CMSAbstractBaseModel):
         return self.url
 
 
+@python_2_unicode_compatible
 class PageSite(models.Model):
     page = models.ForeignKey(Page, related_name='sites')
     site_id = models.PositiveIntegerField()
@@ -206,8 +210,8 @@ class PageSite(models.Model):
         if others.filter(site_id=self.site_id, page__url=self.page.url):
             raise ValidationError(u'Page url and site_id must be unique.')
 
-    def __unicode__(self):
-        return unicode(self.site)
+    def __str__(self):
+        return str(self.site)
 
 
 class CMSBaseModel(_CMSAbstractBaseModel):
