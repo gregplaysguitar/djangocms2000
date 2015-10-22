@@ -1,4 +1,6 @@
-import re, os, copy
+import re
+import os
+import copy
 import importlib
 try:
     import json
@@ -6,7 +8,8 @@ except ImportError:
     # python 2.5 fallback
     from django.utils import simplejson as json
 
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, Http404
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
 from django.contrib.auth.forms import AuthenticationForm
@@ -15,7 +18,7 @@ from django.template import RequestContext
 from django.conf import settings
 from django.contrib.auth.views import login as auth_login
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.cache import never_cache 
+from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 
@@ -27,17 +30,17 @@ from .utils import is_editing, public_key
 
 def logout(request):
     '''Basic logout & redirect view.'''
-    
+
     logout_request(request)
     if 'from' in request.GET:
         return HttpResponseRedirect(request.GET['from'] or '/')
     else:
         return HttpResponseRedirect('/')
-        
+
 
 def login(request, *args, **kwargs):
     '''Basic login view used by cms login forms.'''
-    
+
     kwargs['template_name'] = 'cms/cms/login.html'
     return auth_login(request, *args, **kwargs)
 
@@ -45,7 +48,7 @@ def login(request, *args, **kwargs):
 def savepage(request, page_pk=None):
     '''Ajax-only view to save cms.page objects from the frontend editor. Used to
        change or add pages - requires change_page or add_page permission.'''
-    
+
     if not request.POST:
         return HttpResponseNotAllowed(['POST'])
     else:
@@ -57,17 +60,17 @@ def savepage(request, page_pk=None):
             if not request.user.has_perm('cms.add_page'):
                 raise PermissionDenied
             page = None
-        
-        form = PageForm(request.POST, instance=page, 
-                                   prefix=request.POST.get('prefix', None))
-            
+
+        form = PageForm(request.POST, instance=page,
+                        prefix=request.POST.get('prefix', None))
+
         if form.is_valid():
             saved_page = form.save()
             form.save_sites()
             return HttpResponse(json.dumps({
                 'success': True,
                 'url': saved_page.get_absolute_url(),
-                'message': page and 'Page saved' or \
+                'message': page and 'Page saved' or
                                     'Page created... redirecting'
             }), content_type='application/json')
         else:
@@ -79,9 +82,9 @@ def savepage(request, page_pk=None):
 
 def get_page_content(base_request, page_url):
     '''Fakes a request to retrieve page content, used for updating content
-       by the frontend editor save views. Hacks and reuses the request 
+       by the frontend editor save views. Hacks and reuses the request
        to ensure page access is not denied.'''
-    
+
     try:
         urlmatch = resolve(page_url)
     except Resolver404, e:
@@ -89,22 +92,23 @@ def get_page_content(base_request, page_url):
         page_func = lambda r: render_page(r, page_url)
     else:
         # must be a django-created page, rendered by a urlconf
-        page_func = lambda r: urlmatch.func(r, *urlmatch.args, **urlmatch.kwargs)
-    
+        page_func = lambda r: urlmatch.func(r, *urlmatch.args,
+                                            **urlmatch.kwargs)
+
     # reuse the request to avoid having to fake sessions etc, but it'll have to
     # be hacked a little so it has the right url and doesn't trigger a POST
     request = copy.copy(base_request)
     request.path = request.path_info = page_url
     request.META['REQUEST_METHOD'] = request.method = 'GET'
     request.POST = None
-        
+
     try:
         response = page_func(request)
     except Http404, e:
         # this shouldn't ever happen, but just in case
         return ''
     else:
-        # handle deferred rendering - see BaseHandler.get_response in 
+        # handle deferred rendering - see BaseHandler.get_response in
         # django.core.handlers.base
         # Note that we're ignoring any template response middleware modifiers
         if hasattr(response, 'render') and callable(response.render):
@@ -115,43 +119,47 @@ def get_page_content(base_request, page_url):
 
 BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
 
+
 @permission_required("cms.change_block")
 def saveblock(request, block_id):
     '''Ajax-only view to save cms.block objects from the frontend editor'''
 
     block = get_object_or_404(Block, id=block_id)
-    
+
     # html has its own form, so it uses a prefix
     if block.format == Block.FORMAT_HTML:
         prefix = 'html'
     else:
         prefix = None
-    
+
     form = BlockForm(request.POST, instance=block, prefix=prefix)
     block = form.save()
-    
+
     # render the page to get the updated content
-    page_url = re.compile('https?://%s' % request.META['HTTP_HOST']).sub('', request.META['HTTP_REFERER']).split('?')[0]
+    domain_regex = re.compile('https?://%s' % request.META['HTTP_HOST'])
+    page_url = domain_regex.sub('', request.META['HTTP_REFERER']).split('?')[0]
     page_response = get_page_content(request, page_url)
-    
-    # extract body content from HttpResponse. The response content is assumed to be sane
+
+    # extract body content from HttpResponse. The response content is assumed
+    # to be sane
     match = BODY_RE.search(page_response.content)
     if match:
         page_content = match.groups()[0]
     else:
-        # no <body> tag, so assume an ajax response containing only a page fragment
+        # no <body> tag, so assume an ajax response containing only a page
+        # fragment
         page_content = page_response.content
-        
+
     return HttpResponse(json.dumps({
         'page_content': page_content,
         'content': block.content,
     }), content_type='application/json')
 
-    
+
 @permission_required("cms.change_image")
 def saveimage(request, image_id):
     '''Ajax-only view to save cms.image objects from the frontend editor'''
-    
+
     image = get_object_or_404(Image, id=image_id)
 
     if 'delete' in request.POST:
@@ -162,33 +170,32 @@ def saveimage(request, image_id):
     else:
         form = ImageForm(request.POST, request.FILES, instance=image)
         image = form.save()
-    
+
     return HttpResponseRedirect(request.POST.get('redirect_to', '/'))
-    
-    
+
 
 @csrf_protect
 def render_page(request, url):
     '''Renders a cms.page object.'''
-    
+
     if hasattr(request, 'user') and request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == public_key():
         qs = Page.objects.all()
     else:
         qs = Page.objects.live()
-    
+
     # don't try to render pages with no template (e.g. those who hold content
     # for a url resolved elsewhere in the project)
     qs = qs.exclude(template='')
-    
+
     page = get_object_or_404(qs, url=url, sites__site_id=settings.SITE_ID)
-    
-    # Render function - by default, django.shortcuts.render_to_response, but 
+
+    # Render function - by default, django.shortcuts.render_to_response, but
     # could be coffins version, or custom
     bits = cms_settings.TEMPLATE_RENDERER.split('.')
     renderer_module = importlib.import_module('.'.join(bits[:-1]))
     renderer = getattr(renderer_module, bits[-1])
-    
+
     return renderer(page.template, {
         'page': page,
     }, context_instance=RequestContext(request))
@@ -206,12 +213,12 @@ def tinymce_config_json():
 def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc
        in the django admin.'''
-    
+
     response = render_to_response('cms/cms/block_admin_init.js', {
         'tinymce_config_json': tinymce_config_json(),
         'cms_settings': cms_settings,
     }, context_instance=RequestContext(request))
-    
+
     response['Content-Type'] = 'application/javascript'
     return response
 
@@ -219,9 +226,9 @@ def block_admin_init(request):
 @permission_required("cms.change_block")
 def linklist(request):
     '''Used to populate the tinymce link list popup.'''
-    
+
     response = render_to_response(
-    'cms/cms/linklist.js',
+        'cms/cms/linklist.js',
         {
             'page_list': Page.objects.all(),
         },
@@ -234,7 +241,7 @@ def linklist(request):
 @never_cache
 def editor_js(request):
     '''Dynamic js file for frontend editing. Serves up a blank file, the full
-       editor js, or the edit-mode switcher button depending on the user's 
+       editor js, or the edit-mode switcher button depending on the user's
        cookies and permissions.'''
 
     if not request.user.has_module_perms('cms'):
@@ -256,16 +263,18 @@ def editor_js(request):
 
 @never_cache
 def editor_html(request):
-    '''Provides html bits for the editor js - downloaded and injected via ajax.'''
-    
+    """Provides html bits for the editor js - downloaded and injected via
+       ajax. """
+
     if not request.user.has_module_perms('cms'):
         response = HttpResponse('')
     else:
         try:
-            page = Page.objects.get(url=request.GET.get('page', None), sites__site_id=settings.SITE_ID)
+            page = Page.objects.get(url=request.GET.get('page', None),
+                                    sites__site_id=settings.SITE_ID)
         except Page.DoesNotExist:
             page = False
-            
+
         response = render_to_response('cms/cms/editor.html', {
             'page': page,
             'cms_settings': cms_settings,

@@ -12,9 +12,9 @@ register = template.Library()
 
 
 def cms_editor(context):
-    '''Lazily loads the cms editor. This should be called at the bottom of an html document to
-       allow frontend editing. '''
-    
+    """Lazily loads the cms editor. This should be called at the bottom of an
+       html document to allow frontend editing. """
+
     show_login = 'edit' in context['request'].GET
     return render_to_string("cms/cms/editor_script.html", {
         'cms_settings': cms_settings,
@@ -22,7 +22,6 @@ def cms_editor(context):
     })
 
 register.simple_tag(cms_editor, takes_context=True)
-
 
 
 def cms_is_editing(context):

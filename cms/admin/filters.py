@@ -14,37 +14,37 @@ def site_ctype():
 
 
 class ContentTypeFilter(SimpleListFilter):
-    '''Filter on related content type, defaulting to sites.Site instead of 
+    '''Filter on related content type, defaulting to sites.Site instead of
        'all'. Assumes a foreignkey to contenttypes.ContentType called
-       content_type exists on the model.''' 
-    
+       content_type exists on the model.'''
+
     title = _('Content Type')
     parameter_name = 'ctype'
-    
+
     def lookups(self, request, model_admin):
         '''Return filter lookup options. Site is first, and on by default,
            other content types follow, then all.'''
-        
+
         lookup_list = [
             (None, _('Site')),
         ]
-        
+
         others = model_admin.model.objects \
-                .exclude(content_type=key_from_ctype(site_ctype())) \
-                .order_by().values_list('content_type', flat=True).distinct()
-        
+            .exclude(content_type=key_from_ctype(site_ctype())) \
+            .order_by().values_list('content_type', flat=True).distinct()
+
         for ctype_key in others:
             ctype = ctype_from_key(ctype_key)
             lookup_list.append((str(ctype.id), str(ctype).title()))
-        
+
         lookup_list.append(('all', _('All')))
-        
+
         return lookup_list
 
     def choices(self, cl):
         '''Iterator returning choices for the filter, based on the lookup
            list.'''
-        
+
         for lookup, title in self.lookup_choices:
             yield {
                 'selected': self.value() == lookup,
@@ -56,18 +56,19 @@ class ContentTypeFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         '''Return a filtered queryset based on the selected choice.'''
-        
+
         val = self.value()
-        if val == None:
+        if val is None:
             return queryset.filter(content_type=key_from_ctype(site_ctype()))
         elif val == 'all':
             return queryset
         else:
-            return queryset.filter(content_type=key_from_ctype(ContentType.objects.get(pk=val)))
+            ctype = ContentType.objects.get(pk=val)
+            return queryset.filter(content_type=key_from_ctype(ctype))
 
 
 class PageSiteFilter(SimpleListFilter):
-    '''Filter on related Site, via the PageSite model.''' 
+    '''Filter on related Site, via the PageSite model.'''
 
     title = _('site')
     parameter_name = 'sites'
@@ -78,7 +79,7 @@ class PageSiteFilter(SimpleListFilter):
     # def choices(self, cl):
     #     '''Iterator returning choices for the filter, based on the lookup
     #        list.'''
-    # 
+    #
     #     for lookup, title in self.lookup_choices:
     #         yield {
     #             'selected': self.value() == lookup,
@@ -95,4 +96,3 @@ class PageSiteFilter(SimpleListFilter):
         if val:
             return queryset.filter(sites__site_id=val)
         return queryset
-

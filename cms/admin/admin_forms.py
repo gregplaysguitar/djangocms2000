@@ -10,9 +10,10 @@ from ..utils import key_from_ctype
 
 
 class BaseContentFormSet(BaseGenericInlineFormSet):
-    '''Just like BaseGenericInlineFormSet, except it uses a CharField key (format 
-       "app_label-model") for ct_field instead of an integer ForeignKey.'''
-    
+    """Just like BaseGenericInlineFormSet, except it uses a CharField key
+       (format "app_label-model") for ct_field instead of an integer
+       ForeignKey. """
+
     def __init__(self, data=None, files=None, instance=None, save_as_new=None,
                  prefix=None, queryset=None, **kwargs):
         opts = self.model._meta
@@ -26,7 +27,7 @@ class BaseContentFormSet(BaseGenericInlineFormSet):
         else:
             if queryset is None:
                 queryset = self.model._default_manager
-            ctype = ContentType.objects.get_for_model(self.instance, 
+            ctype = ContentType.objects.get_for_model(self.instance,
                                                       for_concrete_model=True)
             qs = queryset.filter(
                 content_type=key_from_ctype(ctype),
@@ -48,7 +49,7 @@ def content_inlineformset_factory(model, form=ModelForm,
                                   max_num=None, formfield_callback=None,
                                   validate_max=False, for_concrete_model=True,
                                   min_num=None, validate_min=False):
-    '''Returns a BaseContentFormSet for the given kwargs. Basically 
+    '''Returns a BaseContentFormSet for the given kwargs. Basically
        identical to generic_inlineformset_factory but uses BaseContentFormSet
        instead of BaseGenericInlineFormSet.'''
 
@@ -64,8 +65,10 @@ def content_inlineformset_factory(model, form=ModelForm,
     FormSet = modelformset_factory(model, form=form,
                                    formfield_callback=formfield_callback,
                                    formset=formset,
-                                   extra=extra, can_delete=can_delete, can_order=can_order,
-                                   fields=fields, exclude=exclude, max_num=max_num,
+                                   extra=extra, can_delete=can_delete,
+                                   can_order=can_order,
+                                   fields=fields, exclude=exclude,
+                                   max_num=max_num,
                                    validate_max=validate_max, min_num=min_num,
                                    validate_min=validate_min)
     FormSet.ct_field = ct_field
@@ -82,12 +85,14 @@ class InlineBlockForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(InlineBlockForm, self).__init__(*args, **kwargs)
 
-        # change the content widget based on the format of the block - a bit hacky but best we can do
+        # change the content widget based on the format of the block - a bit
+        # hacky but best we can do
         if 'instance' in kwargs:
             format = kwargs['instance'].format
             if format == Block.FORMAT_ATTR:
-                self.fields['content'].widget = forms.TextInput()                
-            self.fields['content'].widget.attrs['class'] = " cms cms-%s" % format
+                self.fields['content'].widget = forms.TextInput()
+            self.fields['content'].widget.attrs['class'] = \
+                " cms cms-%s" % format
 
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
@@ -109,7 +114,7 @@ class InlineImageForm(forms.ModelForm):
 
 class BlockForm(InlineBlockForm):
     label = forms.CharField(widget=ReadonlyInput)
-    
+
     class Meta:
         model = Block
         fields = ('label', 'content', )
@@ -117,7 +122,7 @@ class BlockForm(InlineBlockForm):
 
 class ImageForm(InlineImageForm):
     label = forms.CharField(widget=ReadonlyInput)
-    
+
     class Meta:
         model = Image
         fields = ('label', 'file', 'description', )

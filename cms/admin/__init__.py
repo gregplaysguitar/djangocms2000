@@ -30,35 +30,35 @@ admin_css = {
 
 class CMSBaseAdmin(admin.ModelAdmin):
     inlines = [BlockInline, ImageInline, ]
-    list_display=['url',]
+    list_display = ['url', ]
     save_on_top = True
-    
+
     def view_on_site(self, obj):
         site = Site.objects.get_current()
         return 'http://' + site.domain + obj.get_absolute_url()
-    
+
     class Media:
         js = admin_js
         css = admin_css
-    
+
     class Meta:
-        abstract=True
-    
+        abstract = True
+
     def save_model(self, request, obj, form, change):
         '''Save model, then add blocks/images via dummy rendering.
-           
-           NOTE: This will naively attempt to render the page using the 
+
+           NOTE: This will naively attempt to render the page using the
            *current*  django Site object, so if you're in the admin of one site
            editing pages on another, the dummy render will silently fail.
-        
+
         '''
-        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form, 
+        returnval = super(CMSBaseAdmin, self).save_model(request, obj, form,
                                                          change)
-        
+
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
             site = Site.objects.get_current()
-            response = c.get(unicode(obj.get_absolute_url()), 
+            response = c.get(unicode(obj.get_absolute_url()),
                              {'cms_dummy_render': public_key()},
                              HTTP_HOST=site.domain,
                              follow=True)
@@ -67,15 +67,16 @@ class CMSBaseAdmin(admin.ModelAdmin):
 
 show_sites = cms_settings.USE_SITES_FRAMEWORK
 
+
 class PageAdmin(CMSBaseAdmin):
-    list_display = ('__unicode__', 'url', 'template', 'is_live', 
+    list_display = ('__unicode__', 'url', 'template', 'is_live',
                     'creation_date', 'view_on_site_link', ) + \
                    (('get_sites', ) if show_sites else ())
-    list_display_links=['__unicode__', 'url', ]
+    list_display_links = ['__unicode__', 'url', ]
     list_filter = ((PageSiteFilter, ) if show_sites else ()) + \
                   ('template', 'is_live', 'creation_date',)
     form = get_page_form_cls()
-    search_fields = ['url', 'template',]
+    search_fields = ['url', 'template', ]
 
     def view_on_site_link(self, instance):
         url = instance.get_absolute_url()
@@ -87,19 +88,19 @@ class PageAdmin(CMSBaseAdmin):
                 site = instance.sites.all()[0]
         else:
             site = None
-        
+
         if site:
             url = 'http://%s%s' % (site.site.domain, url)
-        
+
         return '<a href="%s" target="_blank">view page</a>' % url
     view_on_site_link.allow_tags = True
     view_on_site_link.short_description = ' '
-    
+
     def get_sites(self, obj):
         return ', '.join([unicode(s) for s in obj.sites.all()])
     get_sites.short_description = 'sites'
     get_sites.admin_order_field = 'sites'
-    
+
     def save_related(self, request, form, formsets, change):
         super(PageAdmin, self).save_related(request, form, formsets, change)
         form.save_sites()
@@ -116,14 +117,14 @@ class ContentAdmin(admin.ModelAdmin):
 
 class BlockAdmin(ContentAdmin):
     form = BlockForm
-    list_display = ['label_display', 'content_object', 'format', 
+    list_display = ['label_display', 'content_object', 'format',
                     'content_snippet', ]
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
-    
+
     def content_snippet(self, obj):
         return Truncator(strip_tags(obj.content)).words(10, truncate=' ...')
-        
+
     class Media:
         js = admin_js
         css = admin_css

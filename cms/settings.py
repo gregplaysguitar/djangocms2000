@@ -7,12 +7,14 @@ from django.conf import settings
 USE_SITES_FRAMEWORK = getattr(settings, 'CMS_USE_SITES_FRAMEWORK', False)
 TINYMCE_CONFIG = getattr(settings, 'CMS_TINYMCE_CONFIG', {})
 POST_EDIT_CALLBACK = getattr(settings, 'CMS_POST_EDIT_CALLBACK', '""')
-MAX_IMAGE_DIMENSIONS = getattr(settings, 'CMS_MAX_IMAGE_DIMENSIONS', 
+MAX_IMAGE_DIMENSIONS = getattr(settings, 'CMS_MAX_IMAGE_DIMENSIONS',
                                (1920, 1200))
-BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK', None)
-IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK', None)
+BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK',
+                                  None)
+IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK',
+                                  None)
 DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
-TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER', 
+TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER',
                             'django.shortcuts.render_to_response')
 DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')

@@ -11,7 +11,7 @@ from django.forms.models import modelform_defines_fields
 
 from ..models import Block, Image
 from .admin_forms import content_inlineformset_factory, BaseContentFormSet, \
-                         InlineBlockForm, InlineImageForm
+    InlineBlockForm, InlineImageForm
 
 
 class ContentInlineChecks(InlineModelAdminChecks):
@@ -26,9 +26,9 @@ class ContentInlineChecks(InlineModelAdminChecks):
 
 class ContentInline(InlineModelAdmin):
     '''An inline model admin which works with cms.Block and cms.Image models,
-       letting them be attached as an inline without needing their ct_field 
+       letting them be attached as an inline without needing their ct_field
        to be an actual ForeignKey.'''
-    
+
     template = 'admin/edit_inline/tabular.html'
 
     ct_field = "content_type"
@@ -49,15 +49,18 @@ class ContentInline(InlineModelAdmin):
         else:
             exclude = list(self.exclude)
         exclude.extend(self.get_readonly_fields(request, obj))
-        if self.exclude is None and hasattr(self.form, '_meta') and self.form._meta.exclude:
+        if self.exclude is None and hasattr(self.form, '_meta') and \
+                self.form._meta.exclude:
             # Take the custom ModelForm's Meta.exclude into account only if the
             # GenericInlineModelAdmin doesn't define its own.
             exclude.extend(self.form._meta.exclude)
         exclude = exclude or None
-        can_delete = self.can_delete and self.has_delete_permission(request, obj)
+        can_delete = self.can_delete and \
+            self.has_delete_permission(request, obj)
         defaults = {
             "form": self.form,
-            "formfield_callback": partial(self.formfield_for_dbfield, request=request),
+            "formfield_callback": partial(self.formfield_for_dbfield,
+                                          request=request),
             "formset": self.formset,
             "extra": self.get_extra(request, obj),
             "can_delete": can_delete,
@@ -68,10 +71,11 @@ class ContentInline(InlineModelAdmin):
             "exclude": exclude
         }
         defaults.update(kwargs)
-        
-        if defaults['fields'] is None and not modelform_defines_fields(defaults['form']):
+
+        if defaults['fields'] is None and \
+                not modelform_defines_fields(defaults['form']):
             defaults['fields'] = ALL_FIELDS
-        
+
         return content_inlineformset_factory(self.model, **defaults)
 
 
@@ -83,5 +87,3 @@ class BlockInline(ContentInline):
 class ImageInline(ContentInline):
     model = Image
     form = InlineImageForm
-
-
