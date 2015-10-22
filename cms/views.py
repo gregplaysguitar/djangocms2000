@@ -87,7 +87,7 @@ def get_page_content(base_request, page_url):
 
     try:
         urlmatch = resolve(page_url)
-    except Resolver404, e:
+    except Resolver404 as e:
         # must be an admin-created page, rendered by the middleware
         page_func = lambda r: render_page(r, page_url)
     else:
@@ -104,7 +104,7 @@ def get_page_content(base_request, page_url):
 
     try:
         response = page_func(request)
-    except Http404, e:
+    except Http404 as e:
         # this shouldn't ever happen, but just in case
         return ''
     else:

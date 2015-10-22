@@ -65,8 +65,10 @@ class Block(ContentModel):
         if self.format == self.FORMAT_HTML:
             return mark_safe(self.content)
         elif self.format == self.FORMAT_ATTR:
-            return reduce(lambda s, r: s.replace(*r), (self.content,) +
-                          ATTR_REPLACE_CHARS)
+            content = self.content
+            for replacement in ATTR_REPLACE_CHARS:
+                content.replace(*replacement)
+            return content
         else:
             return self.content
 
