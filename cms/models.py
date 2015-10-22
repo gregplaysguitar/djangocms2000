@@ -8,20 +8,10 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
-
-# try:
-#     from django.contrib.contenttypes.fields import GenericForeignKey, \
-#                                                    GenericRelation
-# except ImportError:
-#     # django pre-1.9
-#     from django.contrib.contenttypes.generic import GenericForeignKey, \
-#                                                     GenericRelation
-
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django import template
-from django.utils.encoding import force_unicode
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.db.models.signals import class_prepared, post_save, pre_save, \

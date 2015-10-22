@@ -35,4 +35,5 @@ except AttributeError:
 
 # let's be *really* careful not to display content from another site using
 # the same cache
-CACHE_PREFIX = 'cms-%s' % hashlib.sha1(SECRET_KEY).hexdigest()[:5]
+CACHE_PREFIX = 'cms-%s' % hashlib.sha1(
+    SECRET_KEY.encode('utf-8')).hexdigest()[:5]

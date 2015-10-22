@@ -14,7 +14,7 @@ def url_resolves(url):
     '''Test whether a url resolves successfully.'''
     try:
         resolve(url)
-    except Resolver404, e:
+    except Resolver404 as e:
         return False
     else:
         return True
