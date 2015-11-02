@@ -61,7 +61,7 @@ def public_key():
     '''Returns a consistent hash of the secret key which can be used in a
        public context, i.e. as a GET parameter.'''
 
-    return hashlib.sha1(settings.SECRET_KEY).hexdigest()[:10]
+    return hashlib.sha1(settings.SECRET_KEY.encode('utf-8')).hexdigest()[:10]
 
 
 def key_from_ctype(ctype):
