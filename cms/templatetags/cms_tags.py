@@ -5,7 +5,7 @@ from django.conf import settings
 
 from cms.application import get_rendered_block, get_rendered_image
 from cms.utils import is_editing
-from base import BaseNode
+from .base import BaseNode
 
 register = template.Library()
 
