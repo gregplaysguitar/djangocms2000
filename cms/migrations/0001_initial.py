@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(max_length=255)),
                 ('format', models.CharField(default=b'plain', max_length=10, choices=[(b'attr', b'Attribute'), (b'plain', b'Plain text'), (b'html', b'HTML')])),
                 ('content', models.TextField(default=b'', blank=True)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['id'],
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(max_length=255)),
                 ('file', models.ImageField(upload_to=b'uploads/%Y_%m', blank=True)),
                 ('description', models.CharField(max_length=255, blank=True)),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -195,7 +195,8 @@ class Page(_CMSAbstractBaseModel):
 
 @python_2_unicode_compatible
 class PageSite(models.Model):
-    page = models.ForeignKey(Page, related_name='sites')
+    page = models.ForeignKey(Page, related_name='sites',
+                             on_delete=models.CASCADE)
     site_id = models.PositiveIntegerField()
 
     @property

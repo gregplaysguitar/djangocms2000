@@ -1,9 +1,9 @@
-<span class="cms-block {{ block.format }} 
+<span class="cms-block {{ block.format }}
              {% if not block.content %}placeholder{% endif %}"
       data-save_url="{% url 'cms_saveblock' block.id %}"
       data-format="{{ block.format }}">
 	<input type="hidden" name="content" value="{{ block.content }}">
-	
+
 	<span class="cms-inner">
 		{% if block.content %}
 			{{ rendered_content }}

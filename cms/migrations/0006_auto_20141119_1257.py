@@ -6,11 +6,11 @@ from django.db import models, migrations
 
 def migrate_sites(apps, schema_editor):
     from cms.settings import DB_ALIAS
-    
+
     db_alias = schema_editor.connection.alias
     if db_alias != DB_ALIAS:
         return
-    
+
     Page = apps.get_model("cms", "Page")
     PageSite = apps.get_model("cms", "PageSite")
     for page in Page.objects.using(db_alias).all():
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('site_id', models.PositiveIntegerField()),
-                ('page', models.ForeignKey(related_name='sites', to='cms.Page')),
+                ('page', models.ForeignKey(related_name='sites', to='cms.Page', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -48,4 +48,3 @@ class Migration(migrations.Migration):
             name='sites',
         ),
     ]
-
