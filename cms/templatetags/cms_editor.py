@@ -27,4 +27,4 @@ register.simple_tag(cms_editor, takes_context=True)
 def cms_is_editing(context):
     return is_editing(context['request'])
 
-register.assignment_tag(takes_context=True)(cms_is_editing)
+register.simple_tag(takes_context=True)(cms_is_editing)
