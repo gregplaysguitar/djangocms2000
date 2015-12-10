@@ -18,41 +18,71 @@ from .utils import is_editing, generate_cache_key, key_from_ctype
 from . import settings as cms_settings
 
 
+def model_name(model_cls):
+    if hasattr(model_cls._meta, 'model_name'):
+        return model_cls._meta.model_name
+    else:
+        # Django < 1.7 fallback
+        return model_cls._meta.module_name
+
+
+def get_obj_details(url=None, site_id=None, related_object=None):
+    """Get ContentType instance and primary key for an object, based on the
+       arguments. """
+
+    if url:
+        ctype = ContentType.objects.get_for_model(Page)
+        object_id = Page.objects.get_for_url(url).pk
+    elif site_id:
+        ctype = ContentType.objects.get(app_label='sites', model='site')
+        object_id = site_id
+    elif related_object:
+        ctype = ContentType.objects.get_for_model(related_object)
+        object_id = related_object.id
+    else:
+        err = u'One of url, site_id or related_object is required'
+        raise TypeError(err)
+    return ctype, object_id
+
+
+def get_obj_dict(model_cls, url=None, site_id=None, related_object=None):
+    """Get a dict of blocks or images for an object, determined by the
+       arguments, with the label as the dict key. """
+
+    key = generate_cache_key(model_name(model_cls), url=url, site_id=site_id,
+                             related_object=related_object)
+    obj_dict = cache.get(key)
+    if obj_dict is None:
+        ctype, object_id = get_obj_details(url, site_id, related_object)
+        obj_dict = {}
+        # TODO optimise with .values() ?
+        qs = model_cls.objects.filter(content_type=key_from_ctype(ctype),
+                                      object_id=object_id)
+        for obj in qs:
+            obj_dict[obj.label] = obj
+
+        cache.set(key, obj_dict)
+
+    return obj_dict
+
+
 def get_block_or_image(model_cls, label, url=None, site_id=None,
                        related_object=None, cached=True):
     """Get a page, site or generic block/image, based on any one of the
-       optional arguments. """
+       optional arguments. If not cached, go direct to the database, otherwise
+       use the cached obj_dict. """
 
-    if hasattr(model_cls._meta, 'model_name'):
-        model_name = model_cls._meta.model_name
-    else:
-        # Django < 1.7 fallback
-        model_name = model_cls._meta.module_name
-
-    key = generate_cache_key(model_name, label, url=url, site_id=site_id,
-                             related_object=related_object)
-
-    obj = cache.get(key)
-    if obj is None or not cached:
-        if url:
-            ctype = ContentType.objects.get_for_model(Page)
-            object_id = Page.objects.get_for_url(url).pk
-        elif site_id:
-            ctype = ContentType.objects.get(app_label='sites', model='site')
-            object_id = site_id
-        elif related_object:
-            ctype = ContentType.objects.get_for_model(related_object)
-            object_id = related_object.id
-        else:
-            err = u'One of url, site_id or related_object is required'
-            raise TypeError(err)
-
-        obj = model_cls.objects.get_or_create(
+    if not cached:
+        ctype, object_id = get_obj_details(url, site_id, related_object)
+        obj, created = model_cls.objects.get_or_create(
             label=label, content_type=key_from_ctype(ctype),
-            object_id=object_id)[0]
+            object_id=object_id)
+        return obj
 
-        cache.set(key, obj)
-    return obj
+    obj_dict = get_obj_dict(model_cls, url=url, site_id=site_id,
+                            related_object=related_object)
+    return obj_dict[label]
+
 
 get_block = functools.partial(get_block_or_image, Block)
 get_image = functools.partial(get_block_or_image, Image)

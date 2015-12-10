@@ -17,15 +17,16 @@ def is_editing(request, obj_type=None):
         return False
 
 
-def generate_cache_key(type, label=None, site_id=None, related_object=None,
-                       url=None):
-    """Generate a consistent unique cache key based on various arguments. """
+def generate_cache_key(type, site_id=None, related_object=None, url=None):
+    """Generate a consistent unique cache key for a object, which may be
+       a django Site (if site_id is passed), a cms.Page (if url passed),
+       or any generic related_object. """
 
     if not (site_id or related_object or url):
         err = u'Required arguments: one of site_id, related_object or url.'
         raise TypeError(err)
 
-    key_bits = [settings.CACHE_PREFIX, type, label]
+    key_bits = [settings.CACHE_PREFIX, type]
 
     if related_object:
         app_label = related_object._meta.app_label
