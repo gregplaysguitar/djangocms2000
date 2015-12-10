@@ -17,7 +17,15 @@ def is_editing(request, obj_type=None):
         return False
 
 
-def generate_cache_key(type, site_id=None, related_object=None, url=None):
+def get_model_name(model_cls):
+    if hasattr(model_cls._meta, 'model_name'):
+        return model_cls._meta.model_name
+    else:
+        # Django < 1.7 fallback
+        return model_cls._meta.module_name
+
+
+def generate_cache_key(model_cls, site_id=None, related_object=None, url=None):
     """Generate a consistent unique cache key for a object, which may be
        a django Site (if site_id is passed), a cms.Page (if url passed),
        or any generic related_object. """
@@ -26,16 +34,11 @@ def generate_cache_key(type, site_id=None, related_object=None, url=None):
         err = u'Required arguments: one of site_id, related_object or url.'
         raise TypeError(err)
 
-    key_bits = [settings.CACHE_PREFIX, type]
+    key_bits = [settings.CACHE_PREFIX, get_model_name(model_cls)]
 
     if related_object:
         app_label = related_object._meta.app_label
-
-        try:
-            model_name = related_object._meta.model_name
-        except AttributeError:
-            # Django < 1.7 fallback
-            model_name = related_object._meta.module_name
+        model_name = get_model_name(related_object)
 
         if app_label == 'sites' and model_name == 'site':
             # must actually be a site block, being referenced by the

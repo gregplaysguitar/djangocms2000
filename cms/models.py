@@ -90,14 +90,8 @@ class Image(ContentModel):
 def clear_cache(sender, instance, **kwargs):
     """Clear the cache of blocks/images for an object, when any of them
        changes. """
-    try:
-        model_name = instance._meta.model_name
-    except AttributeError:
-        # Django < 1.7 fallback
-        model_name = instance._meta.module_name
 
-    key = generate_cache_key(model_name,
-                             related_object=instance.content_object)
+    key = generate_cache_key(sender, related_object=instance.content_object)
     cache.delete(key)
 post_save.connect(clear_cache, sender=Block)
 post_save.connect(clear_cache, sender=Image)

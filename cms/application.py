@@ -18,14 +18,6 @@ from .utils import is_editing, generate_cache_key, key_from_ctype
 from . import settings as cms_settings
 
 
-def model_name(model_cls):
-    if hasattr(model_cls._meta, 'model_name'):
-        return model_cls._meta.model_name
-    else:
-        # Django < 1.7 fallback
-        return model_cls._meta.module_name
-
-
 def get_obj_details(url=None, site_id=None, related_object=None):
     """Get ContentType instance and primary key for an object, based on the
        arguments. """
@@ -45,11 +37,12 @@ def get_obj_details(url=None, site_id=None, related_object=None):
     return ctype, object_id
 
 
-def get_obj_dict(model_cls, url=None, site_id=None, related_object=None):
+def get_obj_dict(model_cls, url=None, site_id=None, related_object=None,
+                 cached=True):
     """Get a dict of blocks or images for an object, determined by the
        arguments, with the label as the dict key. """
 
-    key = generate_cache_key(model_name(model_cls), url=url, site_id=site_id,
+    key = generate_cache_key(model_cls, url=url, site_id=site_id,
                              related_object=related_object)
     obj_dict = cache.get(key)
     if obj_dict is None:
@@ -72,15 +65,28 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
        optional arguments. If not cached, go direct to the database, otherwise
        use the cached obj_dict. """
 
-    if not cached:
+    def obj_from_db():
         ctype, object_id = get_obj_details(url, site_id, related_object)
         obj, created = model_cls.objects.get_or_create(
             label=label, content_type=key_from_ctype(ctype),
             object_id=object_id)
         return obj
 
+    if not cached:
+        return obj_from_db()
+
     obj_dict = get_obj_dict(model_cls, url=url, site_id=site_id,
                             related_object=related_object)
+
+    if not obj_dict.get(label):
+        # Handle edge cases where the obj isn't in the cache
+        obj = obj_from_db()
+        obj_dict[label] = obj
+        key = generate_cache_key(model_cls, url=url, site_id=site_id,
+                                 related_object=related_object)
+        cache.set(key, obj_dict)
+        return obj
+
     return obj_dict[label]
 
 
