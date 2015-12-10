@@ -87,7 +87,7 @@ class InlineBlockForm(forms.ModelForm):
 
         # change the content widget based on the format of the block - a bit
         # hacky but best we can do
-        if 'instance' in kwargs:
+        if kwargs.get('instance'):
             format = kwargs['instance'].format
             if format == Block.FORMAT_ATTR:
                 self.fields['content'].widget = forms.TextInput()
