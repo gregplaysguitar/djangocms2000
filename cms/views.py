@@ -142,7 +142,7 @@ def saveblock(request, block_id):
 
     # extract body content from HttpResponse. The response content is assumed
     # to be sane
-    match = BODY_RE.search(str(page_response.content))
+    match = BODY_RE.search(page_response.content.decode("utf-8"))
     if match:
         page_content = match.groups()[0]
     else:
