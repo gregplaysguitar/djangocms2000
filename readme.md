@@ -42,14 +42,35 @@ Usage
    [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the
    original image will be displayed.
 
-Jinja2/Coffin compatibility
+Jinja2 compatibility
 ---------------------------
-Grab jinja_cms.py from https://gist.github.com/gregplaysguitar/aeac2702562c5b0771a1, and 
-place it in a templatetags directory for coffin to find. Basic usage examples:
+
+Add the functions in `cms.jinja2_env` to your jinja2 environment. For example:
+
+
+   from jinja2 import Environment
+   import cms.jinja2_env
+
+   env = Environment()
+   env.globals.update(cms.jinja2_env.template_globals)
+
+Basic usage examples:
 
     {{ cms_block('intro', filters='linebreaks') }}
     {{ cms_block('content', format='html') }}
-    {{ cms_image('main-image', '200x200') }}
+    {{ cms_block('site-intro', site=True) }}
+    {{ cms_image('resized-image', '200x200') }}
+    {{ cms_image('cropped-image', '200x200', crop=True) }}
+    {{ cms_image('raw-image') }}
+
+Custom image rendering can be achieved via the renderer argument, which can be
+defined as a jinja2 macro - i.e.
+
+   {% macro image_as_bg(img) %}
+      <div class="image" style="background-image: url({{ img.url }})"></div>
+   {% endmacro %}
+   {{ cms_image('bg-image', '200x200', renderer=image_as_bg) }}
+
 
 Upgrading from 1.x to 2.x
 -------------------------
