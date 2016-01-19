@@ -187,14 +187,6 @@ and should contain `%(width)s` and `%(height)s` placeholders, i.e.
 Defaults value is `None`.
 
 
-#### `CMS_TEMPLATE_RENDERER`
-
-Full path to the function used to render pages by the fallback middleware, 
-defaults to `'django.shortcuts.render_to_response`'. If you're using Coffin and
-Jinja2, for example, you may want to set this to 
-`'coffin.shortcuts.render_to_response`'
-
-
 #### `DB_ALIAS`
 
 Alias for the database which will store cms content - uses `'default'` if not 

@@ -14,8 +14,6 @@ BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK',
 IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK',
                                   None)
 DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
-TEMPLATE_RENDERER = getattr(settings, 'CMS_TEMPLATE_RENDERER',
-                            'django.shortcuts.render_to_response')
 DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')
 

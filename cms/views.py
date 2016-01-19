@@ -1,7 +1,5 @@
 import re
-import os
 import copy
-import importlib
 try:
     import json
 except ImportError:
@@ -12,9 +10,9 @@ from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
-from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.template.loader import get_template
 from django.conf import settings
 from django.contrib.auth.views import login as auth_login
 from django.views.decorators.csrf import csrf_protect
@@ -190,15 +188,11 @@ def render_page(request, url):
 
     page = get_object_or_404(qs, url=url, sites__site_id=settings.SITE_ID)
 
-    # Render function - by default, django.shortcuts.render_to_response, but
-    # could be coffins version, or custom
-    bits = cms_settings.TEMPLATE_RENDERER.split('.')
-    renderer_module = importlib.import_module('.'.join(bits[:-1]))
-    renderer = getattr(renderer_module, bits[-1])
-
-    return renderer(page.template, {
+    tpl = get_template(page.template)
+    content = tpl.render({
         'page': page,
-    }, context_instance=RequestContext(request))
+    }, request=request)
+    return HttpResponse(content)
 
 
 def tinymce_config_json():
