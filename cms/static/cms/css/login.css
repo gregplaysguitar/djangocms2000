@@ -6,7 +6,6 @@ body.login {
 }
 
 .loginWrap {
-	background: transparent url(../images/overlay.png);
 	color: #fff;
 	position: fixed;
 	top: 0;
