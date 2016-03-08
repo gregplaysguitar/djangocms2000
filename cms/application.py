@@ -7,6 +7,7 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 
 try:
     import sorl.thumbnail
@@ -14,8 +15,13 @@ except ImportError:
     pass
 
 from .models import Block, Image, Page
-from .utils import is_editing, generate_cache_key, key_from_ctype
+from .utils import is_editing, generate_cache_key, key_from_ctype, \
+    strip_i18n_prefix
 from . import settings as cms_settings
+
+
+def is_language_aware(model_cls):
+    return model_cls is Block
 
 
 def get_obj_details(url=None, site_id=None, related_object=None):
@@ -40,19 +46,26 @@ def get_obj_details(url=None, site_id=None, related_object=None):
 def get_obj_dict(model_cls, url=None, site_id=None, related_object=None,
                  cached=True):
     """Get a dict of blocks or images for an object, determined by the
-       arguments, with the label as the dict key. """
+       arguments, with a (label, language) tuple as the dict key for Block,
+       or just label for Image. """
 
     key = generate_cache_key(model_cls, url=url, site_id=site_id,
                              related_object=related_object)
     obj_dict = cache.get(key)
+
     if obj_dict is None:
         ctype, object_id = get_obj_details(url, site_id, related_object)
         obj_dict = {}
         # TODO optimise with .values() ?
         qs = model_cls.objects.filter(content_type=key_from_ctype(ctype),
                                       object_id=object_id)
+
+        language_aware = is_language_aware(model_cls)
         for obj in qs:
-            obj_dict[obj.label] = obj
+            if language_aware:
+                obj_dict[(obj.label, obj.language)] = obj
+            else:
+                obj_dict[obj.label] = obj
 
         cache.set(key, obj_dict)
 
@@ -65,11 +78,22 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
        optional arguments. If not cached, go direct to the database, otherwise
        use the cached obj_dict. """
 
+    # since Block objects are language-aware, strip any language code from the
+    # url before creating the Page object
+    if url:
+        url = strip_i18n_prefix(url)
+    language = get_language()
+
     def obj_from_db():
         ctype, object_id = get_obj_details(url, site_id, related_object)
-        obj, created = model_cls.objects.get_or_create(
-            label=label, content_type=key_from_ctype(ctype),
-            object_id=object_id)
+        lookup = {
+            'label': label,
+            'content_type': key_from_ctype(ctype),
+            'object_id': object_id,
+        }
+        if is_language_aware(model_cls):
+            lookup['language'] = language
+        obj, created = model_cls.objects.get_or_create(**lookup)
         return obj
 
     if not cached:
@@ -78,16 +102,17 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
     obj_dict = get_obj_dict(model_cls, url=url, site_id=site_id,
                             related_object=related_object)
 
-    if not obj_dict.get(label):
+    dict_key = (label, language) if is_language_aware(model_cls) else label
+    if not obj_dict.get(dict_key):
         # Handle edge cases where the obj isn't in the cache
         obj = obj_from_db()
-        obj_dict[label] = obj
+        obj_dict[dict_key] = obj
         key = generate_cache_key(model_cls, url=url, site_id=site_id,
                                  related_object=related_object)
         cache.set(key, obj_dict)
         return obj
 
-    return obj_dict[label]
+    return obj_dict[dict_key]
 
 
 get_block = functools.partial(get_block_or_image, Block)

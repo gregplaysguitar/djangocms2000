@@ -21,8 +21,6 @@ UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')
 # The following are for internal use and can't be customised
 
 STATIC_URL = settings.STATIC_URL + 'cms/'
-SECRET_KEY = settings.SECRET_KEY
-SITE_ID = settings.SITE_ID
 
 # Assume there's a template engine, and that the first one is the one we want
 try:
@@ -34,4 +32,4 @@ except AttributeError:
 # let's be *really* careful not to display content from another site using
 # the same cache
 CACHE_PREFIX = 'cms-%s' % hashlib.sha1(
-    SECRET_KEY.encode('utf-8')).hexdigest()[:5]
+    settings.SECRET_KEY.encode('utf-8')).hexdigest()[:5]

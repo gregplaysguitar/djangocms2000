@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
+from django.utils import translation
 from django.conf import settings
 from django.test.client import Client
 
@@ -12,7 +12,7 @@ from ..models import Page, Block, Image, PageSite
 from ..utils import public_key
 from ..forms import get_page_form_cls
 from .filters import ContentTypeFilter, PageSiteFilter
-from .inlines import ContentInline, BlockInline, ImageInline
+from .inlines import BlockInline, ImageInline
 from .admin_forms import BlockForm, ImageForm
 
 
@@ -58,10 +58,15 @@ class CMSBaseAdmin(admin.ModelAdmin):
         if getattr(obj, 'get_absolute_url', None):
             c = Client()
             site = Site.objects.get_current()
-            response = c.get(obj.get_absolute_url(),
-                             {'cms_dummy_render': public_key()},
-                             HTTP_HOST=site.domain,
-                             follow=True)
+
+            # TODO loop through languages and dummy render for each? Or just
+            # the default?
+
+            # save the original language in case it gets changed by the page
+            language = translation.get_language()
+            c.get(obj.get_absolute_url(), {'cms_dummy_render': public_key()},
+                  HTTP_HOST=site.domain, follow=True)
+            translation.activate(language)
         return returnval
 
 
@@ -118,7 +123,8 @@ class ContentAdmin(admin.ModelAdmin):
 class BlockAdmin(ContentAdmin):
     form = BlockForm
     list_display = ['label_display', 'content_object', 'format',
-                    'content_snippet', ]
+                    'content_snippet', ] + \
+        (['language'] if settings.USE_I18N else [])
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
 

@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.models import ModelForm, modelformset_factory
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 
@@ -80,7 +81,7 @@ def content_inlineformset_factory(model, form=ModelForm,
 class InlineBlockForm(forms.ModelForm):
     class Meta:
         model = Block
-        fields = ('content', )
+        fields = ('content', ) + (('language', ) if settings.USE_I18N else ())
 
     def __init__(self, *args, **kwargs):
         super(InlineBlockForm, self).__init__(*args, **kwargs)
@@ -117,7 +118,8 @@ class BlockForm(InlineBlockForm):
 
     class Meta:
         model = Block
-        fields = ('label', 'content', )
+        fields = ('label', 'content', ) + \
+            (('language', ) if settings.USE_I18N else ())
 
 
 class ImageForm(InlineImageForm):

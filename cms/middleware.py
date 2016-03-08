@@ -5,6 +5,7 @@ from django.conf import settings
 
 from .models import Page
 from .views import render_page
+from .utils import strip_i18n_prefix
 
 
 class CMSFallbackMiddleware(object):
@@ -14,11 +15,12 @@ class CMSFallbackMiddleware(object):
         else:
             # append slash if required (only if the slash-appended url is
             # valid)
-            if settings.APPEND_SLASH and not re.match(r'/$', request.path_info) \
-               and Page.objects.exclude(template='') \
-                       .filter(url="%s/" % request.path_info,
-                               sites__site_id=settings.SITE_ID).count():
-                return HttpResponseRedirect("%s/" % request.path_info)
+            slashed_url = strip_i18n_prefix(request.path_info) + '/'
+            if settings.APPEND_SLASH and \
+                not re.match(r'/$', request.path_info) \
+                and Page.objects.exclude(template='').filter(
+                    url=slashed_url, sites__site_id=settings.SITE_ID).count():
+                return HttpResponseRedirect(request.path_info + '/')
             else:
                 try:
                     return render_page(request, request.path_info)

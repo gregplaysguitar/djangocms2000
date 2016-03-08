@@ -1,8 +1,8 @@
 <div id="cms-menu">
     <div>
         <span class="status">
-            {% if request.user.first_name %}
-                You are logged in as {{ request.user.first_name }} {{ request.user.last_name }}
+            {% if user.first_name %}
+                You are logged in as {{ user.first_name }} {{ user.last_name }}
             {% endif %}
                 &nbsp;
             {% if page_form and perms.cms.change_page %}
@@ -12,11 +12,11 @@
                 <a class="new-page" href="{% url 'admin:cms_page_add' %}">New page</a> /
             {% endif %}
             <a class="edit-switcher off">Stop editing</a> /
-            <a href="{% url 'cms_logout' %}?from={{ request.GET.page }}">Log me out</a>
+            <a href="{% url 'cms_logout' %}?from={{ path }}">Log me out</a>
         </span>
 
         {% if page and not page.is_live %}
-            This page is a draft - 
+            This page is a draft -
             <a href="{% url 'admin:cms_page_change' page.pk %}" class="page-options">click here</a>
             to make it live.
         {% endif %}
@@ -100,7 +100,8 @@
     <div id="cms-imageform" class="cms-form">
         <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="hidden" name="redirect_to" value="{{ request.GET.page }}">
+
+        <input type="hidden" name="redirect_to" value="{{ path }}">
         <h2>Add image</h2>
         <hr>
         <div class="wrap">
@@ -112,7 +113,7 @@
 
             <div class="form">
                 {{ image_form.as_p }}
-            </div>	
+            </div>
 
             <div class="clear"></div>
         </div>

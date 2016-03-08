@@ -6,12 +6,10 @@ except ImportError:
     # python 2.5 fallback
     from django.utils import simplejson as json
 
-from django.http import HttpResponse, HttpResponseRedirect, \
-    HttpResponseNotAllowed, Http404
+from django.http import HttpResponse, HttpResponseNotAllowed, Http404
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import get_template
 from django.conf import settings
 from django.contrib.auth.views import login as auth_login
@@ -19,11 +17,12 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
+from django.utils import translation
 
 from .forms import PageForm, BlockForm, ImageForm
 from . import settings as cms_settings
 from .models import Block, Page, Image
-from .utils import is_editing, public_key
+from .utils import is_editing, public_key, strip_i18n_prefix
 
 
 def logout(request):
@@ -31,9 +30,9 @@ def logout(request):
 
     logout_request(request)
     if 'from' in request.GET:
-        return HttpResponseRedirect(request.GET['from'] or '/')
+        return redirect(request.GET['from'] or '/')
     else:
-        return HttpResponseRedirect('/')
+        return redirect('/')
 
 
 def login(request, *args, **kwargs):
@@ -85,7 +84,7 @@ def get_page_content(base_request, page_url):
 
     try:
         urlmatch = resolve(page_url)
-    except Resolver404 as e:
+    except Resolver404:
         # must be an admin-created page, rendered by the middleware
         page_func = lambda r: render_page(r, page_url)
     else:
@@ -102,7 +101,7 @@ def get_page_content(base_request, page_url):
 
     try:
         response = page_func(request)
-    except Http404 as e:
+    except Http404:
         # this shouldn't ever happen, but just in case
         return ''
     else:
@@ -169,12 +168,15 @@ def saveimage(request, image_id):
         form = ImageForm(request.POST, request.FILES, instance=image)
         image = form.save()
 
-    return HttpResponseRedirect(request.POST.get('redirect_to', '/'))
+    return redirect(request.POST.get('redirect_to') or '/')
 
 
 @csrf_protect
 def render_page(request, url):
     '''Renders a cms.page object.'''
+
+    if settings.USE_I18N and not translation.get_language_from_path(url):
+        return redirect('/' + translation.get_language() + url)
 
     if hasattr(request, 'user') and request.user.has_module_perms("cms") or \
        request.GET.get('cms_dummy_render', None) == public_key():
@@ -186,7 +188,8 @@ def render_page(request, url):
     # for a url resolved elsewhere in the project)
     qs = qs.exclude(template='')
 
-    page = get_object_or_404(qs, url=url, sites__site_id=settings.SITE_ID)
+    page = get_object_or_404(qs, url=strip_i18n_prefix(url),
+                             sites__site_id=settings.SITE_ID)
 
     tpl = get_template(page.template)
     content = tpl.render({
@@ -208,10 +211,10 @@ def block_admin_init(request):
     '''Dynamic javascript file; used to initialise tinymce controls etc
        in the django admin.'''
 
-    response = render_to_response('cms/cms/block_admin_init.js', {
+    response = render(request, 'cms/cms/block_admin_init.js', {
         'tinymce_config_json': tinymce_config_json(),
         'cms_settings': cms_settings,
-    }, context_instance=RequestContext(request))
+    })
 
     response['Content-Type'] = 'application/javascript'
     return response
@@ -221,13 +224,9 @@ def block_admin_init(request):
 def linklist(request):
     '''Used to populate the tinymce link list popup.'''
 
-    response = render_to_response(
-        'cms/cms/linklist.js',
-        {
-            'page_list': Page.objects.all(),
-        },
-        context_instance=RequestContext(request)
-    )
+    response = render(request, 'cms/cms/linklist.js', {
+        'page_list': Page.objects.all(),
+    })
     response['Content-Type'] = 'application/javascript'
     return response
 
@@ -242,12 +241,12 @@ def editor_js(request):
         response = HttpResponse('')
     else:
         if is_editing(request):
-            response = render_to_response('cms/cms/editor.js', {
+            response = render(request, 'cms/cms/editor.js', {
                 'cms_settings': cms_settings,
                 'tinymce_config_json': tinymce_config_json(),
-            }, context_instance=RequestContext(request))
+            })
         else:
-            response = render_to_response('cms/cms/edit-mode-switcher.js', {
+            response = render(request, 'cms/cms/edit-mode-switcher.js', {
                 'cms_settings': cms_settings,
             })
 
@@ -263,21 +262,26 @@ def editor_html(request):
     if not request.user.has_module_perms('cms'):
         response = HttpResponse('')
     else:
-        try:
-            page = Page.objects.get(url=request.GET.get('page', None),
-                                    sites__site_id=settings.SITE_ID)
-        except Page.DoesNotExist:
-            page = False
+        path = request.GET.get('page')
+        page = None
+        if path:
+            try:
+                page = Page.objects.get(url=strip_i18n_prefix(path),
+                                        sites__site_id=settings.SITE_ID)
+            except Page.DoesNotExist:
+                pass
 
-        response = render_to_response('cms/cms/editor.html', {
+        response = render(request, 'cms/cms/editor.html', {
             'page': page,
+            'path': path,
+            'user': request.user,
             'cms_settings': cms_settings,
             'editor_form': BlockForm(),
             'html_editor_form': BlockForm(prefix='html'),
             'image_form': ImageForm(),
             'page_form': page and PageForm(instance=page) or None,
             'new_page_form': PageForm(prefix='new'),
-        }, context_instance=RequestContext(request))
+        })
     return response
 
 
@@ -285,9 +289,9 @@ def editor_html(request):
 def login_js(request):
     '''Dynamic js file to show the login form.'''
 
-    response = render_to_response('cms/cms/login.js', {
+    response = render(request, 'cms/cms/login.js', {
         'cms_settings': cms_settings,
-    }, context_instance=RequestContext(request))
+    })
 
     response['Content-Type'] = 'application/javascript'
     return response

@@ -1,7 +1,12 @@
 import hashlib
 
 from django.contrib.contenttypes.models import ContentType
-from . import settings
+from django.conf import settings
+from django.core.urlresolvers import resolve, Resolver404, \
+    LocaleRegexURLResolver, get_resolver
+from django.utils import translation
+
+from . import settings as cms_settings
 
 
 def is_editing(request, obj_type=None):
@@ -34,7 +39,7 @@ def generate_cache_key(model_cls, site_id=None, related_object=None, url=None):
         err = u'Required arguments: one of site_id, related_object or url.'
         raise TypeError(err)
 
-    key_bits = [settings.CACHE_PREFIX, get_model_name(model_cls)]
+    key_bits = [cms_settings.CACHE_PREFIX, get_model_name(model_cls)]
 
     if related_object:
         app_label = related_object._meta.app_label
@@ -79,3 +84,42 @@ def key_from_obj(obj):
 def ctype_from_key(key):
     app_label, model = key.split('-')
     return ContentType.objects.get(app_label=app_label, model=model)
+
+
+def language_prefix_patterns_used():
+    '''Returns `True` if the `LocaleRegexURLResolver` is used
+       at root level of the urlpatterns, else it returns `False`. '''
+
+    for url_pattern in get_resolver(None).url_patterns:
+        if isinstance(url_pattern, LocaleRegexURLResolver):
+            return True
+    return False
+
+
+def url_resolves(path):
+    '''Test whether a path resolves successfully, taking language prefixes into
+       account if necessary. '''
+    resolved = None
+    try:
+        resolved = resolve(path)
+    except Resolver404:
+        lang_code = translation.get_language()
+        lang_from_path = translation.get_language_from_path(path)
+        if not lang_from_path and language_prefix_patterns_used():
+            lang_path = '/%s%s' % (lang_code, path)
+            try:
+                resolved = resolve(lang_path)
+            except Resolver404:
+                pass
+    return bool(resolved)
+
+
+def strip_i18n_prefix(path):
+    """Returns path stripped of the language code prefix - i.e. /en/ - if one
+       exists. """
+
+    lang_code = translation.get_language_from_path(path)
+    if lang_code:
+        return path[len(lang_code) + 1:]
+
+    return path

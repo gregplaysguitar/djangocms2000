@@ -2,22 +2,12 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import resolve, Resolver404
 from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
 from .models import Page, Block, Image, template_choices, PageSite
 from . import settings as cms_settings
-
-
-def url_resolves(url):
-    '''Test whether a url resolves successfully.'''
-    try:
-        resolve(url)
-    except Resolver404 as e:
-        return False
-    else:
-        return True
+from .utils import url_resolves
 
 
 class ReadonlyInput(forms.widgets.HiddenInput):
