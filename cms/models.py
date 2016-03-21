@@ -174,8 +174,9 @@ class Page(_CMSAbstractBaseModel):
     # sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(
-        default=True, help_text="If this is not checked, the page will only "
-                                "be visible to logged-in users.")
+        default=getattr(settings, 'IS_LIVE_DEFAULT', True),
+        help_text="If this is not checked, the page will only "
+                  "be visible to logged-in users.")
 
     objects = PageManager()
 
