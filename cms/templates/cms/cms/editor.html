@@ -16,7 +16,7 @@
         </span>
 
         {% if page and not page.is_live %}
-            This page is a draft - 
+            This page is a draft -
             <a href="{% url 'admin:cms_page_change' page.pk %}" class="page-options">click here</a>
             to make it live.
         {% endif %}
@@ -112,7 +112,7 @@
 
             <div class="form">
                 {{ image_form.as_p }}
-            </div>	
+            </div>
 
             <div class="clear"></div>
         </div>
