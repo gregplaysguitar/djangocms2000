@@ -155,6 +155,7 @@ def get_rendered_block(label, format='plain', related_object=None,
         set_block_format(block, format)
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
+            'filters': filters or '',
             'rendered_content': renderer(block),
         })
     else:
