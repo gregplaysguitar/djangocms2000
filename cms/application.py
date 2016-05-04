@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
+from django.conf import settings
 
 try:
     import sorl.thumbnail
@@ -43,8 +44,7 @@ def get_obj_details(url=None, site_id=None, related_object=None):
     return ctype, object_id
 
 
-def get_obj_dict(model_cls, url=None, site_id=None, related_object=None,
-                 cached=True):
+def get_obj_dict(model_cls, url=None, site_id=None, related_object=None):
     """Get a dict of blocks or images for an object, determined by the
        arguments, with a (label, language) tuple as the dict key for Block,
        or just label for Image. """
@@ -73,9 +73,9 @@ def get_obj_dict(model_cls, url=None, site_id=None, related_object=None,
 
 
 def get_block_or_image(model_cls, label, url=None, site_id=None,
-                       related_object=None, cached=True):
+                       related_object=None, editing=False):
     """Get a page, site or generic block/image, based on any one of the
-       optional arguments. If not cached, go direct to the database, otherwise
+       optional arguments. If editing, go direct to the database, otherwise
        use the cached obj_dict. """
 
     # since Block objects are language-aware, strip any language code from the
@@ -93,10 +93,18 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
         }
         if is_language_aware(model_cls):
             lookup['language'] = language
-        obj, created = model_cls.objects.get_or_create(**lookup)
+
+        # fall back to default language when cache active
+        if not editing and 'language' in lookup:
+            try:
+                return model_cls.objects.get(**lookup)
+            except model_cls.DoesNotExist:
+                lookup['language'] = settings.LANGUAGE_CODE
+
+        obj, __ = model_cls.objects.get_or_create(**lookup)
         return obj
 
-    if not cached:
+    if editing:
         return obj_from_db()
 
     obj_dict = get_obj_dict(model_cls, url=url, site_id=site_id,
@@ -176,7 +184,7 @@ def get_rendered_block(label, format='plain', related_object=None,
         renderer = functools.partial(default_block_renderer, filters=filters)
 
     if editing:
-        block = get_block(label, cached=False, **lookup_kwargs)
+        block = get_block(label, editing=True, **lookup_kwargs)
         set_block_format(block, format)
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
@@ -279,7 +287,7 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
         is_editing(request, 'image')
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
 
-    image_obj = get_image(label, cached=(not editing), **lookup_kwargs)
+    image_obj = get_image(label, editing=editing, **lookup_kwargs)
     image = RenderedImage(image_obj, geometry, crop, scale, colorspace)
 
     if renderer == 'raw':
