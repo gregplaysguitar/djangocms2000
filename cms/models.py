@@ -1,23 +1,15 @@
 import re
 import os
-import sys
-import datetime
 
 from django.db import models
-from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.template.loader import get_template
-from django import template
-from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.encoding import python_2_unicode_compatible
-from django.db.models.signals import class_prepared, post_save, pre_save, \
-    m2m_changed
-from django.utils.functional import curry
+from django.db.models.signals import post_save
 
 from . import settings as cms_settings
 from .utils import generate_cache_key, ctype_from_key, key_from_obj
@@ -174,8 +166,9 @@ class Page(_CMSAbstractBaseModel):
     # sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
     creation_date = models.DateTimeField(auto_now_add=True)
     is_live = models.BooleanField(
-        default=True, help_text="If this is not checked, the page will only "
-                                "be visible to logged-in users.")
+        default=getattr(settings, 'IS_LIVE_DEFAULT', True),
+        help_text="If this is not checked, the page will only "
+                  "be visible to logged-in users.")
 
     objects = PageManager()
 

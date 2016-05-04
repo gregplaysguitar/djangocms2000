@@ -215,6 +215,7 @@ def editor_html(request):
         except Page.DoesNotExist:
             page = False
 
+        # TODO Kill RequestContext
         response = render_to_response('cms/cms/editor.html', {
             'page': page,
             'cms_settings': cms_settings,
@@ -223,6 +224,7 @@ def editor_html(request):
             'image_form': ImageForm(),
             'page_form': page and PageForm(instance=page) or None,
             'new_page_form': PageForm(prefix='new'),
+            'request': request,
         }, context_instance=RequestContext(request))
     return response
 
