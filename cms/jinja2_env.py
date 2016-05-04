@@ -6,7 +6,7 @@ from jinja2 import contextfunction, Markup
 
 from .application import get_rendered_block, get_rendered_image
 from .templatetags.cms_editor import cms_editor
-from .utils import is_editing
+from .utils import is_editing, strip_i18n_prefix
 from .models import Page
 
 
@@ -27,6 +27,7 @@ def process_kwargs(context, kwargs):
     # If an explicit url is passed, use it to find the related object
     url = kwargs.pop('url', None)
     if url:
+        url = strip_i18n_prefix(url)
         kwargs['related_object'] = Page.objects.get_for_url(url)
 
     return kwargs
