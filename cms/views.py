@@ -1,12 +1,10 @@
-import re
-import copy
 try:
     import json
 except ImportError:
     # python 2.5 fallback
     from django.utils import simplejson as json
 
-from django.http import HttpResponse, HttpResponseNotAllowed, Http404
+from django.http import HttpResponse, HttpResponseNotAllowed
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import logout as logout_request
 from django.shortcuts import render, get_object_or_404, redirect
@@ -15,7 +13,6 @@ from django.conf import settings
 from django.contrib.auth.views import login as auth_login
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
-from django.core.urlresolvers import resolve, Resolver404
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 
@@ -23,6 +20,7 @@ from .forms import PageForm, BlockForm, ImageForm
 from . import settings as cms_settings
 from .models import Block, Page, Image
 from .utils import is_editing, public_key, strip_i18n_prefix
+from .application import default_block_renderer
 
 
 def logout(request):
@@ -77,46 +75,6 @@ def savepage(request, page_pk=None):
             }), content_type='application/json')
 
 
-def get_page_content(base_request, page_url):
-    '''Fakes a request to retrieve page content, used for updating content
-       by the frontend editor save views. Hacks and reuses the request
-       to ensure page access is not denied.'''
-
-    try:
-        urlmatch = resolve(page_url)
-    except Resolver404:
-        # must be an admin-created page, rendered by the middleware
-        page_func = lambda r: render_page(r, page_url)
-    else:
-        # must be a django-created page, rendered by a urlconf
-        page_func = lambda r: urlmatch.func(r, *urlmatch.args,
-                                            **urlmatch.kwargs)
-
-    # reuse the request to avoid having to fake sessions etc, but it'll have to
-    # be hacked a little so it has the right url and doesn't trigger a POST
-    request = copy.copy(base_request)
-    request.path = request.path_info = page_url
-    request.META['REQUEST_METHOD'] = request.method = 'GET'
-    request.POST = None
-
-    try:
-        response = page_func(request)
-    except Http404:
-        # this shouldn't ever happen, but just in case
-        return ''
-    else:
-        # handle deferred rendering - see BaseHandler.get_response in
-        # django.core.handlers.base
-        # Note that we're ignoring any template response middleware modifiers
-        if hasattr(response, 'render') and callable(response.render):
-            return response.render()
-        else:
-            return response
-
-
-BODY_RE = re.compile('<body[^>]*>([\S\s]*)<\/body>')
-
-
 @permission_required("cms.change_block")
 def saveblock(request, block_id):
     '''Ajax-only view to save cms.block objects from the frontend editor'''
@@ -132,24 +90,12 @@ def saveblock(request, block_id):
     form = BlockForm(request.POST, instance=block, prefix=prefix)
     block = form.save()
 
-    # render the page to get the updated content
-    domain_regex = re.compile('https?://%s' % request.META['HTTP_HOST'])
-    page_url = domain_regex.sub('', request.META['HTTP_REFERER']).split('?')[0]
-    page_response = get_page_content(request, page_url)
-
-    # extract body content from HttpResponse. The response content is assumed
-    # to be sane
-    match = BODY_RE.search(page_response.content.decode("utf-8"))
-    if match:
-        page_content = match.groups()[0]
-    else:
-        # no <body> tag, so assume an ajax response containing only a page
-        # fragment
-        page_content = page_response.content
+    filters = request.GET.get('filters', '')
+    rendered_content = default_block_renderer(block, filters)
 
     return HttpResponse(json.dumps({
-        'page_content': page_content,
         'content': block.content,
+        'rendered_content': rendered_content,
     }), content_type='application/json')
 
 

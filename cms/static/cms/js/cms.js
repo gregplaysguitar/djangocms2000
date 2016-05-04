@@ -57,21 +57,12 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 		}
 		else {
 		    var inner = $(block).find(".cms-inner");
-		    
-		    function update_block(page_content) {
-                var updated_body = $('<div>' + page_content + '</div>'),
-                    // save_url is unique to the block, so use it to find the updated block 
-                    updated_block = updated_body.find('.cms-block').filter(function() {
-                        return $(this).data('save_url') === save_url;
-                    }),
-                    updated_content = $.trim(updated_block.find('.cms-inner').html());
-                
-                inner.html(updated_content || "Click to add text");
-                if (!updated_content) {
-                    $(block).addClass("placeholder");
-                }                        
-		    };
-		    
+
+				function update_block (content) {
+					inner.html(content || 'Click to add text');
+          $(block)[content ? 'removeClass' : 'addClass']('placeholder');
+				}
+
             if ($(block).data('format') === 'html') {
                 $('#cms-htmlform #id_html-content').val(raw_content).html(raw_content);
                 tinyMCE.get("id_html-content").setContent(raw_content);
@@ -81,7 +72,7 @@ var cms = function ($, tinymce_config, post_edit_callback) {
                 $('#cms-htmlform form').ajaxForm({
                     url: save_url,
                     success: function(data) {
-                        update_block(data.page_content);
+                        update_block(data.rendered_content);
                         $(block).find('input[name="content"]').val(data.content);
                         highlightBlock(block);
                         currently_editing = false;
@@ -137,7 +128,7 @@ var cms = function ($, tinymce_config, post_edit_callback) {
                 editFormContainer.find('form').ajaxForm({
                     url: save_url,
                     success: function(data) {
-                        update_block(data.page_content);
+                        update_block(data.rendered_content);
                         highlightBlock(block);
                         currently_editing = false;
                         $(block).find('input[name="content"]').val(data.content);
