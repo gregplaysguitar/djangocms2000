@@ -136,11 +136,9 @@ class _CMSAbstractBaseModel(models.Model):
                                     object_id=self.id)
 
     def __str__(self):
-        try:
-            block = self.get_blocks().exclude(content='').get(label='title')
-        except Block.DoesNotExist:
-            return self.url
-        return block.content
+        block = self.get_blocks().exclude(content='').filter(label='title') \
+                    .first()
+        return block.content if block else self.url
 
 
 class PageManager(models.Manager):
