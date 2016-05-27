@@ -83,6 +83,8 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
     if url:
         url = strip_i18n_prefix(url)
     language = get_language()
+    language_aware = is_language_aware(model_cls)
+    translated = language_aware and (language != settings.LANGUAGE_CODE)
 
     def obj_from_db():
         ctype, object_id = get_obj_details(url, site_id, related_object)
@@ -91,13 +93,14 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
             'content_type': key_from_ctype(ctype),
             'object_id': object_id,
         }
-        if is_language_aware(model_cls):
+        if language_aware:
             lookup['language'] = language
 
-        # fall back to default language when cache active
-        if not editing and 'language' in lookup:
+        # fall back to default language when not editing
+        if translated and not editing:
             try:
-                return model_cls.objects.get(**lookup)
+                # fall back for non-existent *and* empty blocks
+                return model_cls.objects.exclude(content='').get(**lookup)
             except model_cls.DoesNotExist:
                 lookup['language'] = settings.LANGUAGE_CODE
 
@@ -110,15 +113,20 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
     obj_dict = get_obj_dict(model_cls, url=url, site_id=site_id,
                             related_object=related_object)
 
-    dict_key = (label, language) if is_language_aware(model_cls) else label
+    dict_key = (label, language) if language_aware else label
+
+    # fall back to default language for empty blocks
+    obj_from_dict = obj_dict.get(dict_key)
+    if obj_from_dict and translated and obj_from_dict.content == '':
+        dict_key = (label, settings.LANGUAGE_CODE)
+
+    # Handle any edge case where the obj isn't in the cache
     if not obj_dict.get(dict_key):
-        # Handle edge cases where the obj isn't in the cache
         obj = obj_from_db()
         obj_dict[dict_key] = obj
         key = generate_cache_key(model_cls, url=url, site_id=site_id,
                                  related_object=related_object)
         cache.set(key, obj_dict)
-        return obj
 
     return obj_dict[dict_key]
 
