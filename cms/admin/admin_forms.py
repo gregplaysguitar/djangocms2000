@@ -79,6 +79,22 @@ def content_inlineformset_factory(model, form=ModelForm,
 
 
 class InlineBlockForm(forms.ModelForm):
+    def clean(self):
+        language = self.cleaned_data['language']
+        label = self.cleaned_data.get('label', self.instance.label)
+        if self.instance and self.instance.pk:
+            duplicates = Block.objects.filter(
+                language=language,
+                content_type=self.instance.content_type,
+                object_id=self.instance.object_id,
+                label=label,
+            )
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+            if duplicates.count():
+                msg = 'Block %s already exists for language %s' % (
+                    label, language.upper())
+                self.add_error('language', forms.ValidationError(msg))
+
     class Meta:
         model = Block
         fields = ('content', ) + (('language', ) if settings.USE_I18N else ())
@@ -116,10 +132,9 @@ class InlineImageForm(forms.ModelForm):
 class BlockForm(InlineBlockForm):
     label = forms.CharField(widget=ReadonlyInput)
 
-    class Meta:
+    class Meta(InlineBlockForm.Meta):
         model = Block
-        fields = ('label', 'content', ) + \
-            (('language', ) if settings.USE_I18N else ())
+        fields = ('label', ) + InlineBlockForm.Meta.fields
 
 
 class ImageForm(InlineImageForm):
