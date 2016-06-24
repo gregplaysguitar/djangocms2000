@@ -23,7 +23,7 @@ class ContentModel(models.Model):
 
     content_type = models.CharField(max_length=190)
     object_id = models.PositiveIntegerField()
-    label = models.CharField(max_length=255)
+    label = models.CharField(max_length=100)
 
     @property
     def content_object(self):
