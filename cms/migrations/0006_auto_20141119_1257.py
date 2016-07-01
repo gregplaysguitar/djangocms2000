@@ -4,20 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 
 
-def migrate_sites(apps, schema_editor):
-    from cms.settings import DB_ALIAS
-
-    db_alias = schema_editor.connection.alias
-    if db_alias != DB_ALIAS:
-        return
-
-    Page = apps.get_model("cms", "Page")
-    PageSite = apps.get_model("cms", "PageSite")
-    for page in Page.objects.using(db_alias).all():
-        for site in page.sites.all():
-            PageSite.objects.create(page=page, site_id=site.id)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -36,9 +22,8 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-        migrations.RunPython(
-            migrate_sites,
-        ),
+        migrations.RunSQL("INSERT INTO cms_pagesite (site_id, page_id) "
+                          "SELECT site_id, page_id from cms_page_sites;"),
         migrations.AlterUniqueTogether(
             name='pagesite',
             unique_together=set([('page', 'site_id')]),
