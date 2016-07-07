@@ -50,7 +50,7 @@ class Block(ContentModel):
         (FORMAT_HTML, 'HTML'),
     )
     language = models.CharField(max_length=5, choices=settings.LANGUAGES,
-                                default=settings.LANGUAGES[0][0])
+                                default=settings.LANGUAGE_CODE)
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES,
                               default=FORMAT_PLAIN)
     content = models.TextField(blank=True, default='')
