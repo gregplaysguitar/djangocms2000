@@ -80,19 +80,23 @@ def content_inlineformset_factory(model, form=ModelForm,
 
 class InlineBlockForm(forms.ModelForm):
     def clean(self):
-        language = self.cleaned_data['language']
         label = self.cleaned_data.get('label', self.instance.label)
+        duplicate_filter = {
+            'content_type': self.instance.content_type,
+            'object_id': self.instance.object_id,
+            'label': label,
+        }
+        if settings.USE_I18N:
+            duplicate_filter['language'] = self.cleaned_data['language']
+
         if self.instance and self.instance.pk:
-            duplicates = Block.objects.filter(
-                language=language,
-                content_type=self.instance.content_type,
-                object_id=self.instance.object_id,
-                label=label,
-            )
+            duplicates = Block.objects.filter(**duplicate_filter)
             duplicates = duplicates.exclude(pk=self.instance.pk)
             if duplicates.count():
-                msg = 'Block %s already exists for language %s' % (
-                    label, language.upper())
+                msg = 'Block %s already exists'
+                if settings.USE_I18N:
+                    msg += ' for language %s' % (
+                        duplicates[0].get_language_display())
                 self.add_error('language', forms.ValidationError(msg))
 
     class Meta:
