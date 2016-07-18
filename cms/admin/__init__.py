@@ -126,7 +126,8 @@ class BlockAdmin(ContentAdmin):
                     'content_snippet', ] + \
         (['language'] if settings.USE_I18N else [])
     search_fields = ['label', ]
-    list_filter = [ContentTypeFilter]
+    list_filter = [ContentTypeFilter] + \
+        (['language'] if settings.USE_I18N else [])
 
     def content_snippet(self, obj):
         return Truncator(strip_tags(obj.content)).words(10, truncate=' ...')
