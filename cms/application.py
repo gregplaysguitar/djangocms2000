@@ -63,7 +63,7 @@ def get_obj_dict(model_cls, url=None, site_id=None, related_object=None):
         language_aware = is_language_aware(model_cls)
         for obj in qs:
             if language_aware:
-                obj_dict[(obj.label, obj.language)] = obj
+                obj_dict['%s.%s' % (obj.label, obj.language)] = obj
             else:
                 obj_dict[obj.label] = obj
 
