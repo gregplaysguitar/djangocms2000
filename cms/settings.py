@@ -17,6 +17,7 @@ DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')
 
+LANGUAGES = getattr(settings, 'CMS_LANGUAGES', getattr(settings, 'LANGUAGES'))
 
 # The following are for internal use and can't be customised
 
