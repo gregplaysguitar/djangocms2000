@@ -119,7 +119,6 @@ def get_child_pages(parent_url, qs=None):
     return qs.filter(url__iregex=r'^' + parent_url + '[^/]+/?$')
 
 
-@python_2_unicode_compatible
 class _CMSAbstractBaseModel(models.Model):
     class Meta:
         abstract = True
@@ -152,6 +151,7 @@ class PageManager(models.Manager):
         return self.filter(is_live=True)
 
 
+@python_2_unicode_compatible
 class Page(_CMSAbstractBaseModel):
     url = models.CharField(max_length=255, verbose_name='URL',
                            help_text='e.g. /about/contact', db_index=True)
