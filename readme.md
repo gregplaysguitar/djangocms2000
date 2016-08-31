@@ -48,11 +48,11 @@ Jinja2 compatibility
 Add the functions in `cms.jinja2_env` to your jinja2 environment. For example:
 
 
-   from jinja2 import Environment
-   import cms.jinja2_env
+    from jinja2 import Environment
+    import cms.jinja2_env
 
-   env = Environment()
-   env.globals.update(cms.jinja2_env.template_globals)
+    env = Environment()
+    env.globals.update(cms.jinja2_env.template_globals)
 
 Basic usage examples:
 
@@ -66,10 +66,10 @@ Basic usage examples:
 Custom image rendering can be achieved via the renderer argument, which can be
 defined as a jinja2 macro - i.e.
 
-   {% macro image_as_bg(img) %}
+    {% macro image_as_bg(img) %}
       <div class="image" style="background-image: url({{ img.url }})"></div>
-   {% endmacro %}
-   {{ cms_image('bg-image', '200x200', renderer=image_as_bg) }}
+    {% endmacro %}
+    {{ cms_image('bg-image', '200x200', renderer=image_as_bg) }}
 
 
 Upgrading from 1.x to 2.x
