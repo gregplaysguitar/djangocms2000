@@ -78,7 +78,7 @@
 	background: rgba(0, 0, 0, 0.6);
 	opacity: 1;
 	overflow: auto;
-	
+
 }
 .cms-overlay .cms-form {
 	margin: 20px auto;
@@ -103,7 +103,7 @@
     color: #aaa;
     font-size: 0.9em;
     padding: 5px;
-    
+
 }
 .cms-overlay .cms-form .wrap label {
     float: left;
@@ -117,6 +117,7 @@
 }
 .cms-overlay .cms-form .wrap input {
     display: inline;
+    color: #000;
 }
 .cms-overlay .cms-form .wrap .haserrors {
     background: #ffe;
@@ -169,7 +170,8 @@
 	padding: 0;
 	margin: 10px 0;
 	float: right;
-    font-size: 12px;
+  font-size: 12px;
+  color: #000;
 }
 .cms-overlay .cms-form input.cancel {
 	background-image: url(../images/cancel.png);
@@ -184,12 +186,13 @@
 #cms-imageform .wrap label {
     float: none;
     display: block;
+    color: #000;
 }
 
 
 #cms-htmlform #id_content {
 	/* see tinymce init for size of editor */
-	
+
 }
 
 #cms-imageform .form,
@@ -234,9 +237,11 @@
 	right: 0;
 	font-size: 12px;
 	width: auto;
+  color: #000;
 }
 #cms-textform input.cancel {
 	right: 50px;
+  color: #000;
 }
 
 
@@ -269,6 +274,7 @@
 }
 #cms-menu input {
 	width: auto;
+  color: #000;
 }
 #cms-menu a {
     cursor: pointer;
