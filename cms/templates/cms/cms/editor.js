@@ -1,3 +1,5 @@
+{% include 'cms/cms/yepnope.js'%}
+
 yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 
 // I don't know why, but tinymce fails subtly and infuriatingly if

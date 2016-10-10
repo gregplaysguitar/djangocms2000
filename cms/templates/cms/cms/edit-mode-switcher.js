@@ -1,3 +1,4 @@
+{% include 'cms/cms/yepnope.js'%}
 
 var switcher_html = '<div id="cms-menu">' +
                     '    <a class="edit-switcher on">Edit</a> /' + 
