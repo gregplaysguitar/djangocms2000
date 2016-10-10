@@ -19,10 +19,10 @@ yepnope({
     // collect html bits from the server, and inject them into the
     // page, then initialise
     var url = window.location.pathname;
-    cms_jQuery.get('{% url "cms_editor_html" %}?page=' + url, 
+    cms_jQuery.get('{% url "cms_editor_html" %}?page=' + url,
                    function(editor_html) {
       cms_jQuery('body').append(editor_html);
-      
+
       // init function from cms.js
       cms(cms_jQuery,
           {{ tinymce_config_json|safe }},

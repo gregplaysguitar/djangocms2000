@@ -1,7 +1,7 @@
 {% include 'cms/cms/yepnope.js'%}
 
 var switcher_html = '<div id="cms-menu">' +
-                    '    <a class="edit-switcher on">Edit</a> /' + 
+                    '    <a class="edit-switcher on">Edit</a> /' +
                     '    <a href="{% url "cms_logout" %}?from=' +
                     window.location.pathname + '">Logout</a>' +
                     '</div>'
@@ -13,7 +13,7 @@ yepnope({
     complete: function() {
         var cms_jQuery = jQuery.noConflict(true),
             switcher = cms_jQuery(switcher_html).appendTo('body');
-            
+
             switcher.find('.edit-switcher').on('click', function() {
                 cms_jQuery.cookie('cms-edit_mode', 1, {path: '/'});
                 location.reload();
