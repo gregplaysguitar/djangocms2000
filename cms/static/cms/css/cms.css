@@ -145,6 +145,37 @@
     line-height: 100px;
 }
 
+.cms-form input.cancel,
+.cms-form input.save,
+.cms-form input.delete {
+  font-family: sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: center;
+  padding: .5em 1em;
+  background: #e5e5e5;
+  color: #000;
+  border: 0;
+  cursor: pointer;
+  margin: 0;
+  display: inline-block;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+.cms-form input.save {
+  font-weight: bold;
+  background: #bbb;
+}
+.cms-form input.save:hover,
+.cms-form input.cancel:hover,
+.cms-form input.delete:hover,
+.cms-form input.save:focus,
+.cms-form input.cancel:focus,
+.cms-form input.delete:focus {
+    text-decoration: underline;
+    outline: none;
+}
 
 .cms-overlay .cms-form h2 {
 	color: #fff;
@@ -154,32 +185,18 @@
 	text-align: left;
 	padding: 0;
 	margin: 0;
-    -webkit-text-shadow: black 0 2px 4px;
-    -moz-text-shadow: black 0 2px 4px;
-    text-shadow: black 0 2px 4px;
-    border-bottom: 2px solid #eee;
-    margin-bottom: 6px;
-}
-.cms-overlay .cms-form input.cancel,
-.cms-overlay .cms-form input.save {
-	background: transparent url(../images/save.png) top left no-repeat;
-	width: 99px;
-	height: 47px;
-	text-indent: -5000px;
-	border: none;
-	padding: 0;
-	margin: 10px 0;
-	float: right;
-  font-size: 12px;
-  color: #000;
-}
-.cms-overlay .cms-form input.cancel {
-	background-image: url(../images/cancel.png);
+  -webkit-text-shadow: black 0 2px 4px;
+  -moz-text-shadow: black 0 2px 4px;
+  text-shadow: black 0 2px 4px;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 6px;
 }
 
-.cms-form input.save:focus,
-.cms-form input.cancel:focus {
-    text-decoration: underline;
+.cms-overlay .cms-form input.cancel,
+.cms-overlay .cms-form input.save {
+  font-size: 18px;
+  float: right;
+  margin: 10px 0 0 10px;
 }
 
 #cms-imageform .wrap input,
@@ -188,7 +205,6 @@
     display: block;
     color: #000;
 }
-
 
 #cms-htmlform #id_content {
 	/* see tinymce init for size of editor */
@@ -230,21 +246,16 @@
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
 }
-#cms-textform input.save,
-#cms-textform input.cancel {
-	position: absolute;
-	bottom: -1em;
-	right: 0;
-	font-size: 12px;
-	width: auto;
-  color: #000;
+#cms-textform .cms-button-wrap {
+  position: absolute;
+  top: 100%;
+  right: 0;
 }
-#cms-textform input.cancel {
-	right: 50px;
-  color: #000;
+#cms-textform .cms-button-wrap input.cancel,
+#cms-textform .cms-button-wrap input.save {
+  margin-left: 10px;
+  float: right;
 }
-
-
 
 #cms-menu {
 	position: fixed;
