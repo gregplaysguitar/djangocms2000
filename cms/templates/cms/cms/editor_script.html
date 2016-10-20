@@ -1,9 +1,7 @@
-<script type="text/javascript" 
-        src="{{ cms_settings.STATIC_URL }}lib/yepnope.1.5.4-min.js"></script>
 {% if show_login %}
-  <script type="text/javascript" 
-          src="{% url 'cms_login_js' %}"></script>  
+  <script type="text/javascript"
+          src="{% url 'cms_login_js' %}"></script>
 {% else %}
-  <script type="text/javascript" 
+  <script type="text/javascript"
           src="{% url 'cms_editor_js' %}"></script>
 {% endif %}
