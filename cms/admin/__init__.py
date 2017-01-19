@@ -18,7 +18,7 @@ from .admin_forms import BlockForm, ImageForm
 
 admin_js = (
     cms_settings.STATIC_URL + 'lib/jquery-1.10.2.min.js',
-    cms_settings.STATIC_URL + 'tinymce/js/tinymce/tinymce.min.js',
+    cms_settings.STATIC_URL + 'tinymce-4.5.2/js/tinymce/tinymce.min.js',
     cms_settings.STATIC_URL + 'js/page_admin.js',
     reverse_lazy('cms_linklist'),
     reverse_lazy('cms_block_admin_init'),

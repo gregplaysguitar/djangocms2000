@@ -4,7 +4,7 @@ yepnope('{{ cms_settings.STATIC_URL }}css/cms.css');
 
 // I don't know why, but tinymce fails subtly and infuriatingly if
 // loaded along with the rest of the scripts. This fixes it.
-yepnope.injectJs('{{ cms_settings.STATIC_URL }}tinymce/js/tinymce/tinymce.min.js');
+yepnope.injectJs('{{ cms_settings.STATIC_URL }}tinymce-4.5.2/js/tinymce/tinymce.min.js');
 
 yepnope({
   load: ['{{ cms_settings.STATIC_URL }}lib/jquery-1.10.2.min.js',
