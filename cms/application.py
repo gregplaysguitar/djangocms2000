@@ -73,7 +73,7 @@ def get_obj_dict(model_cls, url=None, site_id=None, related_object=None):
 
 
 def get_block_or_image(model_cls, label, url=None, site_id=None,
-                       related_object=None, editing=False):
+                       related_object=None, editing=False, defaults={}):
     """Get a page, site or generic block/image, based on any one of the
        optional arguments. If editing, go direct to the database, otherwise
        use the cached obj_dict. """
@@ -104,7 +104,7 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
             except model_cls.DoesNotExist:
                 lookup['language'] = settings.LANGUAGE_CODE
 
-        obj, __ = model_cls.objects.get_or_create(**lookup)
+        obj, __ = model_cls.objects.get_or_create(**lookup, defaults=defaults)
         return obj
 
     if editing:
@@ -171,7 +171,7 @@ def set_block_format(block, format):
 
 def get_rendered_block(label, format='plain', related_object=None,
                        filters=None, editable=None, renderer=None,
-                       site_id=None, request=None):
+                       site_id=None, request=None, default=''):
     """Get the rendered html for a block, wrapped in editing bits if
        appropriate. `renderer` is a callable taking a block object and
        returning rendered html for the block. """
@@ -184,7 +184,8 @@ def get_rendered_block(label, format='plain', related_object=None,
 
     editing = editable and renderer != 'raw' and request and \
         is_editing(request, 'block')
-    lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
+    block_kwargs = get_lookup_kwargs(site_id, related_object, request)
+    block_kwargs['defaults'] = {'content': default}
 
     if renderer == 'raw':
         renderer = lambda obj: obj
@@ -192,7 +193,7 @@ def get_rendered_block(label, format='plain', related_object=None,
         renderer = functools.partial(default_block_renderer, filters=filters)
 
     if editing:
-        block = get_block(label, editing=True, **lookup_kwargs)
+        block = get_block(label, editing=True, **block_kwargs)
         set_block_format(block, format)
         return template.loader.render_to_string("cms/cms/block_editor.html", {
             'block': block,
@@ -200,7 +201,7 @@ def get_rendered_block(label, format='plain', related_object=None,
             'rendered_content': renderer(block),
         })
     else:
-        block = get_block(label, **lookup_kwargs)
+        block = get_block(label, **block_kwargs)
         set_block_format(block, format)
         return renderer(block)
 
