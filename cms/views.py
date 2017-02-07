@@ -144,11 +144,16 @@ def render_page(request, url):
     return HttpResponse(content)
 
 
-def tinymce_config_json():
-    '''Return tinymce overrides from settings, as a json string for js.'''
+def get_tinymce_config(frontend):
+    '''Return tinymce overrides from settings, as a js object literal.'''
+
     tinymce_config = cms_settings.TINYMCE_CONFIG
     if callable(tinymce_config):
-        tinymce_config = tinymce_config()
+        tinymce_config = tinymce_config(frontend=frontend)
+
+    if type(tinymce_config) is str:
+        return tinymce_config
+
     return json.dumps(tinymce_config)
 
 
@@ -158,7 +163,7 @@ def block_admin_init(request):
        in the django admin.'''
 
     response = render(request, 'cms/cms/block_admin_init.js', {
-        'tinymce_config_json': tinymce_config_json(),
+        'tinymce_config': get_tinymce_config(False),
         'cms_settings': cms_settings,
     })
 
@@ -189,7 +194,7 @@ def editor_js(request):
         if is_editing(request):
             response = render(request, 'cms/cms/editor.js', {
                 'cms_settings': cms_settings,
-                'tinymce_config_json': tinymce_config_json(),
+                'tinymce_config': get_tinymce_config(True),
             })
         else:
             response = render(request, 'cms/cms/edit-mode-switcher.js', {

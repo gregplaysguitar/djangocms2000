@@ -7,6 +7,6 @@ cms_jQuery(function() {
     
     cmsAdmin(
         cms_jQuery,
-        {{ tinymce_config_json|safe }}
+        {{ tinymce_config|safe }}
     );
 });

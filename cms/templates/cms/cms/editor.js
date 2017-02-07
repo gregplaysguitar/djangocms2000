@@ -25,7 +25,7 @@ yepnope({
 
       // init function from cms.js
       cms(cms_jQuery,
-          {{ tinymce_config_json|safe }},
+          {{ tinymce_config|safe }},
           {{ cms_settings.POST_EDIT_CALLBACK|safe }});
     });
   }
