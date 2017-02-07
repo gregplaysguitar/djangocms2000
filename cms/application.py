@@ -104,7 +104,7 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
             except model_cls.DoesNotExist:
                 lookup['language'] = settings.LANGUAGE_CODE
 
-        obj, __ = model_cls.objects.get_or_create(**lookup, defaults=defaults)
+        obj, __ = model_cls.objects.get_or_create(defaults=defaults, **lookup)
         return obj
 
     if editing:
