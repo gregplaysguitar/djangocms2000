@@ -3,12 +3,17 @@ import re
 from django.http import Http404, HttpResponseRedirect
 from django.conf import settings
 
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    MiddlewareMixin = object
+
 from .models import Page
 from .views import render_page
 from .utils import strip_i18n_prefix
 
 
-class CMSFallbackMiddleware(object):
+class CMSFallbackMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
         if response.status_code != 404:
             return response  # No need to check for a page for non-404 response

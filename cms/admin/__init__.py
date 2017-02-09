@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy
+try:
+    from django.urls import reverse_lazy
+except ImportError:
+    from django.core.urlresolvers import reverse_lazy
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.utils import translation

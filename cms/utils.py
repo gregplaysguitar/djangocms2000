@@ -2,8 +2,14 @@ import hashlib
 
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
-from django.core.urlresolvers import resolve, Resolver404, \
-    LocaleRegexURLResolver, get_resolver
+
+try:
+    from django.urls import resolve, Resolver404, \
+        LocaleRegexURLResolver, get_resolver
+except ImportError:
+    from django.core.urlresolvers import resolve, Resolver404, \
+        LocaleRegexURLResolver, get_resolver
+
 from django.utils import translation
 
 from . import settings as cms_settings
