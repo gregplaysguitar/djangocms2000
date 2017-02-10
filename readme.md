@@ -7,8 +7,9 @@ GETTING STARTED:
 Requirements
 ------------
 1. [Django,](https://www.djangoproject.com) version 1.4 or higher
-2. [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) version 10+ (optional,
-   required for automatically resizing cms images)
+2. [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) version 10+, or
+   [easy_thumbnails](https://github.com/SmileyChris/easy-thumbnails) version 2.3+
+   (optional, required for automatically resizing cms images)
 3. [importlib](https://pypi.python.org/pypi/importlib), for python < 2.7
 
 Installation
@@ -24,8 +25,9 @@ Installation
    `TEMPLATE_CONTEXT_PROCESSORS` setting
 5. Ensure `'django.template.loaders.app_directories.load_template_source'` is present in
    your `TEMPLATE_LOADERS` setting
-6. Optional: Add `'sorl.thumbnail'` to your `INSTALLED_APPS` if you want to use resized
-   cms images
+6. Optional: Install [sorl.thumbnail](https://github.com/sorl/sorl-thumbnail) or
+   [easy_thumbnails](https://github.com/SmileyChris/easy-thumbnails) as per the
+   relevant documentation if you want to use resized cms images
 7. Optional: add `'cms.middleware.CMSFallbackMiddleware'` to your middleware classes if
    you want to be able to add new pages via Django's admin.
 8. Optional: add `{% cms_editor %}` to the bottom of your base template to enable sitewide
@@ -37,10 +39,12 @@ Usage
 2. Use `{% cmsblock LABEL [format=FORMAT] %}` to create an editable text block.
    FORMAT can be 'plain' (default) or 'html'.
 3. Use `{% cmsimage LABEL [geometry=GEOMETRY crop=CROP] %}` to create editable images.
-   GEOMETRY and CROP (both optional) correspond to sorl's
+   GEOMETRY and CROP (both optional) correspond to the sorl.thumbnail's
    [geometry](http://thumbnail.sorl.net/template.html#geometry) and
-   [crop](http://thumbnail.sorl.net/template.html#crop) options. If not specified, the
-   original image will be displayed.
+   [crop](http://thumbnail.sorl.net/template.html#crop) options, or
+   easy_thumbnails
+   [size and crop](http://easy-thumbnails.readthedocs.io/en/2.1/usage/#thumbnail-options)
+   options. If not specified, the original image will be displayed.
 
 Jinja2 compatibility
 ---------------------------

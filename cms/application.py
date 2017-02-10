@@ -11,14 +11,32 @@ from django.utils.translation import get_language
 from django.conf import settings
 
 try:
-    import sorl.thumbnail
+    import easy_thumbnails.files
+    easy = True
 except ImportError:
-    pass
+    import sorl.thumbnail
+    easy = False
 
 from .models import Block, Image, Page
 from .utils import is_editing, generate_cache_key, key_from_ctype, \
     strip_i18n_prefix
 from . import settings as cms_settings
+
+
+def thumbnail(image, geometry, crop, bw):
+    if easy:
+        if len(geometry) == 1:
+            # if only width given, assume an arbitrary large height constraint
+            geometry = (geometry[0], geometry[0] * 4)
+        thumbnailer = easy_thumbnails.files.get_thumbnailer(image)
+        return thumbnailer.get_thumbnail({
+            'size': geometry,
+            'crop': crop,
+            'bw': bw,
+        })
+    else:
+        return sorl.thumbnail.get_thumbnail(image, 'x'.join(geometry), crop,
+                                            colorspace='GRAY' if bw else None)
 
 
 def is_language_aware(model_cls):
@@ -188,7 +206,8 @@ def get_rendered_block(label, format='plain', related_object=None,
     block_kwargs['defaults'] = {'content': default}
 
     if renderer == 'raw':
-        renderer = lambda obj: obj
+        def renderer(obj):
+            return obj
     elif not renderer:
         renderer = functools.partial(default_block_renderer, filters=filters)
 
@@ -209,29 +228,34 @@ def get_rendered_block(label, format='plain', related_object=None,
 class RenderedImage:
     '''A wrapper class for Image which can optionally be resized, via the
        geometry and crop arguments. If these are given, the url, height and
-       width are derived from a generated sorl thumbnail; otherwise the
+       width are derived from a generated thumbnail; otherwise the
        original image is used. The height and width are also divided by the
        scale argument, if provided, to enable retina images. The optional
-       colorspace argument is passed directly to sorl thumbnail and has no
+       bw argument is passed directly to the thumbnail engine and has no
        effect if the image is not resized. '''
 
     def __init__(self, image, geometry=None, crop=None, scale=1,
-                 colorspace=None):
-        if type(geometry) == int:
+                 bw=False):
+
+        # normalise geometry to either (w, h) or (w, )
+        if geometry:
             geometry = str(geometry)
+            geometry = list(map(int, geometry.split('x')))
 
         self.image = image
         self.geometry = geometry
         self.crop = crop
         self.scale = scale
-        self.colorspace = colorspace
+        self.bw = bw
 
     def get_thumbnail(self):
         if self.geometry:
-            thumb = sorl.thumbnail.get_thumbnail(self.image.file,
-                                                 self.geometry,
-                                                 colorspace=self.colorspace,
-                                                 crop=self.crop)
+            # thumb = sorl.thumbnail.get_thumbnail(self.image.file,
+            #                                      self.geometry,
+            #                                      colorspace=self.colorspace,
+            #                                      crop=self.crop)
+            thumb = thumbnail(self.image.file, self.geometry, bw=self.bw,
+                              crop=self.crop)
             return thumb
         else:
             return None
@@ -265,7 +289,7 @@ class RenderedImage:
 
 class DummyImage(object):
     def __init__(self, geometry):
-        width, height = (geometry.split('x') + [''])[:2]
+        width, height = (list(geometry) + [0])[:2]
         self.url = cms_settings.DUMMY_IMAGE_SOURCE % {
             'width': width or height,
             'height': height or width,
@@ -287,7 +311,7 @@ def default_image_renderer(img):
 
 def get_rendered_image(label, geometry=None, related_object=None, crop=None,
                        editable=True, renderer=default_image_renderer,
-                       site_id=None, request=None, scale=1, colorspace=None):
+                       site_id=None, request=None, scale=1, bw=False):
     """Get the rendered html for an image, wrapped in editing bits if
        appropriate. `renderer` is a callable taking an image object, geometry
        and crop options, and returning rendered html for the image. """
@@ -297,15 +321,16 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
     lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
 
     image_obj = get_image(label, editing=editing, **lookup_kwargs)
-    image = RenderedImage(image_obj, geometry, crop, scale, colorspace)
+    image = RenderedImage(image_obj, geometry, crop, scale, bw)
 
     if renderer == 'raw':
-        renderer = lambda obj: obj
+        def renderer(obj):
+            return obj
 
     if cms_settings.DUMMY_IMAGE_SOURCE and \
        (not image.image.file or not os.path.exists(image.image.file.path)):
         # arbitrary small image if no geometry supplied
-        rendered = renderer(DummyImage(image.geometry or '100x100'))
+        rendered = renderer(DummyImage(image.geometry or (100, 100)))
     else:
         rendered = renderer(image)
 

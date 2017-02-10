@@ -37,8 +37,6 @@ class BaseNode(template.Node):
       tests whether we should render the {% empty %} section
     '''
 
-    #child_nodelists = ('nodelist_content', 'nodelist_empty') # this is in sorl, not sure what it does...?
-
     nodelist_content = template.NodeList()
     nodelist_empty = None
     optional_params = []
