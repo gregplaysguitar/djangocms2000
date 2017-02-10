@@ -93,7 +93,7 @@ Upgrading from 1.x to 2.x
 5. The `format` argument has been removed from `{% cmsimage ... %}` and its variants,
    since the new extended syntax renders it obsolete.
 
-Committing cms content and media to version control
+Keeping cms content from in a separate database
 -----------------------------------------
 CMS database content can be kept separate from the rest of the database. To
 enable, set `CMS_DB_ALIAS` to point to a secondary database and add
