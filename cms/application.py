@@ -35,7 +35,7 @@ def thumbnail(image, geometry, crop, bw):
             'bw': bw,
         })
     else:
-        return sorl.thumbnail.get_thumbnail(image, 'x'.join(geometry), crop,
+        return sorl.thumbnail.get_thumbnail(image, 'x'.join([str(g) for g in geometry]), crop,
                                             colorspace='GRAY' if bw else None)
 
 
