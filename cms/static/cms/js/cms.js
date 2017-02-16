@@ -2,7 +2,7 @@ var cms = function ($, tinymce_config, post_edit_callback) {
 	var throbberString = "<span class='throbber'>Saving...</span>",
 		currently_editing = false,
 		tinymce_init_object = $.extend({
-			plugins: "paste link code",
+			plugins: "paste link code list",
 			paste_as_text: true,
 			relative_urls: false,
 			theme: "modern",
