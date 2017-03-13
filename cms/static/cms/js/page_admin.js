@@ -8,7 +8,7 @@ var cmsAdmin = function($, tinymce_config) {
     if (id_list.length) {
         tinyMCE.init($.extend({
             selector: id_list.join(','),
-            plugins: "paste link code list",
+            plugins: "paste link code lists",
             paste_as_text: true,
             relative_urls: false,
             theme: "modern",
