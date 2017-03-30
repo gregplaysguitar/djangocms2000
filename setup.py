@@ -15,10 +15,12 @@ setup(
     author='Greg Brown',
     author_email='greg@gregbrown.co.nz',
     url='https://github.com/gregplaysguitar/djangocms2000',
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests', )),
     zip_safe=False,
     platforms='any',
     install_requires=['Django>=1.4', ],
+    include_package_data=True,
+    package_data={},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
