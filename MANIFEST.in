@@ -1,0 +1,4 @@
+include license.md	
+include readme.md
+recursive-include cms/static *
+recursive-include cms/templates *
