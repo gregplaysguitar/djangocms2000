@@ -14,8 +14,11 @@ try:
     import easy_thumbnails.files
     easy = True
 except ImportError:
-    import sorl.thumbnail
-    easy = False
+    try:
+        import sorl.thumbnail
+        easy = False
+    except ImportError:
+        pass
 
 from .models import Block, Image, Page
 from .utils import is_editing, generate_cache_key, key_from_ctype, \
