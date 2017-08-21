@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
-from jinja2 import contextfunction, Markup
+from jinja2 import contextfunction
 
 from .application import get_rendered_block, get_rendered_image
 from .templatetags.cms_editor import cms_editor
@@ -35,7 +36,7 @@ def process_kwargs(context, kwargs):
 
 def conditional_escape(obj):
     if isinstance(obj, str):
-        return Markup(obj)
+        return mark_safe(obj)
     else:
         return obj
 
@@ -55,6 +56,6 @@ def cms_image(context, *args, **kwargs):
 template_globals = {
     'cms_block': cms_block,
     'cms_image': cms_image,
-    'cms_editor': contextfunction(lambda c: Markup(cms_editor(c))),
+    'cms_editor': contextfunction(lambda c: mark_safe(cms_editor(c))),
     'cms_editing': is_editing,
 }
