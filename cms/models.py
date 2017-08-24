@@ -90,7 +90,7 @@ post_save.connect(clear_cache, sender=Image)
 
 
 def get_templates_from_dir(dirname, exclude=None):
-    TEMPLATE_REGEX = re.compile('\.html$')
+    TEMPLATE_REGEX = re.compile(r'\.html$')
     templates = []
     for template_dir in cms_settings.TEMPLATE_DIRS:
         template_path = os.path.join(template_dir, dirname)
@@ -107,7 +107,7 @@ def get_templates_from_dir(dirname, exclude=None):
 
 
 def template_choices():
-    EXCLUDE_RE = re.compile('base\.html|^cms/')
+    EXCLUDE_RE = re.compile(r'base\.html|^cms/')
     return [('', '---------')] + get_templates_from_dir("cms", EXCLUDE_RE)
 
 

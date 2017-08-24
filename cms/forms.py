@@ -41,9 +41,9 @@ class ImageForm(forms.ModelForm):
         fields = ('file', 'description', )
 
 
-URL_STRIP_REGEX = re.compile('[^A-z0-9\-_\/\.]')
-URL_DASH_REGEX = re.compile('-+')
-URL_SLASH_REGEX = re.compile('\/+')
+URL_STRIP_REGEX = re.compile(r'[^A-z0-9\-_\/\.]')
+URL_DASH_REGEX = re.compile(r'-+')
+URL_SLASH_REGEX = re.compile(r'\/+')
 
 
 class PageForm(forms.ModelForm):
