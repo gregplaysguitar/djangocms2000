@@ -49,14 +49,14 @@ class Block(ContentModel):
         (FORMAT_PLAIN, 'Plain text'),
         (FORMAT_HTML, 'HTML'),
     )
-    language = models.CharField(max_length=10, choices=cms_settings.LANGUAGES,
-                                default=settings.LANGUAGE_CODE)
+    # language = models.CharField(max_length=10, choices=cms_settings.LANGUAGES,
+    #                             default=settings.LANGUAGE_CODE)
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES,
                               default=FORMAT_PLAIN)
     content = models.TextField(blank=True, default='')
 
     class Meta:
-        unique_together = ('content_type', 'object_id', 'language', 'label')
+        unique_together = ('content_type', 'object_id', 'label')
 
     def display_content(self):
         '''Returns content, marked safe if necessary'''
@@ -73,7 +73,7 @@ class Block(ContentModel):
 
 class Image(ContentModel):
     # placeholder value since images are not language-aware
-    language = settings.LANGUAGE_CODE
+    # language = settings.LANGUAGE_CODE
 
     file = models.ImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True)
     description = models.CharField(max_length=255, blank=True)

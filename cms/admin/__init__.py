@@ -126,11 +126,9 @@ class ContentAdmin(admin.ModelAdmin):
 class BlockAdmin(ContentAdmin):
     form = BlockForm
     list_display = ['label_display', 'content_object', 'format',
-                    'content_snippet', ] + \
-        (['language'] if settings.USE_I18N else [])
+                    'content_snippet', ]
     search_fields = ['label', ]
-    list_filter = [ContentTypeFilter] + \
-        (['language'] if settings.USE_I18N else [])
+    list_filter = [ContentTypeFilter]
 
     def content_snippet(self, obj):
         return Truncator(strip_tags(obj.content)).words(10, truncate=' ...')

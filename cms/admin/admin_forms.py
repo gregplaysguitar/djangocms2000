@@ -86,22 +86,23 @@ class InlineBlockForm(forms.ModelForm):
             'object_id': self.instance.object_id,
             'label': label,
         }
-        if settings.USE_I18N:
-            duplicate_filter['language'] = self.cleaned_data['language']
+        # if settings.USE_I18N:
+        #     duplicate_filter['language'] = self.cleaned_data['language']
 
         if self.instance and self.instance.pk:
             duplicates = Block.objects.filter(**duplicate_filter)
             duplicates = duplicates.exclude(pk=self.instance.pk)
             if duplicates.count():
                 msg = 'Block %s already exists'
-                if settings.USE_I18N:
-                    msg += ' for language %s' % (
-                        duplicates[0].get_language_display())
+                # if settings.USE_I18N:
+                #     msg += ' for language %s' % (
+                #         duplicates[0].get_language_display())
                 self.add_error('language', forms.ValidationError(msg))
 
     class Meta:
         model = Block
-        fields = ('content', ) + (('language', ) if settings.USE_I18N else ())
+        fields = ('content', )
+        # + (('language', ) if settings.USE_I18N else ())
 
     def __init__(self, *args, **kwargs):
         super(InlineBlockForm, self).__init__(*args, **kwargs)
