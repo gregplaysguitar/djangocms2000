@@ -125,12 +125,14 @@ class ContentAdmin(admin.ModelAdmin):
     label_display.admin_order_field = 'label'
 
 
-class BlockAdmin(ContentAdmin):
+class BlockAdmin(TabbedTranslationAdmin, ContentAdmin):
     form = BlockForm
     list_display = ['label_display', 'content_object', 'format',
                     'content_snippet', ]
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
+    readonly_fields = ('label_display', 'content_object', 'format')
+    exclude = ('content_type', 'object_id', 'label', )
 
     def content_snippet(self, obj):
         return Truncator(strip_tags(obj.content)).words(10, truncate=' ...')

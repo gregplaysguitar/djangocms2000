@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ModelForm, modelformset_factory
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 
@@ -116,13 +116,13 @@ class InlineBlockForm(forms.ModelForm):
         # change the content widget based on the format of the block - a bit
         # hacky but best we can do
         if kwargs.get('instance'):
-            format = kwargs['instance'].format
+            fmt = kwargs['instance'].format
             for field in content_fields:
-                if format == Block.FORMAT_ATTR:
+                if fmt == Block.FORMAT_ATTR:
                     self.fields[field].widget = forms.TextInput()
                 # print (self.fields[field].widget.attrs['class'])
-                self.fields[field].widget.attrs['class'] += \
-                    " cms cms-%s" % format
+                attrs = self.fields[field].widget.attrs
+                attrs['class'] = attrs.get('class', '') + ' cms cms-%s' % fmt
 
         # TODO remove BLOCK_REQUIRED_CALLBACK
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
@@ -145,11 +145,13 @@ class InlineImageForm(forms.ModelForm):
 
 
 class BlockForm(InlineBlockForm):
-    label = forms.CharField(widget=ReadonlyInput)
+    pass
 
-    class Meta(InlineBlockForm.Meta):
-        model = Block
-        # fields = ('label', ) + InlineBlockForm.Meta.fields
+    # label = forms.CharField(widget=ReadonlyInput)
+
+    # class Meta(InlineBlockForm.Meta):
+    #     model = Block
+    #     # fields = ('label', ) + InlineBlockForm.Meta.fields
 
 
 class ImageForm(InlineImageForm):
