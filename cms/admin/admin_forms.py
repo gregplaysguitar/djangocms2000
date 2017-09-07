@@ -79,46 +79,56 @@ def content_inlineformset_factory(model, form=ModelForm,
 
 
 class InlineBlockForm(forms.ModelForm):
-    def clean(self):
-        label = self.cleaned_data.get('label', self.instance.label)
-        duplicate_filter = {
-            'content_type': self.instance.content_type,
-            'object_id': self.instance.object_id,
-            'label': label,
-        }
-        # if settings.USE_I18N:
-        #     duplicate_filter['language'] = self.cleaned_data['language']
-
-        if self.instance and self.instance.pk:
-            duplicates = Block.objects.filter(**duplicate_filter)
-            duplicates = duplicates.exclude(pk=self.instance.pk)
-            if duplicates.count():
-                msg = 'Block %s already exists'
-                # if settings.USE_I18N:
-                #     msg += ' for language %s' % (
-                #         duplicates[0].get_language_display())
-                self.add_error('language', forms.ValidationError(msg))
+    # def clean(self):
+    #     label = self.cleaned_data.get('label', self.instance.label)
+    #     duplicate_filter = {
+    #         'content_type': self.instance.content_type,
+    #         'object_id': self.instance.object_id,
+    #         'label': label,
+    #     }
+    #     # if settings.USE_I18N:
+    #     #     duplicate_filter['language'] = self.cleaned_data['language']
+    #
+    #     if self.instance and self.instance.pk:
+    #         duplicates = Block.objects.filter(**duplicate_filter)
+    #         duplicates = duplicates.exclude(pk=self.instance.pk)
+    #         if duplicates.count():
+    #             msg = 'Block %s already exists'
+    #             # if settings.USE_I18N:
+    #             #     msg += ' for language %s' % (
+    #             #         duplicates[0].get_language_display())
+    #             self.add_error('content', forms.ValidationError(msg))
 
     class Meta:
         model = Block
-        fields = ('content', )
+        exclude = ('label', 'format')
+        # fields = ('content', )
         # + (('language', ) if settings.USE_I18N else ())
 
     def __init__(self, *args, **kwargs):
         super(InlineBlockForm, self).__init__(*args, **kwargs)
 
+        # get modeltranslation's suffixed content fields
+        content_fields = [
+            field for field in self.fields.keys()
+            if field.startswith('content')]
+
         # change the content widget based on the format of the block - a bit
         # hacky but best we can do
         if kwargs.get('instance'):
             format = kwargs['instance'].format
-            if format == Block.FORMAT_ATTR:
-                self.fields['content'].widget = forms.TextInput()
-            self.fields['content'].widget.attrs['class'] = \
-                " cms cms-%s" % format
+            for field in content_fields:
+                if format == Block.FORMAT_ATTR:
+                    self.fields[field].widget = forms.TextInput()
+                # print (self.fields[field].widget.attrs['class'])
+                self.fields[field].widget.attrs['class'] += \
+                    " cms cms-%s" % format
 
+        # TODO remove BLOCK_REQUIRED_CALLBACK
         required_cb = cms_settings.BLOCK_REQUIRED_CALLBACK
         if callable(required_cb) and 'instance' in kwargs:
-            self.fields['content'].required = required_cb(kwargs['instance'])
+            for field in content_fields:
+                self.fields[field].required = required_cb(kwargs['instance'])
 
 
 class InlineImageForm(forms.ModelForm):
@@ -139,7 +149,7 @@ class BlockForm(InlineBlockForm):
 
     class Meta(InlineBlockForm.Meta):
         model = Block
-        fields = ('label', ) + InlineBlockForm.Meta.fields
+        # fields = ('label', ) + InlineBlockForm.Meta.fields
 
 
 class ImageForm(InlineImageForm):

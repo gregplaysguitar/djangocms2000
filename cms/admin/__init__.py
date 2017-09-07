@@ -10,6 +10,8 @@ from django.utils import translation
 from django.conf import settings
 from django.test.client import Client
 
+from modeltranslation.admin import TabbedTranslationAdmin
+
 from .. import settings as cms_settings
 from ..models import Page, Block, Image, PageSite
 from ..utils import public_key
@@ -31,7 +33,7 @@ admin_css = {
 }
 
 
-class CMSBaseAdmin(admin.ModelAdmin):
+class CMSBaseAdmin(TabbedTranslationAdmin):
     inlines = [BlockInline, ImageInline, ]
     list_display = ['url', ]
     save_on_top = True
@@ -66,10 +68,10 @@ class CMSBaseAdmin(admin.ModelAdmin):
             # the default?
 
             # save the original language in case it gets changed by the page
-            language = translation.get_language()
+            # language = translation.get_language()
             c.get(obj.get_absolute_url(), {'cms_dummy_render': public_key()},
                   HTTP_HOST=site.domain, follow=True)
-            translation.activate(language)
+            # translation.activate(language)
         return returnval
 
 

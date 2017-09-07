@@ -17,12 +17,22 @@ class Migration(migrations.Migration):
             name='file',
             field=models.ImageField(blank=True, upload_to='cms/%Y_%m'),
         ),
+        migrations.AlterUniqueTogether(
+            name='block',
+            unique_together=set([('content_type', 'object_id', 'label')]),
+        ),
         migrations.RemoveField(
             model_name='block',
             name='language',
         ),
-        migrations.AlterUniqueTogether(
-            name='block',
-            unique_together=set([('content_type', 'object_id', 'label')]),
+        migrations.AddField(
+            model_name='block',
+            name='content_en',
+            field=models.TextField(blank=True, default='', null=True),
+        ),
+        migrations.AddField(
+            model_name='block',
+            name='content_zh_hans',
+            field=models.TextField(blank=True, default='', null=True),
         ),
     ]

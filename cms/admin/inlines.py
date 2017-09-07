@@ -7,6 +7,8 @@ from django.contrib.admin.options import InlineModelAdmin, flatten_fieldsets
 from django.forms import ALL_FIELDS
 from django.forms.models import modelform_defines_fields
 
+from modeltranslation.admin import TranslationStackedInline
+
 from ..models import Block, Image
 from .admin_forms import content_inlineformset_factory, BaseContentFormSet, \
     InlineBlockForm, InlineImageForm
@@ -77,9 +79,10 @@ class ContentInline(InlineModelAdmin):
         return content_inlineformset_factory(self.model, **defaults)
 
 
-class BlockInline(ContentInline):
+class BlockInline(TranslationStackedInline, ContentInline):
     model = Block
     form = InlineBlockForm
+    exclude = ('label', 'format', )
 
 
 class ImageInline(ContentInline):

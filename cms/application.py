@@ -43,7 +43,8 @@ def thumbnail(image, geometry, crop, bw):
 
 
 def is_language_aware(model_cls):
-    return model_cls is Block
+    return False
+    # return model_cls is Block
 
 
 def get_obj_details(url=None, site_id=None, related_object=None):
