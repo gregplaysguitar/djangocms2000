@@ -38,8 +38,9 @@ def thumbnail(image, geometry, crop, bw):
             'bw': bw,
         })
     else:
-        return sorl.thumbnail.get_thumbnail(image, 'x'.join([str(g) for g in geometry]), crop=crop,
-                                            colorspace=('GRAY' if bw else None))
+        return sorl.thumbnail.get_thumbnail(
+            image, 'x'.join([str(g) for g in geometry]), crop=crop,
+            colorspace=('GRAY' if bw else None))
 
 
 def is_language_aware(model_cls):
