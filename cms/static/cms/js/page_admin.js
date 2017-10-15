@@ -13,8 +13,7 @@ var cmsAdmin = function($, tinymce_config) {
             relative_urls: false,
             theme: "modern",
             menubar : false,
-            block_formats: "Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;" + 
-                           "Quote=blockquote;Paragraph=p",
+            block_formats: "Large Title=h3;Medium Title=h4;Small Title=h5;Bold Title=h6;Quote=blockquote;Paragraph=p",
             toolbar: "formatselect bold italic | undo redo | link | " +
                      "blockquote bullist numlist | pastetext code",
             height: 400,
