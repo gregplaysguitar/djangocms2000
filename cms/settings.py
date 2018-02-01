@@ -13,6 +13,8 @@ BLOCK_REQUIRED_CALLBACK = getattr(settings, 'CMS_BLOCK_REQUIRED_CALLBACK',
                                   None)
 IMAGE_REQUIRED_CALLBACK = getattr(settings, 'CMS_IMAGE_REQUIRED_CALLBACK',
                                   None)
+VIDEO_REQUIRED_CALLBACK = getattr(settings, 'CMS_VIDEO_REQUIRED_CALLBACK',
+                                  None)
 DUMMY_IMAGE_SOURCE = getattr(settings, 'CMS_DUMMY_IMAGE_SOURCE', None)
 DB_ALIAS = getattr(settings, 'CMS_DB_ALIAS', 'default')
 UPLOAD_PATH = getattr(settings, 'CMS_UPLOAD_PATH', 'cms/%Y_%m')

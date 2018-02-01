@@ -5,7 +5,8 @@ from django.utils.safestring import mark_safe
 
 from jinja2 import contextfunction
 
-from .application import get_rendered_block, get_rendered_image
+from .application import get_rendered_block, get_rendered_image, \
+    get_rendered_video
 from .templatetags.cms_editor import cms_editor
 from .utils import is_editing, strip_i18n_prefix
 from .models import Page
@@ -53,9 +54,16 @@ def cms_image(context, *args, **kwargs):
     return conditional_escape(rendered)
 
 
+@contextfunction
+def cms_video(context, *args, **kwargs):
+    rendered = get_rendered_video(*args, **process_kwargs(context, kwargs))
+    return conditional_escape(rendered)
+
+
 template_globals = {
     'cms_block': cms_block,
     'cms_image': cms_image,
+    'cms_video': cms_video,
     'cms_editor': contextfunction(lambda c: mark_safe(cms_editor(c))),
     'cms_editing': is_editing,
 }
