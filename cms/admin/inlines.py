@@ -9,9 +9,9 @@ from django.forms.models import modelform_defines_fields
 
 from modeltranslation.admin import TranslationStackedInline
 
-from ..models import Block, Image
+from ..models import Block, Image, Video
 from .admin_forms import content_inlineformset_factory, BaseContentFormSet, \
-    InlineBlockForm, InlineImageForm
+    InlineBlockForm, InlineImageForm, InlineVideoForm
 
 
 class ContentInlineChecks(InlineModelAdminChecks):
@@ -88,3 +88,8 @@ class BlockInline(TranslationStackedInline, ContentInline):
 class ImageInline(ContentInline):
     model = Image
     form = InlineImageForm
+
+
+class VideoInline(ContentInline):
+    model = Video
+    form = InlineVideoForm

@@ -79,14 +79,46 @@ class Image(ContentModel):
     description = models.CharField(max_length=255, blank=True)
 
 
+def get_file_type(path):
+    ext = os.path.splitext(path)[1]
+    return ext.lstrip('.').lower()
+
+
+VALID_TYPES = ['mp4', 'webm', 'ogg']
+UNSUPPORTED_ERROR = \
+    'Unsupported file type. Supported types: %s' % ', '.join(VALID_TYPES)
+
+
+def validate_video_type(value):
+    ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
+    if not ext.lower().lstrip('.') in VALID_TYPES:
+        raise ValidationError(UNSUPPORTED_ERROR)
+
+
+class Video(ContentModel):
+    source = models.FileField(upload_to=cms_settings.UPLOAD_PATH,
+                              validators=[validate_video_type])
+
+    @property
+    def type(self):
+        return 'video/%s' % get_file_type(self.source.url)
+
+    poster = models.ImageField(upload_to=cms_settings.UPLOAD_PATH, blank=True)
+    description = models.CharField(max_length=255, blank=True)
+    loop = models.BooleanField(default=False)
+
+
 def clear_cache(sender, instance, **kwargs):
     """Clear the cache of blocks/images for an object, when any of them
        changes. """
 
     key = generate_cache_key(sender, related_object=instance.content_object)
     cache.delete(key)
+
+
 post_save.connect(clear_cache, sender=Block)
 post_save.connect(clear_cache, sender=Image)
+post_save.connect(clear_cache, sender=Video)
 
 
 def get_templates_from_dir(dirname, exclude=None):

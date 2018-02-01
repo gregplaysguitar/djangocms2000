@@ -20,7 +20,7 @@ except ImportError:
     except ImportError:
         pass
 
-from .models import Block, Image, Page
+from .models import Block, Image, Video, Page
 from .utils import is_editing, generate_cache_key, key_from_ctype, \
     strip_i18n_prefix
 from . import settings as cms_settings
@@ -156,6 +156,7 @@ def get_block_or_image(model_cls, label, url=None, site_id=None,
 
 get_block = functools.partial(get_block_or_image, Block)
 get_image = functools.partial(get_block_or_image, Image)
+get_video = functools.partial(get_block_or_image, Video)
 
 
 def get_lookup_kwargs(site_id=None, related_object=None, request=None):
@@ -346,3 +347,47 @@ def get_rendered_image(label, geometry=None, related_object=None, crop=None,
         })
     else:
         return rendered
+
+
+def default_video_renderer(video):
+    '''Renders a Video object as html for display on the site.'''
+
+    if video.source:
+        return mark_safe("""
+            <video playsinline webkit-playsinline
+                       preload="auto"
+                       controls
+                       poster="%(poster)s"
+                       muted %(loop)s>
+              <source src="%(source)s" type="%(type)s" />
+            </video>
+        """ % {
+            'loop': 'loop' if video.loop else '',
+            'source': video.source.url,
+            'type': video.type,
+            'poster': video.poster.url,
+        })
+    else:
+        return ''
+
+
+def get_rendered_video(label, geometry=None, related_object=None,
+                       editable=True, renderer=default_video_renderer,
+                       site_id=None, request=None):
+    """Get the rendered html for a video. `renderer` is a callable taking a
+       video object and geometry option, and returning rendered html for the
+       video. """
+
+    editing = editable and renderer != 'raw' and request and \
+        is_editing(request, 'video')
+    lookup_kwargs = get_lookup_kwargs(site_id, related_object, request)
+
+    video_obj = get_video(label, editing=editing, **lookup_kwargs)
+
+    if renderer == 'raw':
+        def renderer(obj):
+            return obj
+
+    rendered = renderer(video_obj)
+
+    return rendered

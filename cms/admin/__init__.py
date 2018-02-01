@@ -13,12 +13,12 @@ from django.test.client import Client
 from modeltranslation.admin import TabbedTranslationAdmin
 
 from .. import settings as cms_settings
-from ..models import Page, Block, Image, PageSite
+from ..models import Page, Block, Image, Video, PageSite
 from ..utils import public_key
 from ..forms import get_page_form_cls
 from .filters import ContentTypeFilter, PageSiteFilter
-from .inlines import BlockInline, ImageInline
-from .admin_forms import BlockForm, ImageForm
+from .inlines import BlockInline, ImageInline, VideoInline
+from .admin_forms import BlockForm, ImageForm, VideoForm
 
 
 admin_js = (
@@ -34,7 +34,7 @@ admin_css = {
 
 
 class CMSBaseAdmin(TabbedTranslationAdmin):
-    inlines = [BlockInline, ImageInline, ]
+    inlines = [BlockInline, ImageInline, VideoInline]
     list_display = ['url', ]
     save_on_top = True
 
@@ -151,3 +151,13 @@ class ImageAdmin(ContentAdmin):
     list_filter = [ContentTypeFilter]
 
 admin.site.register(Image, ImageAdmin)
+
+
+class VideoAdmin(ContentAdmin):
+    list_display = ['label_display', 'content_object', 'source', 'description', ]
+    form = VideoForm
+    search_fields = ['label', ]
+    list_filter = [ContentTypeFilter]
+
+
+admin.site.register(Video, VideoAdmin)

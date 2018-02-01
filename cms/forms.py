@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.contrib.sites.models import Site
 
-from .models import Page, Block, Image, template_choices, PageSite
+from .models import Page, Block, Image, Video, template_choices, PageSite
 from . import settings as cms_settings
 from .utils import url_resolves
 
@@ -39,6 +39,12 @@ class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ('file', 'description', )
+
+
+class VideoForm(forms.ModelForm):
+    class Meta:
+        model = Video
+        fields = ('source', 'poster', 'loop', 'description', )
 
 
 URL_STRIP_REGEX = re.compile(r'[^A-z0-9\-_\/\.]')

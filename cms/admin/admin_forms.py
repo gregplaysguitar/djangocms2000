@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 
 from ..forms import ReadonlyInput
-from ..models import Block, Image
+from ..models import Block, Image, Video
 from .. import settings as cms_settings
 from ..utils import key_from_ctype
 
@@ -144,6 +144,19 @@ class InlineImageForm(forms.ModelForm):
             self.fields['file'].required = required_cb(kwargs['instance'])
 
 
+class InlineVideoForm(forms.ModelForm):
+    class Meta:
+        model = Video
+        fields = ('source', 'poster', 'loop', 'description', )
+
+    def __init__(self, *args, **kwargs):
+        super(InlineVideoForm, self).__init__(*args, **kwargs)
+
+        required_cb = cms_settings.VIDEO_REQUIRED_CALLBACK
+        if callable(required_cb) and 'instance' in kwargs:
+            self.fields['file'].required = required_cb(kwargs['instance'])
+
+
 class BlockForm(InlineBlockForm):
     pass
 
@@ -160,3 +173,11 @@ class ImageForm(InlineImageForm):
     class Meta:
         model = Image
         fields = ('label', 'file', 'description', )
+
+
+class VideoForm(InlineVideoForm):
+    label = forms.CharField(widget=ReadonlyInput)
+
+    class Meta:
+        model = Video
+        fields = ('label', 'source', 'poster', 'loop', 'description', )
