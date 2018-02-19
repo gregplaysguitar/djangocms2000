@@ -5,11 +5,17 @@ from django.conf import settings
 
 try:
     from django.urls import resolve, Resolver404, \
-        LocaleRegexURLResolver, get_resolver
+        get_resolver
 except ImportError:
     from django.core.urlresolvers import resolve, Resolver404, \
-        LocaleRegexURLResolver, get_resolver
+        get_resolver
 
+try:
+    # django 2.0a
+    from django.urls import LocalePrefixPattern
+except ImportError:
+    # django < 2.0a
+    from django.urls import LocaleRegexURLResolver as LocalePrefixPattern
 from django.utils import translation
 
 from . import settings as cms_settings
@@ -93,11 +99,11 @@ def ctype_from_key(key):
 
 
 def language_prefix_patterns_used():
-    '''Returns `True` if the `LocaleRegexURLResolver` is used
+    '''Returns `True` if the `LocalePrefixPattern` is used
        at root level of the urlpatterns, else it returns `False`. '''
 
     for url_pattern in get_resolver(None).url_patterns:
-        if isinstance(url_pattern, LocaleRegexURLResolver):
+        if isinstance(url_pattern, LocalePrefixPattern):
             return True
     return False
 
