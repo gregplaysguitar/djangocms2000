@@ -11,7 +11,7 @@ from django.conf import settings
 from django.test.client import Client
 
 from .. import settings as cms_settings
-from ..models import Page, Block, Image, Video, PageSite
+from ..models import Page, Block, Image, Video, PageSite, template_choices
 from ..utils import public_key
 from ..forms import get_page_form_cls
 from .filters import ContentTypeFilter, PageSiteFilter
@@ -85,6 +85,9 @@ class PageAdmin(CMSBaseAdmin):
                   ('template', 'is_live', 'creation_date',)
     form = get_page_form_cls()
     search_fields = ['url', 'template', ]
+
+    def has_add_permission(self, request):
+        return template_choices() > 1
 
     def view_on_site_link(self, instance):
         url = instance.get_absolute_url()
