@@ -9,6 +9,7 @@ from django.utils.text import Truncator
 from django.utils import translation
 from django.conf import settings
 from django.test.client import Client
+from django.utils.html import format_html
 
 from .. import settings as cms_settings
 from ..models import Page, Block, Image, Video, PageSite, template_choices
@@ -103,7 +104,7 @@ class PageAdmin(CMSBaseAdmin):
         if site:
             url = 'http://%s%s' % (site.site.domain, url)
 
-        return '<a href="%s" target="_blank">view page</a>' % url
+        return format_html('<a href="%s" target="_blank">view page</a>' % url)
     view_on_site_link.allow_tags = True
     view_on_site_link.short_description = ' '
 
