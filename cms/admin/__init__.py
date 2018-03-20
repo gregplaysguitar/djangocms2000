@@ -88,7 +88,7 @@ class PageAdmin(CMSBaseAdmin):
     search_fields = ['url', 'template', ]
 
     def has_add_permission(self, request):
-        return template_choices() > 1
+        return len(template_choices()) > 1
 
     def view_on_site_link(self, instance):
         url = instance.get_absolute_url()
