@@ -15,7 +15,8 @@ try:
     from django.urls import LocalePrefixPattern
 except ImportError:
     # django < 2.0a
-    from django.urls import LocaleRegexURLResolver as LocalePrefixPattern
+    from django.core.urlresolvers import LocaleRegexURLResolver as \
+        LocalePrefixPattern
 from django.utils import translation
 
 from . import settings as cms_settings
