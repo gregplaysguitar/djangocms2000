@@ -111,8 +111,10 @@ def language_prefix_patterns_used():
 
 def url_resolves(path):
     '''Test whether a path resolves successfully, taking language prefixes into
-       account if necessary. '''
+       account if necessary. Strip url parameters since resolve doesn't account
+       for them correctly. '''
     resolved = None
+    path = path.split('?')[0]
     try:
         resolved = resolve(path)
     except Resolver404:
