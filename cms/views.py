@@ -10,7 +10,7 @@ from django.contrib.auth import logout as logout_request
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import get_template
 from django.conf import settings
-from django.contrib.auth.views import login as auth_login
+from django.contrib.auth.views import LoginView
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 from django.core.exceptions import PermissionDenied
@@ -37,7 +37,7 @@ def login(request, *args, **kwargs):
     '''Basic login view used by cms login forms.'''
 
     kwargs['template_name'] = 'cms/cms/login.html'
-    return auth_login(request, *args, **kwargs)
+    return LoginView.as_view()(request, *args, **kwargs)
 
 
 def savepage(request, page_pk=None):
