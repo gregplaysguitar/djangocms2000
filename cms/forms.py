@@ -47,7 +47,7 @@ class VideoForm(forms.ModelForm):
         fields = ('source', 'poster', 'loop', 'description', )
 
 
-URL_STRIP_REGEX = re.compile(r'[^A-z0-9\-_\/\.]')
+URL_STRIP_REGEX = re.compile(r'[^A-z0-9\-_?=&\/\.]')
 URL_DASH_REGEX = re.compile(r'-+')
 URL_SLASH_REGEX = re.compile(r'\/+')
 

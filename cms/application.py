@@ -365,7 +365,7 @@ def default_video_renderer(video):
             'loop': 'loop' if video.loop else '',
             'source': video.source.url,
             'type': video.type,
-            'poster': video.poster.url,
+            'poster': video.poster.url if video.poster else None,
         })
     else:
         return ''
