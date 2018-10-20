@@ -103,10 +103,15 @@ def language_prefix_patterns_used():
     '''Returns `True` if the `LocalePrefixPattern` is used
        at root level of the urlpatterns, else it returns `False`. '''
 
-    for url_pattern in get_resolver(None).url_patterns:
-        if isinstance(url_pattern, LocalePrefixPattern):
-            return True
-    return False
+    return True
+
+    # doesn't seem to work in django 2 - assume prefix is used
+
+    # for url_pattern in get_resolver(None).url_patterns:
+    #     print(url_pattern)
+    #     if isinstance(url_pattern, LocalePrefixPattern):
+    #         return True
+    # return False
 
 
 def url_resolves(path):

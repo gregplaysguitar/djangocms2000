@@ -14,6 +14,9 @@ class BaseContentFormSet(BaseGenericInlineFormSet):
        (format "app_label-model") for ct_field instead of an integer
        ForeignKey. """
 
+    # ????
+    save_as_new = False
+
     def __init__(self, data=None, files=None, instance=None, save_as_new=None,
                  prefix=None, queryset=None, **kwargs):
         opts = self.model._meta
