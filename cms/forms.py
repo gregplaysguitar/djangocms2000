@@ -18,7 +18,7 @@ class ReadonlyInput(forms.widgets.HiddenInput):
         self.model = model
         self.display_text = display_text
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         if self.display_text:
             text_value = self.display_text
         elif self.model:
