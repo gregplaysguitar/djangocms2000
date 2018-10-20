@@ -4,7 +4,6 @@ from django.forms.models import ModelForm, modelformset_factory
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.forms import BaseGenericInlineFormSet
 
-from ..forms import ReadonlyInput
 from ..models import Block, Image, Video
 from .. import settings as cms_settings
 from ..utils import key_from_ctype
@@ -79,31 +78,9 @@ def content_inlineformset_factory(model, form=ModelForm,
 
 
 class InlineBlockForm(forms.ModelForm):
-    # def clean(self):
-    #     label = self.cleaned_data.get('label', self.instance.label)
-    #     duplicate_filter = {
-    #         'content_type': self.instance.content_type,
-    #         'object_id': self.instance.object_id,
-    #         'label': label,
-    #     }
-    #     # if settings.USE_I18N:
-    #     #     duplicate_filter['language'] = self.cleaned_data['language']
-    #
-    #     if self.instance and self.instance.pk:
-    #         duplicates = Block.objects.filter(**duplicate_filter)
-    #         duplicates = duplicates.exclude(pk=self.instance.pk)
-    #         if duplicates.count():
-    #             msg = 'Block %s already exists'
-    #             # if settings.USE_I18N:
-    #             #     msg += ' for language %s' % (
-    #             #         duplicates[0].get_language_display())
-    #             self.add_error('content', forms.ValidationError(msg))
-
     class Meta:
         model = Block
         exclude = ('label', 'format')
-        # fields = ('content', )
-        # + (('language', ) if settings.USE_I18N else ())
 
     def __init__(self, *args, **kwargs):
         super(InlineBlockForm, self).__init__(*args, **kwargs)
@@ -160,24 +137,10 @@ class InlineVideoForm(forms.ModelForm):
 class BlockForm(InlineBlockForm):
     pass
 
-    # label = forms.CharField(widget=ReadonlyInput)
-
-    # class Meta(InlineBlockForm.Meta):
-    #     model = Block
-    #     # fields = ('label', ) + InlineBlockForm.Meta.fields
-
 
 class ImageForm(InlineImageForm):
-    label = forms.CharField(widget=ReadonlyInput)
-
-    class Meta:
-        model = Image
-        fields = ('label', 'file', 'description', )
+    pass
 
 
 class VideoForm(InlineVideoForm):
-    label = forms.CharField(widget=ReadonlyInput)
-
-    class Meta:
-        model = Video
-        fields = ('label', 'source', 'poster', 'loop', 'description', )
+    pass

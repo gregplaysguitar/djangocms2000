@@ -153,6 +153,8 @@ class ImageAdmin(ContentAdmin):
     form = ImageForm
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
+    readonly_fields = ('label_display', 'content_object', )
+
 
 admin.site.register(Image, ImageAdmin)
 
@@ -162,6 +164,7 @@ class VideoAdmin(ContentAdmin):
     form = VideoForm
     search_fields = ['label', ]
     list_filter = [ContentTypeFilter]
+    readonly_fields = ('label_display', 'content_object', )
 
 
 admin.site.register(Video, VideoAdmin)
