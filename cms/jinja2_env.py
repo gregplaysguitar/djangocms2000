@@ -49,6 +49,14 @@ def cms_block(context, *args, **kwargs):
 
 
 @contextfunction
+def cms_default_block(context, label, *args, **kwargs):
+    kwargs['default'] = label
+    rendered = get_rendered_block(label, *args,
+                                  **process_kwargs(context, kwargs))
+    return conditional_escape(rendered)
+
+
+@contextfunction
 def cms_image(context, *args, **kwargs):
     rendered = get_rendered_image(*args, **process_kwargs(context, kwargs))
     return conditional_escape(rendered)
@@ -62,6 +70,7 @@ def cms_video(context, *args, **kwargs):
 
 template_globals = {
     'cms_block': cms_block,
+    'cms_default_block': cms_default_block,
     'cms_image': cms_image,
     'cms_video': cms_video,
     'cms_editor': contextfunction(lambda c: mark_safe(cms_editor(c))),
