@@ -87,7 +87,7 @@ class PageAdmin(CMSBaseAdmin):
     form = get_page_form_cls()
     search_fields = ['url', 'template', ]
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return len(template_choices()) > 1
 
     def view_on_site_link(self, instance):
