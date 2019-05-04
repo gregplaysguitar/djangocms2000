@@ -4,9 +4,19 @@ except ImportError:
     # python 2.5 fallback
     from django.utils import simplejson as json
 
+try:
+    # Django 2.1+
+    from django.contrib.auth.views import LoginView
+    auth_login = LoginView.as_view()
+    from django.contrib.auth.views import LogoutView
+    logout_request = LogoutView.as_view()
+except ImportError:
+    # fallback
+    from django.contrib.auth.views import login as auth_login
+    from django.contrib.auth.views import logout as logout_request
+
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth import logout as logout_request
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import get_template
 from django.conf import settings

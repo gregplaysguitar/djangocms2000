@@ -91,6 +91,8 @@ def key_from_ctype(ctype):
 
 
 def key_from_obj(obj):
+    if hasattr(obj, 'get_cms_key'):
+        return obj.get_cms_key()
     return obj._meta.app_label + '-' + obj._meta.model_name
 
 
