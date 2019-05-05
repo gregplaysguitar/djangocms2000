@@ -75,9 +75,10 @@ class PageForm(forms.ModelForm):
 
             self.fields['template'].widget = ReadonlyInput(display_text='n/a')
             self.fields['template'].help_text = ''
-
-            self.fields['is_live'].widget = ReadonlyInput(display_text='n/a')
-            self.fields['is_live'].help_text = ''
+            if not instance.template:
+                self.fields['is_live'].widget = ReadonlyInput(
+                    display_text='n/a')
+                self.fields['is_live'].help_text = ''
 
     class Meta:
         model = Page

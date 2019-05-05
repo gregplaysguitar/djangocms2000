@@ -97,7 +97,7 @@ def validate_video_type(value):
 
 class Video(ContentModel):
     source = models.FileField(upload_to=cms_settings.UPLOAD_PATH,
-                              validators=[validate_video_type])
+                              validators=[validate_video_type], blank=True)
 
     @property
     def type(self):
